@@ -1,0 +1,18 @@
+# file
+
+#########################################################################
+#                                                                       #
+#       Title         - .gitignore file                                 #
+#       For           - iOS - Xcode                                    #
+#                                                                       #
+#########################################################################
+
+.DS_Store
+Carthage/
+
+## Xcode private settings
+DerivedData/
+build/
+xcuserdata/
+UserInterfaceState.xcuserstate
+
