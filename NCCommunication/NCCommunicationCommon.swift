@@ -32,8 +32,8 @@ import Alamofire
     @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, description: String?, error: Error?, statusCode: Int)
 }
 
-class NCCommunicationCommon: NSObject {
-    @objc static let sharedInstance: NCCommunicationCommon = {
+@objc public class NCCommunicationCommon: NSObject {
+    @objc public static let sharedInstance: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
     }()
