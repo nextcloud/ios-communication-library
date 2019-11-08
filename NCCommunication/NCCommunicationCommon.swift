@@ -33,7 +33,7 @@ import Alamofire
 }
 
 @objc public class NCCommunicationCommon: NSObject {
-    @objc static let sharedInstance: NCCommunicationCommon = {
+    @objc public static let sharedInstance: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
     }()
