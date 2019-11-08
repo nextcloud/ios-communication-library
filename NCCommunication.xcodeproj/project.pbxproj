@@ -20,6 +20,7 @@
 		F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; };
 		F74D5C58235DE99D0006DA38 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */; };
+		F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyXMLParser.framework; path = Carthage/Build/iOS/SwiftyXMLParser.framework; sourceTree = "<group>"; };
 		F74D5C50235DE99D0006DA38 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationBackground.swift; sourceTree = "<group>"; };
+		F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,12 +110,13 @@
 		F74D5C2C235DE83B0006DA38 /* NCCommunication */ = {
 			isa = PBXGroup;
 			children = (
+				F74D5C2E235DE83B0006DA38 /* Info.plist */,
 				F74D5C2D235DE83B0006DA38 /* NCCommunication.h */,
 				F74D5C44235DE8F80006DA38 /* NCCommunication.swift */,
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
+				F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */,
 				F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */,
-				F74D5C2E235DE83B0006DA38 /* Info.plist */,
 			);
 			path = NCCommunication;
 			sourceTree = "<group>";
@@ -250,6 +253,7 @@
 			files = (
 				F74D5C48235DE8F80006DA38 /* NCCommunication.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
+				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
 				F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */,
 				F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */,
 			);
