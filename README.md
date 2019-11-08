@@ -12,4 +12,4 @@ To integrate **WeScan** into your Xcode project using Carthage, specify it in yo
 github "nextcloud/ios-communication-library" "master"
 ```
 
-Run `carthage update` to build the framework and drag the built `WeScan.framework` into your Xcode project.
+Run `carthage update` to build the framework and drag the built `NCCommunication.framework` into your Xcode project.
