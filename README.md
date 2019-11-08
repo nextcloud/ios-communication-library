@@ -1,6 +1,5 @@
 # iOS communication library [beta]
 
-
 ## Installation
 
 ### Carthage
@@ -10,7 +9,7 @@
 To integrate **WeScan** into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "nextcloud/ios-communication-library" "develop"
+github "nextcloud/ios-communication-library" "master"
 ```
 
 Run `carthage update` to build the framework and drag the built `WeScan.framework` into your Xcode project.
