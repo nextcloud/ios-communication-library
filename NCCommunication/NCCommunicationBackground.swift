@@ -81,7 +81,6 @@ import Foundation
         request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
         
-        // session
         let task = session.downloadTask(with: request)
         
         if description == nil {
@@ -112,7 +111,6 @@ import Foundation
         request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
       
-        // session
         let task = session.uploadTask(with: request, fromFile: URL.init(fileURLWithPath: fileNameLocalPath))
         
         task.taskDescription = description

@@ -33,7 +33,6 @@ import Alamofire
 }
 
 class NCCommunicationCommon: NSObject {
-   
     @objc static let sharedInstance: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
@@ -56,6 +55,7 @@ class NCCommunicationCommon: NSObject {
     //MARK: - Setup
     
     @objc public func setup(username: String, password: String, userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
+        
         self.username = username
         self.password = password
         self.userAgent = userAgent
@@ -64,6 +64,7 @@ class NCCommunicationCommon: NSObject {
     }
     
     @objc public func setup(userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
+        
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
         self.delegate = delegate
@@ -100,6 +101,7 @@ class NCCommunicationCommon: NSObject {
     //MARK: - Common
     
     func convertDate(_ dateString: String, format: String) -> NSDate? {
+        
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale.init(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = format
@@ -111,6 +113,7 @@ class NCCommunicationCommon: NSObject {
     }
     
     func encodeUrlString(_ string: String) -> URLConvertible? {
+        
         let allowedCharacterSet = (CharacterSet(charactersIn: " ").inverted)
         if let escapedString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {            
             var url: URLConvertible
@@ -122,32 +125,5 @@ class NCCommunicationCommon: NSObject {
             }
         }
         return nil
-    }
-    
-    func getError(code: Int, description: String) -> Error {
-        return NSError(domain: "Nextcloud", code: code, userInfo: [NSLocalizedDescriptionKey : description])
-    }
-    
-    func getError(error: AFError?, httResponse: HTTPURLResponse?) -> (errorCode: Int, description: String?) {
-        if let errorCode = httResponse?.statusCode  {
-            return(errorCode, httResponse?.description)
-        }
-        if let error = error {
-            switch error {
-            case .createUploadableFailed(let error as NSError):
-                return(error.code, error.localizedDescription)
-            case .createURLRequestFailed(let error as NSError):
-                return(error.code, error.localizedDescription)
-            case .requestAdaptationFailed(let error as NSError):
-                return(error.code, error.localizedDescription)
-            case .sessionInvalidated(let error as NSError):
-                return(error.code, error.localizedDescription)
-            case .sessionTaskFailed(let error as NSError):
-                return(error.code, error.localizedDescription)
-            default:
-                return(error._code, error.localizedDescription)
-            }
-        }
-        return(0,"")
     }
  }

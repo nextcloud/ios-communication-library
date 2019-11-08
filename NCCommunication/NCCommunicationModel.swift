@@ -22,6 +22,7 @@
 //
 
 import Foundation
+import SwiftyXMLParser
 
 //MARK: - File
 
@@ -63,5 +64,179 @@ import Foundation
 }
 
 
+//MARK: - Data File
 
+class NCDataFileXML: NSObject {
+
+    let requestBodyFile =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:prop>
+            <d:getlastmodified />
+            <d:getetag />
+            <d:getcontenttype />
+            <d:resourcetype />
+            <d:quota-available-bytes />
+            <d:quota-used-bytes />
+
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <share-types xmlns=\"http://owncloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+        </d:prop>
+    </d:propfind>
+    """
+    
+    let requestBodyFileSetFavorite =
+    """
+    <?xml version=\"1.0\"?>
+    <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\">
+        <d:set>
+            <d:prop>
+                <oc:favorite>%i</oc:favorite>
+            </d:prop>
+        </d:set>
+    </d:propertyupdate>
+    """
+    
+    let requestBodyFileListingFavorites =
+    """
+    <?xml version=\"1.0\"?>
+    <oc:filter-files xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:prop>
+            <d:getlastmodified />
+            <d:getetag />
+            <d:getcontenttype />
+            <d:resourcetype />
+            <d:quota-available-bytes />
+            <d:quota-used-bytes />
+
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <share-types xmlns=\"http://owncloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+        </d:prop>
+        <oc:filter-rules>
+            <oc:favorite>1</oc:favorite>
+        </oc:filter-rules>
+    </oc:filter-files>
+    """
+    
+    func convertDataFile(data: Data) -> [NCFile] {
+        
+        var files = [NCFile]()
+        var isNotFirstFileOfList: Bool = false
+
+        let xml = XML.parse(data)
+        let elements = xml["d:multistatus", "d:response"]
+        for element in elements {
+            let file = NCFile()
+            if let href = element["d:href"].text {
+                var fileNamePath = href
+                // directory
+                if href.last == "/" {
+                    fileNamePath = String(href[..<href.index(before: href.endIndex)])
+                    file.directory = true
+                }
+                // path
+                file.path = (fileNamePath as NSString).deletingLastPathComponent + "/"
+                file.path = file.path.removingPercentEncoding ?? ""
+                // fileName
+                if isNotFirstFileOfList {
+                    file.fileName = (fileNamePath as NSString).lastPathComponent
+                    file.fileName = file.fileName.removingPercentEncoding ?? ""
+                } else {
+                    file.fileName = ""
+                }
+            }
+            let propstat = element["d:propstat"][0]
+            
+            // d:
+            
+            if let getlastmodified = propstat["d:prop", "d:getlastmodified"].text {
+                if let date = NCCommunicationCommon.sharedInstance.convertDate(getlastmodified, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                    file.date = date
+                }
+            }
+            if let getetag = propstat["d:prop", "d:getetag"].text {
+                file.etag = getetag.replacingOccurrences(of: "\"", with: "")
+            }
+            if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
+                file.contentType = getcontenttype
+            }
+            if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
+                file.resourceType = resourcetype
+            }
+            if let quotaavailablebytes = propstat["d:prop", "d:quota-available-bytes"].text {
+                file.quotaAvailableBytes = Double(quotaavailablebytes) ?? 0
+            }
+            if let quotausedbytes = propstat["d:prop", "d:quota-used-bytes"].text {
+                file.quotaUsedBytes = Double(quotausedbytes) ?? 0
+            }
+            
+            // oc:
+           
+            if let permissions = propstat["d:prop", "oc:permissions"].text {
+                file.permissions = permissions
+            }
+            if let ocId = propstat["d:prop", "oc:id"].text {
+                file.ocId = ocId
+            }
+            if let fileId = propstat["d:prop", "oc:fileid"].text {
+                file.fileId = fileId
+            }
+            if let size = propstat["d:prop", "oc:size"].text {
+                file.size = Double(size) ?? 0
+            }
+            if let favorite = propstat["d:prop", "oc:favorite"].text {
+                file.favorite = (favorite as NSString).boolValue
+            }
+            if let ownerid = propstat["d:prop", "oc:owner-id"].text {
+                file.ownerId = ownerid
+            }
+            if let ownerdisplayname = propstat["d:prop", "oc:owner-display-name"].text {
+                file.ownerDisplayName = ownerdisplayname
+            }
+            if let commentsunread = propstat["d:prop", "oc:comments-unread"].text {
+                file.commentsUnread = (commentsunread as NSString).boolValue
+            }
+            
+            // nc:
+            
+            if let encrypted = propstat["d:prop", "nc:encrypted"].text {
+                file.e2eEncrypted = (encrypted as NSString).boolValue
+            }
+            if let haspreview = propstat["d:prop", "nc:has-preview"].text {
+                file.hasPreview = (haspreview as NSString).boolValue
+            }
+            if let mounttype = propstat["d:prop", "nc:mount-type"].text {
+                file.mountType = mounttype
+            }
+            
+            isNotFirstFileOfList = true;
+            files.append(file)
+        }
+        
+        return files
+    }
+}
 
