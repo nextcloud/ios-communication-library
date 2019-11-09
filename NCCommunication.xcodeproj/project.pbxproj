@@ -52,7 +52,6 @@
 /* Begin PBXFileReference section */
 		F74D5C2A235DE83B0006DA38 /* NCCommunication.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NCCommunication.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F74D5C2D235DE83B0006DA38 /* NCCommunication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCCommunication.h; sourceTree = "<group>"; };
-		F74D5C2E235DE83B0006DA38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F74D5C33235DE83B0006DA38 /* NCCommunicationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NCCommunicationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCommunicationTests.swift; sourceTree = "<group>"; };
 		F74D5C3A235DE83B0006DA38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -110,7 +109,6 @@
 		F74D5C2C235DE83B0006DA38 /* NCCommunication */ = {
 			isa = PBXGroup;
 			children = (
-				F74D5C2E235DE83B0006DA38 /* Info.plist */,
 				F74D5C2D235DE83B0006DA38 /* NCCommunication.h */,
 				F74D5C44235DE8F80006DA38 /* NCCommunication.swift */,
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
