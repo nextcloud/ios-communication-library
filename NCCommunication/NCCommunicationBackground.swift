@@ -94,7 +94,7 @@ import Foundation
     
     //MARK: - Upload
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionUploadTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, description: String?, session: URLSession) -> URLSessionUploadTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) as? URL else {
             return nil
@@ -109,7 +109,11 @@ import Foundation
         request.httpMethod = "PUT"
         request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
-      
+        if dateCreationFile != nil {
+            let sDateCreationFile = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
+            request.setValue(sDateCreationFile, forHTTPHeaderField: "X-OC-Mtime")
+        }
+        
         let task = session.uploadTask(with: request, fromFile: URL.init(fileURLWithPath: fileNameLocalPath))
         
         task.taskDescription = description
