@@ -14,11 +14,8 @@
 		F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */; };
 		F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */; };
 		F74D5C53235DE99D0006DA38 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4E235DE99D0006DA38 /* SwiftyJSON.framework */; };
-		F74D5C54235DE99D0006DA38 /* SwiftyJSON.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4E235DE99D0006DA38 /* SwiftyJSON.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F74D5C55235DE99D0006DA38 /* SwiftyXMLParser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */; };
-		F74D5C56235DE99D0006DA38 /* SwiftyXMLParser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; };
-		F74D5C58235DE99D0006DA38 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */; };
 		F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */; };
 /* End PBXBuildFile section */
@@ -32,22 +29,6 @@
 			remoteInfo = NCCommunication;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		F74D5C59235DE99D0006DA38 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				F74D5C54235DE99D0006DA38 /* SwiftyJSON.framework in Embed Frameworks */,
-				F74D5C56235DE99D0006DA38 /* SwiftyXMLParser.framework in Embed Frameworks */,
-				F74D5C58235DE99D0006DA38 /* Alamofire.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F74D5C2A235DE83B0006DA38 /* NCCommunication.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NCCommunication.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,7 +141,6 @@
 				F74D5C26235DE83B0006DA38 /* Sources */,
 				F74D5C27235DE83B0006DA38 /* Frameworks */,
 				F74D5C28235DE83B0006DA38 /* Resources */,
-				F74D5C59235DE99D0006DA38 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
