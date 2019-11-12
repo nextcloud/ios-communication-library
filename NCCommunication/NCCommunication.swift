@@ -406,7 +406,7 @@ import SwiftyJSON
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -416,8 +416,12 @@ import SwiftyJSON
         
         var headers = getStandardHeaders()
         if dateCreationFile != nil {
-            let sDateCreationFile = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
-            headers.update(name: "X-OC-Mtime", value: sDateCreationFile)
+            let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
+            headers.update(name: "X-OC-Ctime", value: sDate)
+        }
+        if dateModificationFile != nil {
+            let sDate = "\(dateModificationFile?.timeIntervalSince1970 ?? 0)"
+            headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
         let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
