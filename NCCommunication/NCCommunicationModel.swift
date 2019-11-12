@@ -141,10 +141,12 @@ class NCDataFileXML: NSObject {
     </oc:filter-files>
     """
     
-    func convertDataFile(data: Data) -> [NCFile] {
+    func convertDataFile(data: Data, checkFirstFileOfList: Bool) -> [NCFile] {
         
         var files = [NCFile]()
         var isNotFirstFileOfList: Bool = false
+        
+        if checkFirstFileOfList == false { isNotFirstFileOfList = true }
 
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
@@ -169,7 +171,7 @@ class NCDataFileXML: NSObject {
                 }
             }
             let propstat = element["d:propstat"][0]
-            
+                        
             // d:
             
             if let getlastmodified = propstat["d:prop", "d:getlastmodified"].text {
@@ -183,8 +185,13 @@ class NCDataFileXML: NSObject {
             if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
                 file.contentType = getcontenttype
             }
-            if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
-                file.resourceType = resourcetype
+            let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
+            if resourcetypeElement["d:collection"].error == nil {
+                file.directory = true
+            } else {
+                if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
+                    file.resourceType = resourcetype
+                }
             }
             if let quotaavailablebytes = propstat["d:prop", "d:quota-available-bytes"].text {
                 file.quotaAvailableBytes = Double(quotaavailablebytes) ?? 0

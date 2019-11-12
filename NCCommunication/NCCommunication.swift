@@ -75,13 +75,11 @@ import SwiftyJSON
 
     @objc public func createFolder(_ serverUrlFileName: String, account: String, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "MKCOL")
                
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -102,13 +100,11 @@ import SwiftyJSON
     
     @objc public func deleteFileOrFolder(_ serverUrlFileName: String, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "DELETE")
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -124,16 +120,13 @@ import SwiftyJSON
     
     @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileNameSource) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "MOVE")
         
-        // headers
         var headers = getStandardHeaders()
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
         headers.update(name: "Overwrite", value: "T")
@@ -151,7 +144,6 @@ import SwiftyJSON
     
     @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         var serverUrlFileName = String(serverUrlFileName)
         if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
         if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
@@ -160,10 +152,8 @@ import SwiftyJSON
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "PROPFIND")
         
-        // headers
         var headers = getStandardHeaders()
         headers.update(.contentType("application/xml"))
         headers.update(name: "Depth", value: depth)
@@ -185,7 +175,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data)
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
@@ -196,17 +186,14 @@ import SwiftyJSON
     
     @objc public func setFavorite(urlString: String, fileName: String, favorite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         let serverUrlFileName = urlString + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.username + "/" + fileName
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "PROPPATCH")
         
-        // request
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: getStandardHeaders())
@@ -236,10 +223,8 @@ import SwiftyJSON
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "REPORT")
         
-        // request
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: getStandardHeaders())
@@ -256,7 +241,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data)
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: false)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
@@ -269,7 +254,6 @@ import SwiftyJSON
     
     @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        // url
         var serverUrl = String(serverUrl)
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
         serverUrl = serverUrl + "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
@@ -278,7 +262,6 @@ import SwiftyJSON
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "GET")
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -306,7 +289,6 @@ import SwiftyJSON
         
         var externalFiles = [NCExternalFile]()
 
-        // url
         var urlString = String(urlString)
         if urlString.last != "/" { urlString = urlString + "/" }
         urlString = urlString + "ocs/v2.php/apps/external/api/v1?format=json"
@@ -315,7 +297,6 @@ import SwiftyJSON
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "GET")
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -344,7 +325,6 @@ import SwiftyJSON
     
     @objc public func getServerStatus(urlString: String, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        // url
         var urlString = String(urlString)
         if urlString.last != "/" { urlString = urlString + "/" }
         urlString = urlString + "status.php"
@@ -353,7 +333,6 @@ import SwiftyJSON
             return
         }
         
-        // method
         let method = HTTPMethod(rawValue: "GET")
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -390,13 +369,11 @@ import SwiftyJSON
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
-        // url
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
         }
         
-        // destination
         var destination: Alamofire.DownloadRequest.Destination?
         let fileNamePathLocalDestinationURL = NSURL.fileURL(withPath: fileNameLocalPath)
         let destinationFile: DownloadRequest.Destination = { _, _ in
@@ -429,16 +406,25 @@ import SwiftyJSON
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
-        // url
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
-        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: getStandardHeaders(), interceptor: nil, fileManager: .default)
+        var headers = getStandardHeaders()
+        if dateCreationFile != nil {
+            let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
+            headers.update(name: "X-OC-Ctime", value: sDate)
+        }
+        if dateModificationFile != nil {
+            let sDate = "\(dateModificationFile?.timeIntervalSince1970 ?? 0)"
+            headers.update(name: "X-OC-Mtime", value: sDate)
+        }
+        
+        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
         .uploadProgress { progress in
             progressHandler(progress)
         }
