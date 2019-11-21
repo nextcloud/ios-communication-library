@@ -435,10 +435,10 @@ import SwiftyJSON
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description)
             case .success( _):
-                let ocId = response.response?.allHeaderFields["OC-FileId"] as? String
-                var etag = response.response?.allHeaderFields["OC-ETag"] as? String
+                let ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
+                var etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
-                if let dateString = response.response?.allHeaderFields["Date"] as? String {
+                if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, etag, date, 0, nil)
                     } else { completionHandler(account, nil, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }

@@ -126,4 +126,15 @@ import Alamofire
         }
         return nil
     }
+    
+    func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
+       
+        guard let allHeaderFields = allHeaderFields else { return nil }
+        let keyValues = allHeaderFields.map { (String(describing: $0.key).lowercased(), String(describing: $0.value)) }
+        
+        if let headerValue = keyValues.filter({ $0.0 == header.lowercased() }).first {
+            return headerValue.1
+        }
+        return nil
+    }
  }

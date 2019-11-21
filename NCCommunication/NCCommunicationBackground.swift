@@ -184,10 +184,11 @@ import Foundation
         let statusCode = (task.response as! HTTPURLResponse).statusCode
 
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
-            etag = header["OC-ETag"] as? String
+            
+            ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header)
+            etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header)
             if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
-            ocId = header["OC-FileId"] as? String
-            if let dateString = header["Date"] as? String {
+            if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: header)  {
                 date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
             }
             if let dateString = header["Last-Modified"] as? String {
