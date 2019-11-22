@@ -406,10 +406,10 @@ import SwiftyJSON
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ contentType: String?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) else {
-            completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
@@ -424,25 +424,28 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
+        var size: Int64 = 0
         let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
         .uploadProgress { progress in
             progressHandler(progress)
+            size = progress.totalUnitCount
         }
         .validate(statusCode: 200..<300)
         .response { response in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, nil, error.errorCode, error.description)
+                completionHandler(account, nil, nil, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
                 let ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
+                let contentType = NCCommunicationCommon.sharedInstance.findHeader("Content-Type", allHeaderFields: response.response?.allHeaderFields)
                 var etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
                 if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, etag, date, 0, nil)
-                    } else { completionHandler(account, nil, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
+                        completionHandler(account, ocId, etag, date, contentType, size, 0, nil)
+                    } else { completionHandler(account, nil, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
+                } else { completionHandler(account, nil, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
             }
         }
         
