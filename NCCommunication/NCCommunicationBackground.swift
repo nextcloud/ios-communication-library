@@ -174,7 +174,7 @@ import Foundation
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         
-        var fileName: String = "", serverUrl: String = "", etag: String?, ocId: String?, contentType: String?, date: NSDate?, dateLastModified: NSDate?, length: Double = 0
+        var fileName: String = "", serverUrl: String = "", etag: String?, ocId: String?, date: NSDate?, dateLastModified: NSDate?, length: Double = 0
         let url = task.currentRequest?.url?.absoluteString.removingPercentEncoding
         if url != nil {
             fileName = (url! as NSString).lastPathComponent
@@ -187,7 +187,6 @@ import Foundation
             
             ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header)
             etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header)
-            contentType = NCCommunicationCommon.sharedInstance.findHeader("Content-Type", allHeaderFields: header)
             if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
             if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: header)  {
                 date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
@@ -209,7 +208,7 @@ import Foundation
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationCommon.sharedInstance.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, contentType: contentType, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
+                NCCommunicationCommon.sharedInstance.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
             }
         }
     }
