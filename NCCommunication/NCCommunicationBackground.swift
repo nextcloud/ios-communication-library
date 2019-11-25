@@ -207,7 +207,8 @@ import Foundation
                 NCCommunicationCommon.sharedInstance.downloadComplete(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
             }
             if task is URLSessionUploadTask {
-                NCCommunicationCommon.sharedInstance.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, description: task.taskDescription, error: error, statusCode: statusCode)
+                
+                NCCommunicationCommon.sharedInstance.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
             }
         }
     }
