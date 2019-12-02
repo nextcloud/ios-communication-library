@@ -34,6 +34,7 @@ import SwiftyJSON
     }()
     
     // Session Manager
+    
     private lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
@@ -163,6 +164,56 @@ import SwiftyJSON
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true)
+                    completionHandler(account, files, 0, nil)
+                } else {
+                    completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
+                }
+            }
+        }
+    }
+    
+    @objc public func searchReadFolder(urlString: String, user: String, directoryPath: String, lastFileName: String, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let href = "/files/" + user + "/" + directoryPath
+        let requestBody = String(format: NCDataFileXML().requestBodySearchLimit, href, lastFileName, limit)
+        let httpBody = requestBody.data(using: .utf8)!
+    
+        search(urlString: urlString, account: account, httpBody: httpBody) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
+    
+    @objc public func search(urlString: String, account: String, httpBody: Data, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let urlString = urlString + "/remote.php/dav"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "SEARCH")
+        
+        var headers = getStandardHeaders()
+        headers.update(.contentType("text/xml"))
+        
+        // request
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.httpBody = httpBody
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
