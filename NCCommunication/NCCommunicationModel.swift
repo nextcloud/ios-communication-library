@@ -63,6 +63,23 @@ import SwiftyXMLParser
     @objc public var type = ""
 }
 
+@objc public class NCEditorDetailsEditors: NSObject {
+    
+    @objc public var mimetypes = [String]()
+    @objc public var name = ""
+    @objc public var optionalMimetypes = [String]()
+    @objc public var secure: Int = 0
+}
+
+@objc public class NCEditorDetailsCreators: NSObject {
+    
+    @objc public var editor = ""
+    @objc public var ext = ""
+    @objc public var identifier = ""
+    @objc public var mimetype = ""
+    @objc public var name = ""
+    @objc public var templates: Int = 0
+}
 
 //MARK: - Data File
 
