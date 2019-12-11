@@ -9,7 +9,7 @@
 To integrate **Nextcloud iOS Communication** into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```
-github "nextcloud/ios-communication-library" "master"
+github "nextcloud/ios-communication-library" "v0.1"
 ```
 
 Run `carthage update` to build the framework and drag the built `NCCommunication.framework` into your Xcode project.
