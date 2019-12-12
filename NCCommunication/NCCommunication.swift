@@ -432,54 +432,24 @@ import SwiftyJSON
             return
         }
         
-        let method = HTTPMethod(rawValue: "GET")
+        var request = URLRequest(url: url as! URL)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
-            switch response.result {
-            case.failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, editors, creators ,error.errorCode, error.description)
-            case .success(let json):
-                let json = JSON(json)
-                
-                let ocsdataeditors = json["ocs"]["data"]["editors"]
-                for (_, subJson):(String, JSON) in ocsdataeditors {
-                    let editor = NCEditorDetailsEditors()
-                    
-                    if let mimetypes = subJson["mimetypes"].array {
-                        for mimetype in mimetypes {
-                            editor.mimetypes.append(mimetype.string ?? "")
-                        }
-                    }
-                    if let name = subJson["name"].string { editor.name = name }
-                    if let optionalMimetypes = subJson["optionalMimetypes"].array {
-                        for optionalMimetype in optionalMimetypes {
-                            editor.optionalMimetypes.append(optionalMimetype.string ?? "")
-                        }
-                    }
-                    if let secure = subJson["secure"].int { editor.secure = secure }
-                    
-                    editors.append(editor)
-                }
-                
-                let ocsdatacreators = json["ocs"]["data"]["creators"]
-                for (_, subJson):(String, JSON) in ocsdatacreators {
-                    let creator = NCEditorDetailsCreators()
-                    
-                    if let editor = subJson["editor"].string { creator.editor = editor }
-                    if let ext = subJson["extension"].string { creator.ext = ext }
-                    if let identifier = subJson["id"].string { creator.identifier = identifier }
-                    if let mimetype = subJson["mimetype"].string { creator.mimetype = mimetype }
-                    if let name = subJson["name"].string { creator.name = name }
-                    if let templates = subJson["templates"].int { creator.templates = templates }
-
-                    creators.append(creator)
-                }
-                
-                completionHandler(account, editors, creators, 0, nil)
-            }
+        let loginString = "\(NCCommunicationCommon.sharedInstance.username):\(NCCommunicationCommon.sharedInstance.password)"
+        guard let loginData = loginString.data(using: String.Encoding.utf8) else {
+            return completionHandler(account, editors, creators, NSURLErrorUnsupportedURL, "Invalid server url")
         }
+        let base64LoginString = loginData.base64EncodedString()
+        
+        request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
+
+            let httpResponse = response as? HTTPURLResponse
+            let code = httpResponse?.statusCode
+            completionHandler(account, editors, creators, 0, nil)
+        })
+        task.resume()
     }
     
     @objc public func NCTextOpenFile(urlString: String, fileNamePath: String, editor: String, account: String, completionHandler: @escaping (_ account: String, _  url: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
@@ -503,7 +473,6 @@ import SwiftyJSON
             case .success(let json):
                 let json = JSON(json)
                 let ocsdata = json["ocs"]["data"]
-               
                 completionHandler(account, "", 0, nil)
             }
         }

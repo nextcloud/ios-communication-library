@@ -65,7 +65,7 @@ import Foundation
     
     //MARK: - Download
     
-    @objc public func downlopad(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) as? URL else {
             return nil
