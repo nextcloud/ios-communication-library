@@ -81,6 +81,14 @@ import SwiftyXMLParser
     @objc public var templates: Int = 0
 }
 
+@objc public class NCEditorTemplates: NSObject {
+    
+    @objc public var identifier = ""
+    @objc public var ext = ""
+    @objc public var name = ""
+    @objc public var preview = ""
+}
+
 //MARK: - Data File
 
 class NCDataFileXML: NSObject {
