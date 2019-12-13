@@ -547,14 +547,14 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextCreateFile(urlString: String, fileNamePath: String, editor: String, templateId: String?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextCreateFile(urlString: String, fileNamePath: String, editor: String, templateId: String, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var urlString = String(urlString)
         if urlString.last != "/" { urlString = urlString + "/" }
-        if templateId == nil {
+        if templateId == "" {
             urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/create?path=/" + fileNamePath + "&editorId=" + editor + "&creatorId=textdocument&format=json"
         } else {
-            urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/create?path=/" + fileNamePath + "&editorId=" + editor + "&creatorId=textdocumenttemplate&templateId=" + templateId! + "&format=json"
+            urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/create?path=/" + fileNamePath + "&editorId=" + editor + "&creatorId=textdocumenttemplate&templateId=" + templateId + "&format=json"
         }
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
