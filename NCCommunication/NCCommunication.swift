@@ -34,6 +34,7 @@ import SwiftyJSON
     }()
     
     // Session Manager
+    
     private lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
@@ -163,6 +164,56 @@ import SwiftyJSON
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true)
+                    completionHandler(account, files, 0, nil)
+                } else {
+                    completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
+                }
+            }
+        }
+    }
+    
+    @objc public func searchReadFolder(urlString: String, user: String, directoryPath: String, lastFileName: String, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let href = "/files/" + user + "/" + directoryPath
+        let requestBody = String(format: NCDataFileXML().requestBodySearchLimit, href, lastFileName, limit)
+        let httpBody = requestBody.data(using: .utf8)!
+    
+        search(urlString: urlString, account: account, httpBody: httpBody) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
+    
+    @objc public func search(urlString: String, account: String, httpBody: Data, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let urlString = urlString + "/remote.php/dav"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "SEARCH")
+        
+        var headers = getStandardHeaders()
+        headers.update(.contentType("text/xml"))
+        
+        // request
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.httpBody = httpBody
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
@@ -365,6 +416,168 @@ import SwiftyJSON
             }
         }
     }
+    
+    //MARK: - Edit collaborative with NC Text
+    
+    @objc public func NCTextObtainEditorDetails(urlString: String, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var editors = [NCEditorDetailsEditors]()
+        var creators = [NCEditorDetailsCreators]()
+
+        var urlString = String(urlString)
+        if urlString.last != "/" { urlString = urlString + "/" }
+        urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing?format=json"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, editors, creators, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, editors, creators ,error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let ocsdataeditors = json["ocs"]["data"]["editors"]
+                for (_, subJson):(String, JSON) in ocsdataeditors {
+                    let editor = NCEditorDetailsEditors()
+                    
+                    if let mimetypes = subJson["mimetypes"].array {
+                        for mimetype in mimetypes {
+                            editor.mimetypes.append(mimetype.string ?? "")
+                        }
+                    }
+                    if let name = subJson["name"].string { editor.name = name }
+                    if let optionalMimetypes = subJson["optionalMimetypes"].array {
+                        for optionalMimetype in optionalMimetypes {
+                            editor.optionalMimetypes.append(optionalMimetype.string ?? "")
+                        }
+                    }
+                    if let secure = subJson["secure"].int { editor.secure = secure }
+                    
+                    editors.append(editor)
+                }
+                
+                let ocsdatacreators = json["ocs"]["data"]["creators"]
+                for (_, subJson):(String, JSON) in ocsdatacreators {
+                    let creator = NCEditorDetailsCreators()
+                    
+                    if let editor = subJson["editor"].string { creator.editor = editor }
+                    if let ext = subJson["extension"].string { creator.ext = ext }
+                    if let identifier = subJson["id"].string { creator.identifier = identifier }
+                    if let mimetype = subJson["mimetype"].string { creator.mimetype = mimetype }
+                    if let name = subJson["name"].string { creator.name = name }
+                    if let templates = subJson["templates"].int { creator.templates = templates }
+
+                    creators.append(creator)
+                }
+                
+                completionHandler(account, editors, creators, 0, nil)
+            }
+        }
+    }
+    
+    @objc public func NCTextOpenFile(urlString: String, fileNamePath: String, editor: String, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var urlString = String(urlString)
+        if urlString.last != "/" { urlString = urlString + "/" }
+        urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/open?path=/" + fileNamePath + "&editorId=" + editor + "&format=json"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let url = json["ocs"]["data"]["url"].string
+                completionHandler(account, url, 0, nil)
+            }
+        }
+    }
+    
+    @objc public func NCTextGetListOfTemplates(urlString: String, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var templates = [NCEditorTemplates]()
+
+        var urlString = String(urlString)
+        if urlString.last != "/" { urlString = urlString + "/" }
+        urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/templates/text/textdocumenttemplate?format=json"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, templates, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, templates, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let ocsdatatemplates = json["ocs"]["data"]["editors"]
+                
+                for (_, subJson):(String, JSON) in ocsdatatemplates {
+                    let template = NCEditorTemplates()
+                                   
+                    if let identifier = subJson["id"].string { template.identifier = identifier }
+                    if let ext = subJson["extension"].string { template.ext = ext }
+                    if let name = subJson["name"].string { template.name = name }
+                    if let preview = subJson["preview"].string { template.preview = preview }
+
+                    templates.append(template)
+                }
+                
+                completionHandler(account, templates, 0, nil)
+            }
+        }
+    }
+    
+    @objc public func NCTextCreateFile(urlString: String, fileNamePath: String, editor: String, templateId: String, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var urlString = String(urlString)
+        if urlString.last != "/" { urlString = urlString + "/" }
+        if templateId == "" {
+            urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/create?path=/" + fileNamePath + "&editorId=" + editor + "&creatorId=textdocument&format=json"
+        } else {
+            urlString = urlString + "ocs/v2.php/apps/files/api/v1/directEditing/create?path=/" + fileNamePath + "&editorId=" + editor + "&creatorId=textdocumenttemplate&templateId=" + templateId + "&format=json"
+        }
+        
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let url = json["ocs"]["data"]["url"].string
+                completionHandler(account, url, 0, nil)
+            }
+        }
+    }
+    
     //MARK: - File transfer
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {

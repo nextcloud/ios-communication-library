@@ -63,6 +63,33 @@ import SwiftyXMLParser
     @objc public var type = ""
 }
 
+@objc public class NCEditorDetailsEditors: NSObject {
+    
+    @objc public var mimetypes = [String]()
+    @objc public var name = ""
+    @objc public var optionalMimetypes = [String]()
+    @objc public var secure: Int = 0
+}
+
+@objc public class NCEditorDetailsCreators: NSObject {
+    
+    @objc public var editor = ""
+    @objc public var ext = ""
+    @objc public var identifier = ""
+    @objc public var mimetype = ""
+    @objc public var name = ""
+    @objc public var templates: Int = 0
+}
+
+@objc public class NCEditorTemplates: NSObject {
+    
+    @objc public var identifier = ""
+    @objc public var delete = ""
+    @objc public var ext = ""
+    @objc public var name = ""
+    @objc public var preview = ""
+    @objc public var type = ""
+}
 
 //MARK: - Data File
 
@@ -139,6 +166,64 @@ class NCDataFileXML: NSObject {
             <oc:favorite>1</oc:favorite>
         </oc:filter-rules>
     </oc:filter-files>
+    """
+    
+    let requestBodySearchLimit =
+    """
+    <?xml version=\"1.0\"?>
+    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+    <d:basicsearch>
+    <d:select>
+        <d:prop>
+            <d:getlastmodified />
+            <d:getetag />
+            <d:getcontenttype />
+            <d:resourcetype />
+            <d:quota-available-bytes />
+            <d:quota-used-bytes />
+
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <share-types xmlns=\"http://owncloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+        </d:prop>
+    </d:select>
+    <d:from>
+        <d:scope>
+            <d:href>%@</d:href>
+            <d:depth>1</d:depth>
+        </d:scope>
+    </d:from>
+    <d:orderby>
+        <d:order>
+            <d:prop>
+                <d:displayname/>
+            </d:prop>
+                <d:descending/>
+        </d:order>
+    </d:orderby>
+    <d:where>
+        <d:like>
+            <d:prop>
+                <d:displayname/>
+            </d:prop>
+            <d:literal>%@</d:literal>
+        </d:like>
+    </d:where>
+    <d:limit>
+        <d:nresult>%lu</d:nresult>
+    </d:limit>
+    </d:basicsearch>
+    </d:searchrequest>
     """
     
     func convertDataFile(data: Data, checkFirstFileOfList: Bool) -> [NCFile] {
