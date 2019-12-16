@@ -39,6 +39,7 @@ import Alamofire
     }()
     
     var username = ""
+    var userID = ""
     var password = ""
     var userAgent: String?
     var capabilitiesGroup: String?
@@ -54,9 +55,10 @@ import Alamofire
 
     //MARK: - Setup
     
-    @objc public func setup(username: String, password: String, userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(username: String, userID: String, password: String, userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
         
         self.username = username
+        self.userID = userID
         self.password = password
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
