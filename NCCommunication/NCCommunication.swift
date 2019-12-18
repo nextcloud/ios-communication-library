@@ -307,6 +307,50 @@ import SwiftyJSON
     
     //MARK: - API
     
+    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var serverUrl = String(serverUrl)
+        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
+        serverUrl = serverUrl + "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrl) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+               
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                var files = [NCFile]()
+                let json = JSON(json)
+                for (_, subJson):(String, JSON) in json {
+                    let file = NCFile()
+                    if let modificationDate = subJson["modificationDate"].double {
+                        let date = Date(timeIntervalSince1970: modificationDate) as NSDate
+                        file.date = date
+                    }
+                    if let directory = subJson["directory"].bool { file.directory = directory }
+                    if let etag = subJson["etag"].string { file.etag = etag }
+                    if let favorite = subJson["favorite"].bool { file.favorite = favorite }
+                    if let fileId = subJson["fileId"].string { file.fileId = fileId }
+                    if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
+                    if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
+                    if let name = subJson["name"].string { file.fileName = name }
+                    if let ocId = subJson["ocId"].string { file.ocId = ocId }
+                    if let permissions = subJson["permissions"].string { file.permissions = permissions }
+                    if let size = subJson["size"].double { file.size = size }
+                    files.append(file)
+                }
+                completionHandler(account, files, 0, nil)
+            }
+        }
+    }
+    
     @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var serverUrl = String(serverUrl)
