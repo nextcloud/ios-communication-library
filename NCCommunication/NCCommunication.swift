@@ -42,9 +42,9 @@ import SwiftyJSON
     
     //MARK: - HTTP Headers
     
-    private func getStandardHeaders() -> HTTPHeaders {
+    private func getStandardHeaders(username: String) -> HTTPHeaders {
         
-        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.username, password: NCCommunicationCommon.sharedInstance.password)]
+        var headers: HTTPHeaders = [.authorization(username: username, password: NCCommunicationCommon.sharedInstance.password)]
         if let userAgent = NCCommunicationCommon.sharedInstance.userAgent { headers.update(.userAgent(userAgent)) }
         headers.update(name: "OCS-APIRequest", value: "true")
         
@@ -82,8 +82,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "MKCOL")
-               
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -107,8 +108,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "DELETE")
-        
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -128,7 +130,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "MOVE")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
         headers.update(name: "Overwrite", value: "T")
         
@@ -155,7 +157,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "PROPFIND")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         headers.update(.contentType("application/xml"))
         headers.update(name: "Depth", value: depth)
 
@@ -206,7 +208,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "SEARCH")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         headers.update(.contentType("text/xml"))
         
         // request
@@ -244,10 +246,11 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "PROPPATCH")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
         var urlRequest: URLRequest
         do {
-            try urlRequest = URLRequest(url: url, method: method, headers: getStandardHeaders())
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
             let body = NSString.init(format: NCDataFileXML().requestBodyFileSetFavorite as NSString, (favorite ? 1 : 0)) as String
             urlRequest.httpBody = body.data(using: .utf8)
         } catch {
@@ -275,10 +278,11 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "REPORT")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
         var urlRequest: URLRequest
         do {
-            try urlRequest = URLRequest(url: url, method: method, headers: getStandardHeaders())
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFileListingFavorites.data(using: .utf8)
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
@@ -303,6 +307,50 @@ import SwiftyJSON
     
     //MARK: - API
     
+    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var serverUrl = String(serverUrl)
+        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
+        serverUrl = serverUrl + "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrl) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+               
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                var files = [NCFile]()
+                let json = JSON(json)
+                for (_, subJson):(String, JSON) in json {
+                    let file = NCFile()
+                    if let modificationDate = subJson["modificationDate"].double {
+                        let date = Date(timeIntervalSince1970: modificationDate) as NSDate
+                        file.date = date
+                    }
+                    if let directory = subJson["directory"].bool { file.directory = directory }
+                    if let etag = subJson["etag"].string { file.etag = etag }
+                    if let favorite = subJson["favorite"].bool { file.favorite = favorite }
+                    if let fileId = subJson["fileId"].string { file.fileId = fileId }
+                    if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
+                    if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
+                    if let name = subJson["name"].string { file.fileName = name }
+                    if let ocId = subJson["ocId"].string { file.ocId = ocId }
+                    if let permissions = subJson["permissions"].string { file.permissions = permissions }
+                    if let size = subJson["size"].double { file.size = size }
+                    files.append(file)
+                }
+                completionHandler(account, files, 0, nil)
+            }
+        }
+    }
+    
     @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var serverUrl = String(serverUrl)
@@ -314,8 +362,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
                 
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -349,8 +398,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
@@ -385,8 +435,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -433,8 +484,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
@@ -492,8 +544,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
@@ -520,8 +573,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
@@ -563,8 +617,9 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
@@ -594,7 +649,9 @@ import SwiftyJSON
         }
         destination = destinationFile
         
-        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: getStandardHeaders(), interceptor: nil, to: destination)
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.username)
+        
+        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
             progressHandler(progress)
         }
@@ -627,7 +684,7 @@ import SwiftyJSON
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.username)
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
             headers.update(name: "X-OC-Ctime", value: sDate)
