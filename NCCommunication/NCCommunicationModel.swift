@@ -30,6 +30,7 @@ import SwiftyXMLParser
     
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
+    @objc public var creationDate = NSDate()
     @objc public var date = NSDate()
     @objc public var directory: Bool = false
     @objc public var e2eEncrypted: Bool = false
@@ -47,6 +48,7 @@ import SwiftyXMLParser
     @objc public var quotaUsedBytes: Double = 0
     @objc public var quotaAvailableBytes: Double = 0
     @objc public var resourceType = ""
+    @objc public var richWorkspace = ""
     @objc public var size: Double = 0
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
@@ -106,6 +108,7 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
+            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -120,6 +123,7 @@ class NCDataFileXML: NSObject {
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
         </d:prop>
     </d:propfind>
     """
@@ -147,6 +151,7 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
+            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -161,6 +166,7 @@ class NCDataFileXML: NSObject {
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
         </d:prop>
         <oc:filter-rules>
             <oc:favorite>1</oc:favorite>
@@ -181,6 +187,7 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
+            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -195,6 +202,7 @@ class NCDataFileXML: NSObject {
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
         </d:prop>
     </d:select>
     <d:from>
@@ -264,6 +272,11 @@ class NCDataFileXML: NSObject {
                     file.date = date
                 }
             }
+            if let creationdate = propstat["d:prop", "d:creationdate"].text {
+                if let date = NCCommunicationCommon.sharedInstance.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                    file.creationDate = date
+                }
+            }
             if let getetag = propstat["d:prop", "d:getetag"].text {
                 file.etag = getetag.replacingOccurrences(of: "\"", with: "")
             }
@@ -323,7 +336,9 @@ class NCDataFileXML: NSObject {
             if let mounttype = propstat["d:prop", "nc:mount-type"].text {
                 file.mountType = mounttype
             }
-            
+            if let richWorkspace = propstat["d:prop", "nc:rich-workspace"].text {
+                file.richWorkspace = richWorkspace
+            }
             isNotFirstFileOfList = true;
             files.append(file)
         }
