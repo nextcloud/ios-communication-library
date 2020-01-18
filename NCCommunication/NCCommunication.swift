@@ -502,6 +502,31 @@ import SwiftyJSON
         }
     }
     
+    @objc public func downloadContent(urlString: String, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+                
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    completionHandler(account, data, 0, nil)
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                }
+            }
+        }
+    }
+    
     //MARK: - Edit collaborative with NC Text
     
     @objc public func NCTextObtainEditorDetails(urlString: String, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
