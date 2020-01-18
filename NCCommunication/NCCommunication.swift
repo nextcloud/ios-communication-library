@@ -468,6 +468,40 @@ import SwiftyJSON
         }
     }
     
+    @objc public func downloadAvatar(urlString: String, userID: String, fileNameLocalPath: String, size: Int, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var serverUrl = String(urlString)
+        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
+        serverUrl = serverUrl + "index.php/avatar/" + userID + "/\(size)"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrl) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+                
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    do {
+                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                        try  data.write(to: url, options: .atomic)
+                        completionHandler(account, data, 0, nil)
+                    } catch {
+                        completionHandler(account, nil, error._code, error.localizedDescription)
+                    }
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                }
+            }
+        }
+    }
+    
     //MARK: - Edit collaborative with NC Text
     
     @objc public func NCTextObtainEditorDetails(urlString: String, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {

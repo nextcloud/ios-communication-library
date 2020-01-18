@@ -43,6 +43,7 @@ import Alamofire
     var password = ""
     var userAgent: String?
     var capabilitiesGroup: String?
+    var nextcloudVersion: Int = 0
     
     // Protocol
     var delegate: NCCommunicationCommonDelegate?
@@ -52,16 +53,20 @@ import Alamofire
     @objc let sessionIdentifierBackground: String = "com.nextcloud.session.background"
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
-
+    
+    // Constant
+    let k_nextcloud_18: Int = 18
+    
     //MARK: - Setup
     
-    @objc public func setup(username: String, userID: String, password: String, userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(username: String, userID: String, password: String, userAgent: String?, capabilitiesGroup: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.username = username
         self.userID = userID
         self.password = password
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
+        self.nextcloudVersion = nextcloudVersion
         self.delegate = delegate
     }
     
