@@ -592,7 +592,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextOpenFile(urlString: String, fileNamePath: String, editor: String, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextOpenFile(urlString: String, fileNamePath: String, editor: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var urlString = String(urlString)
         if urlString.last != "/" { urlString = urlString + "/" }
@@ -603,7 +603,10 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        if customUserAgent != nil {
+             headers.update(.userAgent(customUserAgent!))
+        }
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -619,7 +622,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(urlString: String, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextGetListOfTemplates(urlString: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var templates = [NCEditorTemplates]()
 
@@ -632,7 +635,10 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        if customUserAgent != nil {
+             headers.update(.userAgent(customUserAgent!))
+        }
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -660,7 +666,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextCreateFile(urlString: String, fileNamePath: String, editorId: String, creatorId: String, templateId: String, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextCreateFile(urlString: String, fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var urlString = String(urlString)
         if urlString.last != "/" { urlString = urlString + "/" }
@@ -676,7 +682,10 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        if customUserAgent != nil {
+             headers.update(.userAgent(customUserAgent!))
+        }
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
