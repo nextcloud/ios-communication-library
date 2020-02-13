@@ -42,9 +42,9 @@ import SwiftyJSON
     
     //MARK: - HTTP Headers
     
-    private func getStandardHeaders(username: String) -> HTTPHeaders {
+    private func getStandardHeaders() -> HTTPHeaders {
         
-        var headers: HTTPHeaders = [.authorization(username: username, password: NCCommunicationCommon.sharedInstance.password)]
+        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.username, password: NCCommunicationCommon.sharedInstance.password)]
         if let userAgent = NCCommunicationCommon.sharedInstance.userAgent { headers.update(.userAgent(userAgent)) }
         headers.update(name: "OCS-APIRequest", value: "true")
         
@@ -82,7 +82,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "MKCOL")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -108,7 +108,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "DELETE")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -130,7 +130,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "MOVE")
         
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
         headers.update(name: "Overwrite", value: "T")
         
@@ -157,7 +157,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "PROPFIND")
         
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         headers.update(.contentType("application/xml"))
         headers.update(name: "Depth", value: depth)
 
@@ -208,7 +208,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "SEARCH")
         
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         headers.update(.contentType("text/xml"))
         
         // request
@@ -246,7 +246,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "PROPPATCH")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         var urlRequest: URLRequest
         do {
@@ -278,7 +278,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "REPORT")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         var urlRequest: URLRequest
         do {
@@ -318,7 +318,7 @@ import SwiftyJSON
         }
                
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
@@ -362,7 +362,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -398,7 +398,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -435,7 +435,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
@@ -479,7 +479,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -510,7 +510,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -543,7 +543,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        let headers = getStandardHeaders()
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -603,7 +603,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         if customUserAgent != nil {
              headers.update(.userAgent(customUserAgent!))
         }
@@ -635,7 +635,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         if customUserAgent != nil {
              headers.update(.userAgent(customUserAgent!))
         }
@@ -682,7 +682,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.userID)
+        var headers = getStandardHeaders()
         if customUserAgent != nil {
              headers.update(.userAgent(customUserAgent!))
         }
@@ -717,7 +717,7 @@ import SwiftyJSON
         }
         destination = destinationFile
         
-        let headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.username)
+        let headers = getStandardHeaders()
         
         let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
@@ -752,7 +752,7 @@ import SwiftyJSON
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
-        var headers = getStandardHeaders(username: NCCommunicationCommon.sharedInstance.username)
+        var headers = getStandardHeaders()
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
             headers.update(name: "X-OC-Ctime", value: sDate)
