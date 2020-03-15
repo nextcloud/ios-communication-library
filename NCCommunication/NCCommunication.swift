@@ -351,11 +351,76 @@ import SwiftyJSON
         }
     }
     
+    @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlPath) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders()
+                
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    do {
+                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                        try  data.write(to: url, options: .atomic)
+                        completionHandler(account, data, 0, nil)
+                    } catch {
+                        completionHandler(account, nil, error._code, error.localizedDescription)
+                    }
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                }
+            }
+        }
+    }
+    
     @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var serverUrl = String(serverUrl)
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
         serverUrl = serverUrl + "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrl) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = getStandardHeaders()
+                
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    do {
+                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                        try  data.write(to: url, options: .atomic)
+                        completionHandler(account, data, 0, nil)
+                    } catch {
+                        completionHandler(account, nil, error._code, error.localizedDescription)
+                    }
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                }
+            }
+        }
+    }
+    
+    @objc public func downloadPreviewTrash(serverUrl: String, fileId: String, fileNameLocalPath: String, width: CGFloat, height: CGFloat, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var serverUrl = String(serverUrl)
+        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
+        serverUrl = serverUrl + "index.php/apps/files_trashbin/preview?fileId=" + fileId + "&x=\(width)&y=\(height)"
         guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
