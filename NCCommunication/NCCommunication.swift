@@ -337,7 +337,7 @@ import SwiftyJSON
                     if let directory = subJson["directory"].bool { file.directory = directory }
                     if let etag = subJson["etag"].string { file.etag = etag }
                     if let favorite = subJson["favorite"].bool { file.favorite = favorite }
-                    if let fileId = subJson["fileId"].string { file.fileId = fileId }
+                    if let fileId = subJson["fileId"].int { file.fileId = String(fileId) }
                     if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
                     if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
                     if let name = subJson["name"].string { file.fileName = name }
