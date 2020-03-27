@@ -305,6 +305,65 @@ import SwiftyJSON
         }
     }
     
+    //MARK: - Login flow v2
+    
+    @objc public func getLoginFlowV2(urlString: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var urlString = String(urlString)
+        if urlString.last != "/" { urlString = urlString + "/" }
+        urlString = urlString + "index.php/login/v2"
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(nil, nil, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+               
+                let token = json["poll"]["token"].string
+                let endpoint = json["poll"]["endpoint"].string
+                let login = json["login"].string
+                
+                completionHandler(token, endpoint, login, 0, "")
+            }
+        }
+    }
+    
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var urlString = String(endpoint)
+        urlString = urlString + "?token=" + token
+        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(urlString) else {
+            completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(nil, nil, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+               
+                let server = json["server"].string
+                let loginName = json["loginName"].string
+                let appPassword = json["appPassword"].string
+                
+                completionHandler(server, loginName, appPassword, 0, "")
+            }
+        }
+    }
+    
     //MARK: - API
     
     @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
