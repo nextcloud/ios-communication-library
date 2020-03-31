@@ -338,17 +338,15 @@ import SwiftyJSON
     
     @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(endpoint) else {
+        var serverUrl = endpoint + "?token=" + token
+        guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrl) else {
             completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
 
-        var headers = HTTPHeaders()
-        headers.update(name: "token", value: token)
-        
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
