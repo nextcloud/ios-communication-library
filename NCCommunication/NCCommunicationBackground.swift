@@ -67,7 +67,7 @@ import Foundation
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) as? URL else {
+        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) as? URL else {
             return nil
         }
         var request = URLRequest(url: url)
@@ -96,7 +96,7 @@ import Foundation
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, description: String?, session: URLSession) -> URLSessionUploadTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeUrlString(serverUrlFileName) as? URL else {
+        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) as? URL else {
             return nil
         }
         var request = URLRequest(url: url)
