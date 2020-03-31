@@ -423,7 +423,7 @@ import SwiftyJSON
     
     @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlPath) else {
+        guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrlPath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -440,7 +440,7 @@ import SwiftyJSON
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try  data.write(to: url, options: .atomic)
+                        try data.write(to: url, options: .atomic)
                         completionHandler(account, data, 0, nil)
                     } catch {
                         completionHandler(account, nil, error._code, error.localizedDescription)
