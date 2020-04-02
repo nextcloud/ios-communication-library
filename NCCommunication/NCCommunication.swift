@@ -121,7 +121,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -132,7 +132,39 @@ import SwiftyJSON
         
         var headers = getStandardHeaders()
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
-        headers.update(name: "Overwrite", value: "T")
+        if overwrite {
+            headers.update(name: "Overwrite", value: "T")
+        } else {
+            headers.update(name: "Overwrite", value: "F")
+        }
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case.failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
+            }
+        }
+    }
+    
+    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool,account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
+            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "COPY")
+        
+        var headers = getStandardHeaders()
+        headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+        if overwrite {
+            headers.update(name: "Overwrite", value: "T")
+        } else {
+            headers.update(name: "Overwrite", value: "F")
+        }
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -338,7 +370,7 @@ import SwiftyJSON
     
     @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        var serverUrl = endpoint + "?token=" + token
+        let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrl) else {
             completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
