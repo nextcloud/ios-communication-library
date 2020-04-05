@@ -54,6 +54,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_forbidden_characters_from_server_", value: "The name contains at least one invalid character", comment: ""))
             case 400:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_bad_request_", value: "Bad request", comment: ""))
+            case 401:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_unauthorized_", value: "Unauthorized", comment: ""))
             case 403:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_permission_", value: "You don't have permission to complete the operation", comment: ""))
             case 404:
