@@ -44,7 +44,7 @@ import SwiftyJSON
     
     private func getStandardHeaders() -> HTTPHeaders {
         
-        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.username, password: NCCommunicationCommon.sharedInstance.password)]
+        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.user, password: NCCommunicationCommon.sharedInstance.password)]
         if let userAgent = NCCommunicationCommon.sharedInstance.userAgent { headers.update(.userAgent(userAgent)) }
         headers.update(name: "OCS-APIRequest", value: "true")
         
@@ -301,7 +301,7 @@ import SwiftyJSON
     
     @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userID + "/" + fileName
+        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -333,7 +333,7 @@ import SwiftyJSON
     
     @objc public func listingFavorites(serverUrl: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userID
+        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return

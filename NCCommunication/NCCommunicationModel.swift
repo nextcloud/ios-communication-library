@@ -50,6 +50,7 @@ import SwiftyXMLParser
     @objc public var resourceType = ""
     @objc public var richWorkspace = ""
     @objc public var size: Double = 0
+    @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
@@ -342,6 +343,7 @@ class NCDataFileXML: NSObject {
                 } else {
                     file.fileName = ""
                 }
+                file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.replacingOccurrences(of: "dav/files/"+NCCommunicationCommon.sharedInstance.user, with: "webdav").dropLast()
             }
             let propstat = element["d:propstat"][0]
                         

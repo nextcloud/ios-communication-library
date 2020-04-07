@@ -71,7 +71,7 @@ import Foundation
             return nil
         }
         var request = URLRequest(url: url)
-        let loginString = "\(NCCommunicationCommon.sharedInstance.username):\(NCCommunicationCommon.sharedInstance.password)"
+        let loginString = "\(NCCommunicationCommon.sharedInstance.user):\(NCCommunicationCommon.sharedInstance.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
         }
@@ -100,7 +100,7 @@ import Foundation
             return nil
         }
         var request = URLRequest(url: url)
-        let loginString = "\(NCCommunicationCommon.sharedInstance.username):\(NCCommunicationCommon.sharedInstance.password)"
+        let loginString = "\(NCCommunicationCommon.sharedInstance.user):\(NCCommunicationCommon.sharedInstance.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
         }

@@ -38,9 +38,10 @@ import Alamofire
         return instance
     }()
     
-    var username = ""
-    var userID = ""
+    var user = ""
+    var userId = ""
     var password = ""
+    var url = ""
     var userAgent: String?
     var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
@@ -60,11 +61,12 @@ import Alamofire
     
     //MARK: - Setup
     
-    @objc public func setup(username: String, userID: String, password: String, userAgent: String?, capabilitiesGroup: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(user: String, userId: String, password: String, url: String, userAgent: String?, capabilitiesGroup: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
-        self.username = username
-        self.userID = userID
+        self.user = user
+        self.userId = userId
         self.password = password
+        self.url = url
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
         self.nextcloudVersion = nextcloudVersion
