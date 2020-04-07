@@ -120,6 +120,14 @@ import Alamofire
         }
     }
     
+    func convertDate(_ date: Date, format: String) -> String? {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.init(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = format
+        return dateFormatter.string(from: date)
+    }
+        
     func encodeStringToUrl(_ string: String) -> URLConvertible? {
         
         let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)

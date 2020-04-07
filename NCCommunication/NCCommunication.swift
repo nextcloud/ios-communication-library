@@ -237,6 +237,29 @@ import SwiftyJSON
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
+   
+    @objc public func searchMedia(serverUrl: String, user: String, lteDateLastModified: Date, gteDateLastModified: Date, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+           
+        guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        guard let lteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(lteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        guard let gteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(gteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, lteDateLastModifiedString, gteDateLastModifiedString)
+        let httpBody = requestBody.data(using: .utf8)!
+       
+        search(serverUrl: serverUrl, account: account, httpBody: httpBody) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
     
     private func search(serverUrl: String, account: String, httpBody: Data, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
@@ -267,7 +290,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true)
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: false)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
