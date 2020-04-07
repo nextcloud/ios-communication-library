@@ -56,6 +56,7 @@ import Alamofire
     
     // Constant
     let k_nextcloud_18: Int = 18
+    let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*"
     
     //MARK: - Setup
     
@@ -119,9 +120,9 @@ import Alamofire
         }
     }
     
-    func encodeUrlString(_ string: String) -> URLConvertible? {
+    func encodeStringToUrl(_ string: String) -> URLConvertible? {
         
-        let allowedCharacterSet = (CharacterSet(charactersIn: " #").inverted)
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)
         if let escapedString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {            
             var url: URLConvertible
             do {
@@ -133,6 +134,24 @@ import Alamofire
         }
         return nil
     }
+    
+    func encodeString(_ string: String) -> String? {
+        
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)
+        return string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+    }
+        
+    func StringToUrl(_ string: String) -> URLConvertible? {
+        
+        var url: URLConvertible
+        do {
+            try url = string.asURL()
+            return url
+        } catch _ {
+            return nil
+        }
+    }
+        
     
     func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
        
