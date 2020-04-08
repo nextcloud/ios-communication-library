@@ -50,6 +50,7 @@ import SwiftyXMLParser
     @objc public var resourceType = ""
     @objc public var richWorkspace = ""
     @objc public var size: Double = 0
+    @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
@@ -174,51 +175,44 @@ class NCDataFileXML: NSObject {
     </oc:filter-files>
     """
     
-    let requestBodySearchLimit =
+    let requestBodySearchFileName =
     """
     <?xml version=\"1.0\"?>
     <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
     <d:basicsearch>
-    <d:select>
-        <d:prop>
-            <d:getlastmodified />
-            <d:getetag />
-            <d:getcontenttype />
-            <d:resourcetype />
-            <d:quota-available-bytes />
-            <d:quota-used-bytes />
-            <d:creationdate />
-
-            <permissions xmlns=\"http://owncloud.org/ns\"/>
-            <id xmlns=\"http://owncloud.org/ns\"/>
-            <fileid xmlns=\"http://owncloud.org/ns\"/>
-            <size xmlns=\"http://owncloud.org/ns\"/>
-            <favorite xmlns=\"http://owncloud.org/ns\"/>
-            <share-types xmlns=\"http://owncloud.org/ns\"/>
-            <owner-id xmlns=\"http://owncloud.org/ns\"/>
-            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
-            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
-
-            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
-            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
-            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
-            <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
-        </d:prop>
-    </d:select>
+        <d:select>
+            <d:prop>
+                <d:displayname/>
+                <d:getcontenttype/>
+                <d:resourcetype/>
+                <d:getcontentlength/>
+                <d:getlastmodified/>
+                <d:creationdate/>
+                <d:getetag/>
+                <d:quota-used-bytes/>
+                <d:quota-available-bytes/>
+                <permissions xmlns=\"http://owncloud.org/ns\"/>
+                <id xmlns=\"http://owncloud.org/ns\"/>
+                <fileid xmlns=\"http://owncloud.org/ns\"/>
+                <size xmlns=\"http://owncloud.org/ns\"/>
+                <favorite xmlns=\"http://owncloud.org/ns\"/>
+                <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+                <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+                <owner-id xmlns=\"http://owncloud.org/ns\"/>
+                <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+                <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+                <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
+            </d:prop>
+        </d:select>
     <d:from>
         <d:scope>
             <d:href>%@</d:href>
-            <d:depth>1</d:depth>
+            <d:depth>%@</d:depth>
         </d:scope>
     </d:from>
-    <d:orderby>
-        <d:order>
-            <d:prop>
-                <d:displayname/>
-            </d:prop>
-                <d:descending/>
-        </d:order>
-    </d:orderby>
     <d:where>
         <d:like>
             <d:prop>
@@ -227,10 +221,97 @@ class NCDataFileXML: NSObject {
             <d:literal>%@</d:literal>
         </d:like>
     </d:where>
-    <d:limit>
-        <d:nresult>%lu</d:nresult>
-    </d:limit>
     </d:basicsearch>
+    </d:searchrequest>
+    """
+    
+    let requestBodySearchMedia =
+    """
+    <?xml version=\"1.0\"?>
+    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+      <d:basicsearch>
+        <d:select>
+          <d:prop>
+            <d:displayname/>
+            <d:getcontenttype/>
+            <d:resourcetype/>
+            <d:getcontentlength/>
+            <d:getlastmodified/>
+            <d:creationdate/>
+            <d:getetag/>
+            <d:quota-used-bytes/>
+            <d:quota-available-bytes/>
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
+          </d:prop>
+        </d:select>
+        <d:from>
+          <d:scope>
+            <d:href>%@</d:href>
+            <d:depth>infinity</d:depth>
+          </d:scope>
+        </d:from>
+        <d:orderby>
+          <d:order>
+            <d:prop>
+              <d:getlastmodified/>
+            </d:prop>
+            <d:descending/>
+          </d:order>
+          <d:order>
+            <d:prop>
+              <d:displayname/>
+            </d:prop>
+            <d:descending/>
+          </d:order>
+        </d:orderby>
+        <d:where>
+          <d:and>
+            <d:or>
+              <d:like>
+                <d:prop>
+                  <d:getcontenttype/>
+                </d:prop>
+                <d:literal>image/%%</d:literal>
+              </d:like>
+              <d:like>
+                <d:prop>
+                  <d:getcontenttype/>
+                </d:prop>
+                <d:literal>video/%%</d:literal>
+              </d:like>
+            </d:or>
+            <d:or>
+              <d:and>
+                <d:lte>
+                  <d:prop>
+                    <d:getlastmodified/>
+                  </d:prop>
+                  <d:literal>%@</d:literal>
+                </d:lte>
+                <d:gte>
+                  <d:prop>
+                    <d:getlastmodified/>
+                  </d:prop>
+                  <d:literal>%@</d:literal>
+                </d:gte>
+              </d:and>
+            </d:or>
+          </d:and>
+        </d:where>
+      </d:basicsearch>
     </d:searchrequest>
     """
     
@@ -262,6 +343,7 @@ class NCDataFileXML: NSObject {
                 } else {
                     file.fileName = ""
                 }
+                file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.replacingOccurrences(of: "dav/files/"+NCCommunicationCommon.sharedInstance.user, with: "webdav").dropLast()
             }
             let propstat = element["d:propstat"][0]
                         

@@ -44,7 +44,7 @@ import SwiftyJSON
     
     private func getStandardHeaders() -> HTTPHeaders {
         
-        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.username, password: NCCommunicationCommon.sharedInstance.password)]
+        var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.user, password: NCCommunicationCommon.sharedInstance.password)]
         if let userAgent = NCCommunicationCommon.sharedInstance.userAgent { headers.update(.userAgent(userAgent)) }
         headers.update(name: "OCS-APIRequest", value: "true")
         
@@ -219,21 +219,51 @@ import SwiftyJSON
         }
     }
     
-    @objc public func searchReadFolder(serverUrl: String, user: String, directoryPath: String, lastFileName: String, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchLiteral(serverUrl: String, user: String, depth: String, literal: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let href = "/files/" + user + "/" + directoryPath
-        let requestBody = String(format: NCDataFileXML().requestBodySearchLimit, href, lastFileName, limit)
+        guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        guard let literal = NCCommunicationCommon.sharedInstance.encodeString(literal) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+       
+        let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
         let httpBody = requestBody.data(using: .utf8)!
     
         search(serverUrl: serverUrl, account: account, httpBody: httpBody) { (account, files, erroCode, errorDescription) in
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
-    
-    @objc public func search(serverUrl: String, account: String, httpBody: Data, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+   
+    @objc public func searchMedia(serverUrl: String, user: String, lteDateLastModified: Date, gteDateLastModified: Date, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+           
+        guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        guard let lteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(lteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        guard let gteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(gteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
         
-        let serverUrl = serverUrl + "/remote.php/dav"
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl) else {
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, lteDateLastModifiedString, gteDateLastModifiedString)
+        let httpBody = requestBody.data(using: .utf8)!
+       
+        search(serverUrl: serverUrl, account: account, httpBody: httpBody) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
+    
+    private func search(serverUrl: String, account: String, httpBody: Data, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl + "/remote.php/dav") else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -260,7 +290,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true)
+                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: false)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
@@ -271,7 +301,7 @@ import SwiftyJSON
     
     @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userID + "/" + fileName
+        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -303,7 +333,7 @@ import SwiftyJSON
     
     @objc public func listingFavorites(serverUrl: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userID
+        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
