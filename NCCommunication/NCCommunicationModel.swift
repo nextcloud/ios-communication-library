@@ -315,7 +315,7 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    func convertDataFile(data: Data, checkFirstFileOfList: Bool) -> [NCFile] {
+    func convertDataFile(data: Data, checkFirstFileOfList: Bool, showHiddenFiles: Bool) -> [NCFile] {
         
         var files = [NCFile]()
         var isNotFirstFileOfList: Bool = false
@@ -340,6 +340,7 @@ class NCDataFileXML: NSObject {
                 if isNotFirstFileOfList {
                     file.fileName = (fileNamePath as NSString).lastPathComponent
                     file.fileName = file.fileName.removingPercentEncoding ?? ""
+                    if file.fileName.first == "." && !showHiddenFiles { continue }
                 } else {
                     file.fileName = ""
                 }
