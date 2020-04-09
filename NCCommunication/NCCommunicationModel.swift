@@ -380,10 +380,17 @@ class NCDataFileXML: NSObject {
                 }
                 
                 // ServerUrl
-                if file.directory && href.contains("/remote.php/webdav/") {
+                //if file.directory && href.contains("/remote.php/webdav/") {
+                //    file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
+                //} else
+                if href == "/remote.php/webdav/" {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
-                } else if !file.directory && file.path.contains("/remote.php/webdav/") {
-                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
+                } else if file.path.contains("/remote.php/webdav/") {
+                    if isNotFirstFileOfList {
+                        file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
+                    } else {
+                        file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
+                    }
                 } else if file.path.contains("/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user) {
                     let postfix = file.path.replacingOccurrences(of: "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user, with: "/remote.php/webdav")
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + postfix.dropLast()
