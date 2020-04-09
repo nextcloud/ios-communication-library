@@ -363,6 +363,7 @@ class NCDataFileXML: NSObject {
                 // directory
                 if href.last == "/" {
                     fileNamePath = String(href[..<href.index(before: href.endIndex)])
+                    file.directory = true
                 }
                 
                 // path
