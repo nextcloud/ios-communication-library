@@ -353,10 +353,11 @@ class NCDataFileXML: NSObject {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
                 } else if !file.directory && file.path.contains("/remote.php/webdav/") {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
-                } else if file.path.contains("/remote.php/dav/files/"+NCCommunicationCommon.sharedInstance.user) {
+                } else if file.path.contains("/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user) {
                     let postfix = file.path.replacingOccurrences(of: "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user, with: "/remote.php/webdav")
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + postfix.dropLast()
                 }
+                file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
             
             let propstat = element["d:propstat"][0]
