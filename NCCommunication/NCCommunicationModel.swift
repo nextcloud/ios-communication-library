@@ -371,7 +371,7 @@ class NCDataFileXML: NSObject {
                 file.path = file.path.removingPercentEncoding ?? ""
                 
                 // fileName
-                if isNotFirstFileOfList {
+                if isNotFirstFileOfList || (!isNotFirstFileOfList && !file.directory) {
                     file.fileName = (fileNamePath as NSString).lastPathComponent
                     file.fileName = file.fileName.removingPercentEncoding ?? ""
                     if file.fileName.first == "." && !showHiddenFiles { continue }
@@ -380,13 +380,10 @@ class NCDataFileXML: NSObject {
                 }
                 
                 // ServerUrl
-                //if file.directory && href.contains("/remote.php/webdav/") {
-                //    file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
-                //} else
                 if href == "/remote.php/webdav/" {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
                 } else if file.path.contains("/remote.php/webdav/") {
-                    if isNotFirstFileOfList {
+                    if isNotFirstFileOfList || (!isNotFirstFileOfList && !file.directory) {
                         file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
                     } else {
                         file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
