@@ -328,14 +328,17 @@ class NCDataFileXML: NSObject {
             let file = NCFile()
             if let href = element["d:href"].text {
                 var fileNamePath = href
+                
                 // directory
                 if href.last == "/" {
                     fileNamePath = String(href[..<href.index(before: href.endIndex)])
                     file.directory = true
                 }
+                
                 // path
                 file.path = (fileNamePath as NSString).deletingLastPathComponent + "/"
                 file.path = file.path.removingPercentEncoding ?? ""
+                
                 // fileName
                 if isNotFirstFileOfList {
                     file.fileName = (fileNamePath as NSString).lastPathComponent
@@ -344,6 +347,7 @@ class NCDataFileXML: NSObject {
                 } else {
                     file.fileName = ""
                 }
+                
                 // ServerUrl
                 if file.directory && href.contains("/remote.php/webdav/") {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
