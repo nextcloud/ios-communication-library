@@ -345,7 +345,7 @@ class NCDataFileXML: NSObject {
                     file.fileName = file.fileName.removingPercentEncoding ?? ""
                     if file.fileName.first == "." && !showHiddenFiles { continue }
                 } else {
-                    file.fileName = ""
+                    file.fileName = "."
                 }
                 
                 // ServerUrl
