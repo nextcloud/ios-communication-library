@@ -22,6 +22,7 @@
 //
 
 import Foundation
+import MobileCoreServices
 import SwiftyXMLParser
 
 //MARK: - File
@@ -38,6 +39,7 @@ import SwiftyXMLParser
     @objc public var favorite: Bool = false
     @objc public var fileId = ""
     @objc public var fileName = ""
+    @objc public var iconName = ""
     @objc public var hasPreview: Bool = false
     @objc public var mountType = ""
     @objc public var ocId = ""
@@ -54,6 +56,7 @@ import SwiftyXMLParser
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
+    @objc public var typeFile = ""
 }
 
 @objc public class NCExternalFile: NSObject {
@@ -92,6 +95,34 @@ import SwiftyXMLParser
     @objc public var name = ""
     @objc public var preview = ""
     @objc public var type = ""
+}
+
+//MARK: -
+
+enum typeFile: String {
+    case audio = "audio"
+    case compress = "compress"
+    case directory = "directory"
+    case document = "document"
+    case image = "image"
+    case imagemeter = "imagemeter"
+    case unknow = "unknow"
+    case video = "video"
+}
+
+enum iconName: String {
+    case audio = "file_audio"
+    case code = "file_code"
+    case compress = "file_compress"
+    case directory = "directory"
+    case document = "document"
+    case image = "file_photo"
+    case imagemeter = "imagemeter"
+    case movie = "file_movie"
+    case pdf = "file_pdf"
+    case txt = "file_txt"
+    case unknow = "file"
+    case xls = "file_xls"
 }
 
 //MARK: - Data File
@@ -332,7 +363,6 @@ class NCDataFileXML: NSObject {
                 // directory
                 if href.last == "/" {
                     fileNamePath = String(href[..<href.index(before: href.endIndex)])
-                    file.directory = true
                 }
                 
                 // path
@@ -369,28 +399,85 @@ class NCDataFileXML: NSObject {
                     file.date = date
                 }
             }
+            
             if let creationdate = propstat["d:prop", "d:creationdate"].text {
                 if let date = NCCommunicationCommon.sharedInstance.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     file.creationDate = date
                 }
             }
+            
             if let getetag = propstat["d:prop", "d:getetag"].text {
                 file.etag = getetag.replacingOccurrences(of: "\"", with: "")
             }
+            
             if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
                 file.contentType = getcontenttype
             }
+            
+            // Type
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
             if resourcetypeElement["d:collection"].error == nil {
                 file.directory = true
+                file.contentType = "application/directory"
             } else {
                 if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
                     file.resourceType = resourcetype
                 }
             }
+            
+            // UTI
+            if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (file.fileName as NSString).pathExtension as CFString, nil) {
+                let fileUTI = unmanagedFileUTI.takeRetainedValue()
+                let ext = (file.fileName as NSString).pathExtension.lowercased()
+                
+                // contentType detect
+                if file.contentType == "" {
+                    if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
+                        file.contentType = mimeUTI.takeRetainedValue() as String
+                    }
+                }
+                
+                if file.directory {
+                    file.typeFile = typeFile.directory.rawValue
+                    file.iconName = iconName.directory.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+                    file.typeFile = typeFile.image.rawValue
+                    file.iconName = iconName.image.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+                    file.typeFile = typeFile.video.rawValue
+                    file.iconName = iconName.movie.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+                    file.typeFile = typeFile.audio.rawValue
+                    file.iconName = iconName.audio.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+                    file.typeFile = typeFile.document.rawValue
+                    if fileUTI as String == "com.adobe.pdf" {
+                        file.iconName = iconName.pdf.rawValue
+                    } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
+                        file.iconName = iconName.xls.rawValue
+                    } else if fileUTI as String == "public.plain-text" {
+                        file.iconName = iconName.txt.rawValue
+                    } else if fileUTI as String == "public.html" {
+                        file.iconName = iconName.code.rawValue
+                    } else {
+                        file.iconName = iconName.document.rawValue
+                    }
+                } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+                    file.typeFile = typeFile.compress.rawValue
+                    file.iconName = iconName.compress.rawValue
+                } else if ext == "imi" {
+                    file.typeFile = typeFile.imagemeter.rawValue
+                    file.iconName = iconName.imagemeter.rawValue
+                } else {
+                    file.typeFile = typeFile.unknow.rawValue
+                    file.iconName = iconName.unknow.rawValue
+                }
+            }
+            
             if let quotaavailablebytes = propstat["d:prop", "d:quota-available-bytes"].text {
                 file.quotaAvailableBytes = Double(quotaavailablebytes) ?? 0
             }
+            
             if let quotausedbytes = propstat["d:prop", "d:quota-used-bytes"].text {
                 file.quotaUsedBytes = Double(quotausedbytes) ?? 0
             }
@@ -400,24 +487,31 @@ class NCDataFileXML: NSObject {
             if let permissions = propstat["d:prop", "oc:permissions"].text {
                 file.permissions = permissions
             }
+            
             if let ocId = propstat["d:prop", "oc:id"].text {
                 file.ocId = ocId
             }
+            
             if let fileId = propstat["d:prop", "oc:fileid"].text {
                 file.fileId = fileId
             }
+            
             if let size = propstat["d:prop", "oc:size"].text {
                 file.size = Double(size) ?? 0
             }
+            
             if let favorite = propstat["d:prop", "oc:favorite"].text {
                 file.favorite = (favorite as NSString).boolValue
             }
+            
             if let ownerid = propstat["d:prop", "oc:owner-id"].text {
                 file.ownerId = ownerid
             }
+            
             if let ownerdisplayname = propstat["d:prop", "oc:owner-display-name"].text {
                 file.ownerDisplayName = ownerdisplayname
             }
+            
             if let commentsunread = propstat["d:prop", "oc:comments-unread"].text {
                 file.commentsUnread = (commentsunread as NSString).boolValue
             }
@@ -427,15 +521,19 @@ class NCDataFileXML: NSObject {
             if let encrypted = propstat["d:prop", "nc:encrypted"].text {
                 file.e2eEncrypted = (encrypted as NSString).boolValue
             }
+            
             if let haspreview = propstat["d:prop", "nc:has-preview"].text {
                 file.hasPreview = (haspreview as NSString).boolValue
             }
+            
             if let mounttype = propstat["d:prop", "nc:mount-type"].text {
                 file.mountType = mounttype
             }
+            
             if let richWorkspace = propstat["d:prop", "nc:rich-workspace"].text {
                 file.richWorkspace = richWorkspace
             }
+            
             isNotFirstFileOfList = true;
             files.append(file)
         }
