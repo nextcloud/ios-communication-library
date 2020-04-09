@@ -371,23 +371,16 @@ class NCDataFileXML: NSObject {
                 file.path = file.path.removingPercentEncoding ?? ""
                 
                 // fileName
-                if isNotFirstFileOfList || (!isNotFirstFileOfList && !file.directory) {
-                    file.fileName = (fileNamePath as NSString).lastPathComponent
-                    file.fileName = file.fileName.removingPercentEncoding ?? ""
-                    if file.fileName.first == "." && !showHiddenFiles { continue }
-                } else {
-                    file.fileName = "."
-                }
-                
+                file.fileName = (fileNamePath as NSString).lastPathComponent
+                file.fileName = file.fileName.removingPercentEncoding ?? ""
+                if file.fileName.first == "." && !showHiddenFiles { continue }
+              
                 // ServerUrl
                 if href == "/remote.php/webdav/" {
-                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
+                    file.fileName = "."
+                    file.serverUrl = ".."
                 } else if file.path.contains("/remote.php/webdav/") {
-                    if isNotFirstFileOfList || (!isNotFirstFileOfList && !file.directory) {
-                        file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
-                    } else {
-                        file.serverUrl = NCCommunicationCommon.sharedInstance.url + href.dropLast()
-                    }
+                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
                 } else if file.path.contains("/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user) {
                     let postfix = file.path.replacingOccurrences(of: "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user, with: "/remote.php/webdav")
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + postfix.dropLast()
@@ -397,8 +390,6 @@ class NCDataFileXML: NSObject {
             
             let propstat = element["d:propstat"][0]
                         
-            // d:
-            
             if let getlastmodified = propstat["d:prop", "d:getlastmodified"].text {
                 if let date = NCCommunicationCommon.sharedInstance.convertDate(getlastmodified, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     file.date = date
@@ -486,9 +477,7 @@ class NCDataFileXML: NSObject {
             if let quotausedbytes = propstat["d:prop", "d:quota-used-bytes"].text {
                 file.quotaUsedBytes = Double(quotausedbytes) ?? 0
             }
-            
-            // oc:
-           
+                       
             if let permissions = propstat["d:prop", "oc:permissions"].text {
                 file.permissions = permissions
             }
@@ -520,9 +509,7 @@ class NCDataFileXML: NSObject {
             if let commentsunread = propstat["d:prop", "oc:comments-unread"].text {
                 file.commentsUnread = (commentsunread as NSString).boolValue
             }
-            
-            // nc:
-            
+                        
             if let encrypted = propstat["d:prop", "nc:encrypted"].text {
                 file.e2eEncrypted = (encrypted as NSString).boolValue
             }
