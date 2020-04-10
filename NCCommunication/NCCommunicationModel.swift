@@ -346,13 +346,12 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    func convertDataFile(data: Data, checkFirstFileOfList: Bool, showHiddenFiles: Bool) -> [NCFile] {
+    func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCFile] {
         
         var files = [NCFile]()
-        var isNotFirstFileOfList: Bool = false
+        let webDavRoot = "/" + NCCommunicationCommon.sharedInstance.webDavRoot + "/"
+        let davRootFiles = "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/"
         
-        if checkFirstFileOfList == false { isNotFirstFileOfList = true }
-
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
         for element in elements {
@@ -376,14 +375,14 @@ class NCDataFileXML: NSObject {
                 if file.fileName.first == "." && !showHiddenFiles { continue }
               
                 // ServerUrl
-                if href == "/remote.php/webdav/" {
+                if href == webDavRoot {
                     file.fileName = "."
                     file.serverUrl = ".."
-                } else if file.path.contains("/remote.php/webdav/") {
+                } else if file.path.contains(webDavRoot) {
                     file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
-                } else if file.path.contains("/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user) {
-                    let postfix = file.path.replacingOccurrences(of: "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.user, with: "/remote.php/webdav")
-                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + postfix.dropLast()
+                } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.user) {
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.user, with: webDavRoot.dropLast())
+                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
@@ -526,7 +525,6 @@ class NCDataFileXML: NSObject {
                 file.richWorkspace = richWorkspace
             }
             
-            isNotFirstFileOfList = true;
             files.append(file)
         }
         

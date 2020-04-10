@@ -45,6 +45,8 @@ import Alamofire
     var userAgent: String?
     var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
+    var webDavRoot: String = "remote.php/webdav"
+    var davRoot: String = "remote.php/dav"
     
     // Protocol
     var delegate: NCCommunicationCommonDelegate?
@@ -78,6 +80,17 @@ import Alamofire
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
         self.delegate = delegate
+    }
+    
+    @objc public func setup(webDavRoot: String, davRoot: String) {
+        
+        self.webDavRoot = webDavRoot
+        self.davRoot = davRoot
+        
+        if webDavRoot.first == "/" { self.webDavRoot = String(self.webDavRoot.dropFirst()) }
+        if webDavRoot.last == "/" { self.webDavRoot = String(self.webDavRoot.dropLast()) }
+        if davRoot.first == "/" { self.davRoot = String(self.davRoot.dropFirst()) }
+        if davRoot.last == "/" { self.davRoot = String(self.davRoot.dropLast()) }
     }
     
     //MARK: -  Delegate session

@@ -210,7 +210,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: true, showHiddenFiles: showHiddenFiles)
+                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
@@ -263,7 +263,7 @@ import SwiftyJSON
     
     private func search(serverUrl: String, account: String, httpBody: Data, showHiddenFiles: Bool, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl + "/remote.php/dav") else {
+        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -290,7 +290,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: false, showHiddenFiles: showHiddenFiles)
+                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
@@ -301,7 +301,7 @@ import SwiftyJSON
     
     @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
+        let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -333,7 +333,7 @@ import SwiftyJSON
     
     @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let serverUrlFileName = serverUrl + "/remote.php/dav/files/" + NCCommunicationCommon.sharedInstance.userId
+        let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -358,7 +358,7 @@ import SwiftyJSON
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, checkFirstFileOfList: false, showHiddenFiles: showHiddenFiles)
+                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
