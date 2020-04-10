@@ -82,13 +82,18 @@ import Alamofire
         self.delegate = delegate
     }
     
-    @objc public func setup(webDavRoot: String, davRoot: String) {
+    @objc public func setup(webDavRoot: String) {
         
         self.webDavRoot = webDavRoot
-        self.davRoot = davRoot
         
         if webDavRoot.first == "/" { self.webDavRoot = String(self.webDavRoot.dropFirst()) }
         if webDavRoot.last == "/" { self.webDavRoot = String(self.webDavRoot.dropLast()) }
+    }
+    
+    @objc public func setup(davRoot: String) {
+        
+        self.davRoot = davRoot
+        
         if davRoot.first == "/" { self.davRoot = String(self.davRoot.dropFirst()) }
         if davRoot.last == "/" { self.davRoot = String(self.davRoot.dropLast()) }
     }
