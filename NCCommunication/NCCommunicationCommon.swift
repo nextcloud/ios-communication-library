@@ -58,7 +58,6 @@ import Alamofire
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
     // Constant
-    let k_nextcloud_18: Int = 18
     let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*"
     
     //MARK: - Setup
