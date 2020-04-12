@@ -509,7 +509,7 @@ class NCDataFileXML: NSObject {
                 file.commentsUnread = (commentsunread as NSString).boolValue
             }
                         
-            if let encrypted = propstat["d:prop", "nc:encrypted"].text {
+            if let encrypted = propstat["d:prop", "nc:is-encrypted"].text {
                 file.e2eEncrypted = (encrypted as NSString).boolValue
             }
             
