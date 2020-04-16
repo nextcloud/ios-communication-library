@@ -359,10 +359,8 @@ class NCDataFileXML: NSObject {
             if let href = element["d:href"].text {
                 var fileNamePath = href
                 
-                // directory
                 if href.last == "/" {
-                    fileNamePath = String(href[..<href.index(before: href.endIndex)])
-                    file.directory = true
+                    fileNamePath = String(href.dropLast())
                 }
                 
                 // path
@@ -409,7 +407,6 @@ class NCDataFileXML: NSObject {
                 file.contentType = getcontenttype
             }
             
-            // Type
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
             if resourcetypeElement["d:collection"].error == nil {
                 file.directory = true
@@ -417,55 +414,6 @@ class NCDataFileXML: NSObject {
             } else {
                 if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
                     file.resourceType = resourcetype
-                }
-            }
-            
-            // UTI
-            if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (file.fileName as NSString).pathExtension as CFString, nil) {
-                let fileUTI = unmanagedFileUTI.takeRetainedValue()
-                let ext = (file.fileName as NSString).pathExtension.lowercased()
-                
-                // contentType detect
-                if file.contentType == "" {
-                    if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
-                        file.contentType = mimeUTI.takeRetainedValue() as String
-                    }
-                }
-                
-                if file.directory {
-                    file.typeFile = typeFile.directory.rawValue
-                    file.iconName = iconName.directory.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
-                    file.typeFile = typeFile.image.rawValue
-                    file.iconName = iconName.image.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
-                    file.typeFile = typeFile.video.rawValue
-                    file.iconName = iconName.movie.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
-                    file.typeFile = typeFile.audio.rawValue
-                    file.iconName = iconName.audio.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
-                    file.typeFile = typeFile.document.rawValue
-                    if fileUTI as String == "com.adobe.pdf" {
-                        file.iconName = iconName.pdf.rawValue
-                    } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
-                        file.iconName = iconName.xls.rawValue
-                    } else if fileUTI as String == "public.plain-text" {
-                        file.iconName = iconName.txt.rawValue
-                    } else if fileUTI as String == "public.html" {
-                        file.iconName = iconName.code.rawValue
-                    } else {
-                        file.iconName = iconName.document.rawValue
-                    }
-                } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
-                    file.typeFile = typeFile.compress.rawValue
-                    file.iconName = iconName.compress.rawValue
-                } else if ext == "imi" {
-                    file.typeFile = typeFile.imagemeter.rawValue
-                    file.iconName = iconName.imagemeter.rawValue
-                } else {
-                    file.typeFile = typeFile.unknow.rawValue
-                    file.iconName = iconName.unknow.rawValue
                 }
             }
             
@@ -523,6 +471,55 @@ class NCDataFileXML: NSObject {
             
             if let richWorkspace = propstat["d:prop", "nc:rich-workspace"].text {
                 file.richWorkspace = richWorkspace
+            }
+            
+            // UTI
+            if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (file.fileName as NSString).pathExtension as CFString, nil) {
+                let fileUTI = unmanagedFileUTI.takeRetainedValue()
+                let ext = (file.fileName as NSString).pathExtension.lowercased()
+                
+                // contentType detect
+                if file.contentType == "" {
+                    if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
+                        file.contentType = mimeUTI.takeRetainedValue() as String
+                    }
+                }
+                
+                if file.directory {
+                    file.typeFile = typeFile.directory.rawValue
+                    file.iconName = iconName.directory.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+                    file.typeFile = typeFile.image.rawValue
+                    file.iconName = iconName.image.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+                    file.typeFile = typeFile.video.rawValue
+                    file.iconName = iconName.movie.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+                    file.typeFile = typeFile.audio.rawValue
+                    file.iconName = iconName.audio.rawValue
+                } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+                    file.typeFile = typeFile.document.rawValue
+                    if fileUTI as String == "com.adobe.pdf" {
+                        file.iconName = iconName.pdf.rawValue
+                    } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
+                        file.iconName = iconName.xls.rawValue
+                    } else if fileUTI as String == "public.plain-text" {
+                        file.iconName = iconName.txt.rawValue
+                    } else if fileUTI as String == "public.html" {
+                        file.iconName = iconName.code.rawValue
+                    } else {
+                        file.iconName = iconName.document.rawValue
+                    }
+                } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+                    file.typeFile = typeFile.compress.rawValue
+                    file.iconName = iconName.compress.rawValue
+                } else if ext == "imi" {
+                    file.typeFile = typeFile.imagemeter.rawValue
+                    file.iconName = iconName.imagemeter.rawValue
+                } else {
+                    file.typeFile = typeFile.unknow.rawValue
+                    file.iconName = iconName.unknow.rawValue
+                }
             }
             
             files.append(file)
