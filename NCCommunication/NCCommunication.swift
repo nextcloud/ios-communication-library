@@ -42,11 +42,19 @@ import SwiftyJSON
     
     //MARK: - HTTP Headers
     
-    private func getStandardHeaders() -> HTTPHeaders {
+    private func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: NCCommunicationCommon.sharedInstance.user, password: NCCommunicationCommon.sharedInstance.password)]
-        if let userAgent = NCCommunicationCommon.sharedInstance.userAgent { headers.update(.userAgent(userAgent)) }
+        if customUserAgent != nil {
+            headers.update(.userAgent(customUserAgent!))
+        } else if let userAgent = NCCommunicationCommon.sharedInstance.userAgent {
+            headers.update(.userAgent(userAgent))
+        }
         headers.update(name: "OCS-APIRequest", value: "true")
+        
+        for (key, value) in appendHeaders ?? [:] {
+            headers.update(name: key, value: value)
+        }
         
         return headers
     }
@@ -74,7 +82,7 @@ import SwiftyJSON
     
     //MARK: - webDAV
 
-    @objc public func createFolder(_ serverUrlFileName: String, account: String, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -82,7 +90,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "MKCOL")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -100,7 +108,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -108,7 +116,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "DELETE")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -121,7 +129,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -130,7 +138,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "MOVE")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
         if overwrite {
             headers.update(name: "Overwrite", value: "T")
@@ -149,7 +157,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool,account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
             completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -158,7 +166,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "COPY")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
         if overwrite {
             headers.update(name: "Overwrite", value: "T")
@@ -177,7 +185,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var serverUrlFileName = String(serverUrlFileName)
         if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
@@ -189,7 +197,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "PROPFIND")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/xml"))
         headers.update(name: "Depth", value: depth)
 
@@ -219,7 +227,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func searchLiteral(serverUrl: String, user: String, depth: String, literal: String, showHiddenFiles: Bool, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -233,12 +241,12 @@ import SwiftyJSON
         let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
         let httpBody = requestBody.data(using: .utf8)!
     
-        search(serverUrl: serverUrl, account: account, httpBody: httpBody, showHiddenFiles: showHiddenFiles) { (account, files, erroCode, errorDescription) in
+        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
    
-    @objc public func searchMedia(serverUrl: String, user: String, lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchMedia(serverUrl: String, lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
            
         guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -256,12 +264,12 @@ import SwiftyJSON
         let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, lteDateLastModifiedString, gteDateLastModifiedString)
         let httpBody = requestBody.data(using: .utf8)!
        
-        search(serverUrl: serverUrl, account: account, httpBody: httpBody, showHiddenFiles: showHiddenFiles) { (account, files, erroCode, errorDescription) in
+        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
     
-    private func search(serverUrl: String, account: String, httpBody: Data, showHiddenFiles: Bool, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -270,7 +278,7 @@ import SwiftyJSON
         
         let method = HTTPMethod(rawValue: "SEARCH")
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("text/xml"))
         
         // request
@@ -299,7 +307,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
@@ -308,7 +316,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "PROPPATCH")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         var urlRequest: URLRequest
         do {
@@ -331,7 +339,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
@@ -340,7 +348,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "REPORT")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         var urlRequest: URLRequest
         do {
@@ -369,7 +377,7 @@ import SwiftyJSON
     
     //MARK: - Login flow v2
     
-    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var serverUrl = String(serverUrl)
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
@@ -398,7 +406,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrl) else {
@@ -427,7 +435,7 @@ import SwiftyJSON
     
     //MARK: - API
     
-    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -448,7 +456,7 @@ import SwiftyJSON
         }
                
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
@@ -481,7 +489,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrlPath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -489,7 +497,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -512,7 +520,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -533,7 +541,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -556,7 +564,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func downloadPreviewTrash(serverUrl: String, fileId: String, fileNameLocalPath: String, width: Int, height: Int, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreviewTrash(serverUrl: String, fileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -572,7 +580,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -595,7 +603,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func getExternalSite(serverUrl: String, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCExternalFile], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getExternalSite(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCExternalFile], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var externalFiles = [NCExternalFile]()
 
@@ -613,7 +621,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -639,7 +647,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func getServerStatus(serverUrl: String, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getServerStatus(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var serverUrl = String(serverUrl)
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
@@ -650,7 +658,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
@@ -683,7 +691,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func downloadAvatar(serverUrl: String, userID: String, fileNameLocalPath: String, size: Int, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadAvatar(serverUrl: String, userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -699,7 +707,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -722,7 +730,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func downloadContent(serverUrl: String, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadContent(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -730,7 +738,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -749,7 +757,7 @@ import SwiftyJSON
     
     //MARK: - Edit collaborative with NC Text
     
-    @objc public func NCTextObtainEditorDetails(serverUrl: String, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextObtainEditorDetails(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var editors = [NCEditorDetailsEditors]()
         var creators = [NCEditorDetailsCreators]()
@@ -768,7 +776,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -817,7 +825,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextOpenFile(serverUrl: String, fileNamePath: String, editor: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextOpenFile(serverUrl: String, fileNamePath: String, editor: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -838,11 +846,8 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        var headers = getStandardHeaders()
-        if customUserAgent != nil {
-             headers.update(.userAgent(customUserAgent!))
-        }
-        
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+    
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
@@ -857,7 +862,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var templates = [NCEditorTemplates]()
 
@@ -875,10 +880,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        var headers = getStandardHeaders()
-        if customUserAgent != nil {
-             headers.update(.userAgent(customUserAgent!))
-        }
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -906,7 +908,7 @@ import SwiftyJSON
         }
     }
     
-    @objc public func NCTextCreateFile(serverUrl: String, fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextCreateFile(serverUrl: String, fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         guard var serverUrl = NCCommunicationCommon.sharedInstance.encodeString(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -931,10 +933,7 @@ import SwiftyJSON
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        var headers = getStandardHeaders()
-        if customUserAgent != nil {
-             headers.update(.userAgent(customUserAgent!))
-        }
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -952,7 +951,7 @@ import SwiftyJSON
     
     //MARK: - File transfer
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -966,7 +965,7 @@ import SwiftyJSON
         }
         destination = destinationFile
         
-        let headers = getStandardHeaders()
+        let headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
@@ -993,7 +992,7 @@ import SwiftyJSON
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -1001,7 +1000,7 @@ import SwiftyJSON
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
-        var headers = getStandardHeaders()
+        var headers = getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
             headers.update(name: "X-OC-Ctime", value: sDate)

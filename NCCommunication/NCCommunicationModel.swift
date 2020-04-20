@@ -120,6 +120,7 @@ enum iconName: String {
     case imagemeter = "imagemeter"
     case movie = "file_movie"
     case pdf = "file_pdf"
+    case ppt = "file_ppt"
     case txt = "file_txt"
     case unknow = "file"
     case xls = "file_xls"
@@ -501,8 +502,12 @@ class NCDataFileXML: NSObject {
                     file.typeFile = typeFile.document.rawValue
                     if fileUTI as String == "com.adobe.pdf" {
                         file.iconName = iconName.pdf.rawValue
+                    } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
+                        file.iconName = iconName.document.rawValue
                     } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
                         file.iconName = iconName.xls.rawValue
+                    } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
+                        file.iconName = iconName.ppt.rawValue
                     } else if fileUTI as String == "public.plain-text" {
                         file.iconName = iconName.txt.rawValue
                     } else if fileUTI as String == "public.html" {
