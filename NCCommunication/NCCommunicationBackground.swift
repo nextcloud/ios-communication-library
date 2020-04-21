@@ -184,9 +184,16 @@ import Foundation
         let statusCode = (task.response as! HTTPURLResponse).statusCode
 
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
-            
-            ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header)
-            etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header)
+            if NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header) != nil {
+                ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header)
+            } else if NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: header) != nil {
+                ocId = NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: header)
+            }
+            if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header) != nil {
+                etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header)
+            } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: header) != nil {
+                etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: header)
+            }
             if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
             if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: header)  {
                 date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
