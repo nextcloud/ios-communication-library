@@ -978,8 +978,13 @@ import SwiftyJSON
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
+                var etag: String?
                 let length = response.response?.allHeaderFields["length"] as? Double ?? 0
-                var etag = NCCommunicationCommon.sharedInstance.findHeader("OC-ETag", allHeaderFields: response.response?.allHeaderFields)
+                if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
+                }
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
                 if let dateString = NCCommunicationCommon.sharedInstance.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
@@ -1023,8 +1028,17 @@ import SwiftyJSON
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
-                let ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
-                var etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
+                var ocId: String?, etag: String?
+                if NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    ocId = NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields)
+                }
+                if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
+                }
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
                 if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
