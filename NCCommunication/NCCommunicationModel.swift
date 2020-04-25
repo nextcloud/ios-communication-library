@@ -377,7 +377,7 @@ class NCDataFileXML: NSObject {
                 if file.fileName.first == "." && !showHiddenFiles { continue }
               
                 // ServerUrl
-                if href == webDavRoot {
+                if href.hasSuffix(webDavRoot) {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else if file.path.contains(webDavRoot) {

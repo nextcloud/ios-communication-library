@@ -159,7 +159,6 @@ import Alamofire
         
         let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
-        //let encodeQuery = string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         
         return encodeString
     }
@@ -187,10 +186,20 @@ import Alamofire
     }
     
     func getHostName(urlString: String) -> String? {
+        
         if let url = URL(string: urlString) {
             guard let hostName = url.host else { return nil }
             guard let scheme = url.scheme else { return nil }
             return scheme + "://" + hostName
+        }
+        return nil
+    }
+    
+    func getHostNameComponent(urlString: String) -> String? {
+        
+        if let url = URL(string: urlString) {
+            let components = url.pathComponents
+            return components.joined(separator: "")
         }
         return nil
     }
