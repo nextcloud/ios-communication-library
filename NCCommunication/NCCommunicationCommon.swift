@@ -57,6 +57,9 @@ import Alamofire
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
+    // Constant
+    let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    
     //MARK: - Setup
     
     @objc public func setup(user: String, userId: String, password: String, url: String, userAgent: String?, capabilitiesGroup: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
@@ -146,7 +149,7 @@ import Alamofire
         
     func encodeStringToUrl(_ string: String) -> URLConvertible? {
         
-        if let escapedString = string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+        if let escapedString = encodeString(string) {
             return StringToUrl(escapedString)
         }
         return nil
@@ -154,7 +157,10 @@ import Alamofire
     
     func encodeString(_ string: String) -> String? {
         
-        return string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)
+        let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+        
+        return encodeString
     }
         
     func StringToUrl(_ string: String) -> URLConvertible? {
@@ -167,7 +173,6 @@ import Alamofire
             return nil
         }
     }
-        
     
     func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
        
@@ -176,6 +181,25 @@ import Alamofire
         
         if let headerValue = keyValues.filter({ $0.0 == header.lowercased() }).first {
             return headerValue.1
+        }
+        return nil
+    }
+    
+    func getHostName(urlString: String) -> String? {
+        
+        if let url = URL(string: urlString) {
+            guard let hostName = url.host else { return nil }
+            guard let scheme = url.scheme else { return nil }
+            return scheme + "://" + hostName
+        }
+        return nil
+    }
+    
+    func getHostNameComponent(urlString: String) -> String? {
+        
+        if let url = URL(string: urlString) {
+            let components = url.pathComponents
+            return components.joined(separator: "")
         }
         return nil
     }

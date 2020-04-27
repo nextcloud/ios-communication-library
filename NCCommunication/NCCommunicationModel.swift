@@ -352,6 +352,9 @@ class NCDataFileXML: NSObject {
         var files = [NCFile]()
         let webDavRoot = "/" + NCCommunicationCommon.sharedInstance.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/"
+        guard let baseUrl = NCCommunicationCommon.sharedInstance.getHostName(urlString: NCCommunicationCommon.sharedInstance.url) else {
+            return files
+        }
         
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
@@ -374,14 +377,14 @@ class NCDataFileXML: NSObject {
                 if file.fileName.first == "." && !showHiddenFiles { continue }
               
                 // ServerUrl
-                if href == webDavRoot {
+                if href.hasSuffix(webDavRoot) {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else if file.path.contains(webDavRoot) {
-                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + file.path.dropLast()
+                    file.serverUrl = baseUrl + file.path.dropLast()
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.user) {
                     let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.user, with: webDavRoot.dropLast())
-                    file.serverUrl = NCCommunicationCommon.sharedInstance.url + postUrl.dropLast()
+                    file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
