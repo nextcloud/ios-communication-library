@@ -97,35 +97,6 @@ import SwiftyXMLParser
     @objc public var type = ""
 }
 
-//MARK: -
-
-enum typeFile: String {
-    case audio = "audio"
-    case compress = "compress"
-    case directory = "directory"
-    case document = "document"
-    case image = "image"
-    case imagemeter = "imagemeter"
-    case unknow = "unknow"
-    case video = "video"
-}
-
-enum iconName: String {
-    case audio = "file_audio"
-    case code = "file_code"
-    case compress = "file_compress"
-    case directory = "directory"
-    case document = "document"
-    case image = "file_photo"
-    case imagemeter = "imagemeter"
-    case movie = "file_movie"
-    case pdf = "file_pdf"
-    case ppt = "file_ppt"
-    case txt = "file_txt"
-    case unknow = "file"
-    case xls = "file_xls"
-}
-
 //MARK: - Data File
 
 class NCDataFileXML: NSObject {
@@ -477,58 +448,11 @@ class NCDataFileXML: NSObject {
                 file.richWorkspace = richWorkspace
             }
             
-            // UTI
-            if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (file.fileName as NSString).pathExtension as CFString, nil) {
-                let fileUTI = unmanagedFileUTI.takeRetainedValue()
-                let ext = (file.fileName as NSString).pathExtension.lowercased()
-                
-                // contentType detect
-                if file.contentType == "" {
-                    if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
-                        file.contentType = mimeUTI.takeRetainedValue() as String
-                    }
-                }
-                
-                if file.directory {
-                    file.typeFile = typeFile.directory.rawValue
-                    file.iconName = iconName.directory.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
-                    file.typeFile = typeFile.image.rawValue
-                    file.iconName = iconName.image.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
-                    file.typeFile = typeFile.video.rawValue
-                    file.iconName = iconName.movie.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
-                    file.typeFile = typeFile.audio.rawValue
-                    file.iconName = iconName.audio.rawValue
-                } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
-                    file.typeFile = typeFile.document.rawValue
-                    if fileUTI as String == "com.adobe.pdf" {
-                        file.iconName = iconName.pdf.rawValue
-                    } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
-                        file.iconName = iconName.document.rawValue
-                    } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
-                        file.iconName = iconName.xls.rawValue
-                    } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
-                        file.iconName = iconName.ppt.rawValue
-                    } else if fileUTI as String == "public.plain-text" {
-                        file.iconName = iconName.txt.rawValue
-                    } else if fileUTI as String == "public.html" {
-                        file.iconName = iconName.code.rawValue
-                    } else {
-                        file.iconName = iconName.document.rawValue
-                    }
-                } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
-                    file.typeFile = typeFile.compress.rawValue
-                    file.iconName = iconName.compress.rawValue
-                } else if ext == "imi" {
-                    file.typeFile = typeFile.imagemeter.rawValue
-                    file.iconName = iconName.imagemeter.rawValue
-                } else {
-                    file.typeFile = typeFile.unknow.rawValue
-                    file.iconName = iconName.unknow.rawValue
-                }
-            }
+            let results = NCCommunicationCommon.sharedInstance.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+            
+            file.contentType = results.contentType
+            file.typeFile = results.typeFile
+            file.iconName = results.iconName
             
             files.append(file)
         }
