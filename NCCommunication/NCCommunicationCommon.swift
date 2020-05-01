@@ -153,6 +153,76 @@ import MobileCoreServices
         delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
     }
 
+    //MARK: -  Common public
+    
+    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {
+                
+        let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
+        
+        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName]
+    }
+
+    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String) {
+        
+        var resultContentType = contentType
+        var resultTypeFile = "", resultIconName = ""
+        
+        // UTI
+        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
+            let fileUTI = unmanagedFileUTI.takeRetainedValue()
+            let ext = (fileName as NSString).pathExtension.lowercased()
+            
+            // contentType detect
+            if contentType == "" {
+                if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
+                    resultContentType = mimeUTI.takeRetainedValue() as String
+                }
+            }
+            
+            if directory {
+                resultTypeFile = typeFile.directory.rawValue
+                resultIconName = iconName.directory.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+                resultTypeFile = typeFile.image.rawValue
+                resultIconName = iconName.image.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+                resultTypeFile = typeFile.video.rawValue
+                resultIconName = iconName.movie.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+                resultTypeFile = typeFile.audio.rawValue
+                resultIconName = iconName.audio.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+                resultTypeFile = typeFile.document.rawValue
+                if fileUTI as String == "com.adobe.pdf" {
+                    resultIconName = iconName.pdf.rawValue
+                } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
+                    resultIconName = iconName.document.rawValue
+                } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
+                    resultIconName = iconName.xls.rawValue
+                } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
+                    resultIconName = iconName.ppt.rawValue
+                } else if fileUTI as String == "public.plain-text" {
+                    resultIconName = iconName.txt.rawValue
+                } else if fileUTI as String == "public.html" {
+                    resultIconName = iconName.code.rawValue
+                } else {
+                    resultIconName = iconName.document.rawValue
+                }
+            } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+                resultTypeFile = typeFile.compress.rawValue
+                resultIconName = iconName.compress.rawValue
+            } else if ext == "imi" {
+                resultTypeFile = typeFile.imagemeter.rawValue
+                resultIconName = iconName.imagemeter.rawValue
+            } else {
+                resultTypeFile = typeFile.unknow.rawValue
+                resultIconName = iconName.unknow.rawValue
+            }
+        }
+        
+        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName)
+    }
+    
     //MARK: - Common
     
     func convertDate(_ dateString: String, format: String) -> NSDate? {
@@ -230,66 +300,5 @@ import MobileCoreServices
             return components.joined(separator: "")
         }
         return nil
-    }
-    
-    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String) {
-        
-        var resultContentType = contentType
-        var resultTypeFile = "", resultIconName = ""
-        
-        // UTI
-        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
-            let fileUTI = unmanagedFileUTI.takeRetainedValue()
-            let ext = (fileName as NSString).pathExtension.lowercased()
-            
-            // contentType detect
-            if contentType == "" {
-                if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
-                    resultContentType = mimeUTI.takeRetainedValue() as String
-                }
-            }
-            
-            if directory {
-                resultTypeFile = typeFile.directory.rawValue
-                resultIconName = iconName.directory.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
-                resultTypeFile = typeFile.image.rawValue
-                resultIconName = iconName.image.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
-                resultTypeFile = typeFile.video.rawValue
-                resultIconName = iconName.movie.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
-                resultTypeFile = typeFile.audio.rawValue
-                resultIconName = iconName.audio.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
-                resultTypeFile = typeFile.document.rawValue
-                if fileUTI as String == "com.adobe.pdf" {
-                    resultIconName = iconName.pdf.rawValue
-                } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
-                    resultIconName = iconName.document.rawValue
-                } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
-                    resultIconName = iconName.xls.rawValue
-                } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
-                    resultIconName = iconName.ppt.rawValue
-                } else if fileUTI as String == "public.plain-text" {
-                    resultIconName = iconName.txt.rawValue
-                } else if fileUTI as String == "public.html" {
-                    resultIconName = iconName.code.rawValue
-                } else {
-                    resultIconName = iconName.document.rawValue
-                }
-            } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
-                resultTypeFile = typeFile.compress.rawValue
-                resultIconName = iconName.compress.rawValue
-            } else if ext == "imi" {
-                resultTypeFile = typeFile.imagemeter.rawValue
-                resultIconName = iconName.imagemeter.rawValue
-            } else {
-                resultTypeFile = typeFile.unknow.rawValue
-                resultIconName = iconName.unknow.rawValue
-            }
-        }
-        
-        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName)
     }
  }
