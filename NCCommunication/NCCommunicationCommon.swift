@@ -159,13 +159,13 @@ import MobileCoreServices
                 
         let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
         
-        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName]
+        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier]
     }
 
-    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String) {
+    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String, typeIdentifier: String) {
         
         var resultContentType = contentType
-        var resultTypeFile = "", resultIconName = ""
+        var resultTypeFile = "", resultIconName = "", resultTypeIdentifier = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
@@ -179,9 +179,14 @@ import MobileCoreServices
                 }
             }
             
+            // TypeIdentifier
+            resultTypeIdentifier = fileUTI as String
+
             if directory {
+                resultContentType = "application/directory"
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
+                resultTypeIdentifier = kUTTypeFolder as String
             } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
                 resultTypeFile = typeFile.image.rawValue
                 resultIconName = iconName.image.rawValue
@@ -220,7 +225,7 @@ import MobileCoreServices
             }
         }
         
-        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName)
+        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier)
     }
     
     //MARK: - Common
