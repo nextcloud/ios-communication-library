@@ -293,6 +293,9 @@ import MobileCoreServices
         if let url = URL(string: urlString) {
             guard let hostName = url.host else { return nil }
             guard let scheme = url.scheme else { return nil }
+            if let port = url.port {
+                return scheme + "://" + hostName + ":" + String(port)
+            }
             return scheme + "://" + hostName
         }
         return nil
