@@ -356,6 +356,9 @@ class NCDataFileXML: NSObject {
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.user) {
                     let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.user, with: webDavRoot.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
+                } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.userId) {
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.userId, with: webDavRoot.dropLast())
+                    file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
