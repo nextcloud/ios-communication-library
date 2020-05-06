@@ -183,7 +183,7 @@ import MobileCoreServices
             resultTypeIdentifier = fileUTI as String
 
             if directory {
-                resultContentType = "application/directory"
+                resultContentType = "httpd/unix-directory"
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
                 resultTypeIdentifier = kUTTypeFolder as String

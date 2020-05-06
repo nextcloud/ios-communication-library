@@ -388,7 +388,7 @@ class NCDataFileXML: NSObject {
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
             if resourcetypeElement["d:collection"].error == nil {
                 file.directory = true
-                file.contentType = "application/directory"
+                file.contentType = "httpd/unix-directory"
             } else {
                 if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
                     file.resourceType = resourcetype
