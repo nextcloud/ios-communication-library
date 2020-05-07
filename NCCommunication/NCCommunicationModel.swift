@@ -123,6 +123,102 @@ import SwiftyXMLParser
     @objc public var webpage = ""
 }
 
+@objc public class NCCapabilities: NSObject {
+    
+    // Version
+    @objc public var versionMajor: Int = 0
+    @objc public var versionMinor: Int = 0
+    @objc public var versionMicro: Int = 0
+    @objc public var versionString = ""
+    @objc public var versionEdition = ""
+    @objc public var versionExtendedSupport: Bool = false
+    // Core
+    @objc public var corePollInterval: Int = 0
+    @objc public var coreWebDavRoot = ""
+    // Files sharing
+    @objc public var isFilesSharingAPIEnabled: Bool = false
+    @objc public var filesSharingDefaulPermissions: Int = 0
+    @objc public var isFilesSharingGroupSharing: Bool = false
+    @objc public var isFilesSharingReSharing: Bool = false
+    // Files sharing Public
+    @objc public var isFilesSharingPublicShareLinkEnabled: Bool = false
+    @objc public var isFilesSharingAllowPublicUploadsEnabled: Bool = false
+    @objc public var isFilesSharingAllowPublicUserSendMail: Bool = false
+    @objc public var isFilesSharingAllowPublicUploadFilesDrop: Bool = false
+    @objc public var isFilesSharingAllowPublicMultipleLinks: Bool = false
+    @objc public var isFilesSharingPublicExpireDateByDefaultEnabled: Bool = false
+    @objc public var isFilesSharingPublicExpireDateEnforceEnabled: Bool = false
+    @objc public var filesSharingPublicExpireDateDays: Int = 0
+    @objc public var isFilesSharingPublicPasswordEnforced: Bool = false
+    @objc public var isFilesSharingPublicPasswordAskForOptionalPassword: Bool = false
+    @objc public var isFilesSharingPublicExpireDateInternal: Bool = false
+    // Files sharing User
+    @objc public var isFilesSharingAllowUserSendMail: Bool = false
+    @objc public var isFilesSharingUserExpireDate: Bool = false
+    // Files sharing Group
+    @objc public var isFilesSharingGroupEnabled: Bool = false
+    @objc public var isFilesSharingGroupExpireDate: Bool = false
+    // Files sharing Federation
+    @objc public var isFilesSharingFederationAllowUserSendShares: Bool = false
+    @objc public var isFilesSharingFederationAllowUserReceiveShares: Bool = false
+    @objc public var isFilesSharingFederationExpireDate: Bool = false
+    // Files sharing share by mail
+    @objc public var isFileSharingShareByMailEnabled: Bool = false
+    @objc public var isFileSharingShareByMailExpireDate: Bool = false
+    @objc public var isFileSharingShareByMailPassword: Bool = false
+    @objc public var isFileSharingShareByMailUploadFilesDrop: Bool = false
+    // External sites
+    @objc public var isExternalSitesServerEnabled: Bool = false
+    @objc public var externalSiteV1 = [String]()
+    // Notification
+    @objc public var isNotificationEnabled: Bool = false
+    @objc public var notificationAdminNotification = [String]()
+    @objc public var notificationOcsEndpoints = [String]()
+    @objc public var notificationPush = [String]()
+    // Files
+    @objc public var isFilesBigFileChunkingEnabled: Bool = false
+    @objc public var filesBlacklistedFile = [String]()
+    @objc public var filesDirectEditingEtag = ""
+    @objc public var filesDirectEditingUrl = ""
+    @objc public var isFilesUndeleteEnabled: Bool = false
+    @objc public var isFilesVersioningEnabled: Bool = false
+    // Theming
+    @objc public var themingBackground = ""
+    @objc public var themingBackgroundDefault: Bool = false
+    @objc public var themingBackgroundPlain: Bool = false
+    @objc public var themingColor = ""
+    @objc public var themingColorElement = ""
+    @objc public var themingColorText = ""
+    @objc public var themingFavicon = ""
+    @objc public var themingLogo = ""
+    @objc public var themingLogoHeader = ""
+    @objc public var themingName = ""
+    @objc public var themingSlogan = ""
+    @objc public var themingUrl = ""
+    // E2EE
+    @objc public var isEndToEndEncryptionEnabled: Bool = false
+    @objc public var endToEndEncryptionVersion = ""
+    // Richdocuments
+    @objc public var richdocumentsMimetypes = [String]()
+    @objc public var richdocumentsMimetypesNoDefaultOpen = [String]()
+    @objc public var richdocumentsDirectEditing: Bool = false
+    @objc public var richdocumentsProductName = ""
+    @objc public var richdocumentsTemplates: Bool = false
+    @objc public var isRichdocumentsCollaboraConvertToAvailable: Bool = false
+    @objc public var isRichdocumentsCollaboraHasMobileSupport: Bool = false
+    @objc public var isRichdocumentsCollaboraHasTemplateSaveAs: Bool = false
+    @objc public var isRichdocumentsCollaboraHasTemplateSource: Bool = false
+    @objc public var isRichdocumentsCollaboraProductName = ""
+    // Activity
+    @objc public var isActivityV2Enabled: Bool = false
+    @objc public var activityV2 = [String]()
+    // HC
+    @objc public var isHandwerkcloudEnabled: Bool = false
+    @objc public var HCShopUrl = ""
+    // Imagemeter
+    @objc public var isImagemeterEnabled: Bool = false
+}
+
 //MARK: - Data File
 
 class NCDataFileXML: NSObject {
