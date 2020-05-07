@@ -19,6 +19,7 @@
 		F74D5C53235DE99D0006DA38 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4E235DE99D0006DA38 /* SwiftyJSON.framework */; };
 		F74D5C55235DE99D0006DA38 /* SwiftyXMLParser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */; };
 		F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; };
+		F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */; };
 		F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */; };
 		F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */; };
 /* End PBXBuildFile section */
@@ -48,6 +49,7 @@
 		F74D5C4E235DE99D0006DA38 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
 		F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyXMLParser.framework; path = Carthage/Build/iOS/SwiftyXMLParser.framework; sourceTree = "<group>"; };
 		F74D5C50235DE99D0006DA38 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
+		F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+WebDAV.swift"; sourceTree = "<group>"; };
 		F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationBackground.swift; sourceTree = "<group>"; };
 		F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,6 +103,7 @@
 				F74AA255246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift */,
 				F74AA257246405B200DD13B1 /* NCCommunication+API.swift */,
 				F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */,
+				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
 				F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */,
@@ -244,6 +247,7 @@
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
 				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
 				F74AA256246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift in Sources */,
+				F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */,
 				F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */,
 				F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */,
 			);

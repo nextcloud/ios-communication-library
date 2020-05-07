@@ -29,10 +29,9 @@ extension NCCommunication {
         
     @objc public func getLoginFlowV2(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        var serverUrl = String(serverUrl)
-        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
-        serverUrl = serverUrl + "index.php/login/v2"
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl) else {
+        let endpoint = "index.php/login/v2"
+        
+        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }

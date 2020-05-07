@@ -230,6 +230,23 @@ import MobileCoreServices
     
     //MARK: - Common
     
+    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+        
+        var headers: HTTPHeaders = [.authorization(username: user, password: password)]
+        if customUserAgent != nil {
+            headers.update(.userAgent(customUserAgent!))
+        } else if let userAgent = userAgent {
+            headers.update(.userAgent(userAgent))
+        }
+        headers.update(name: "OCS-APIRequest", value: "true")
+        
+        for (key, value) in appendHeaders ?? [:] {
+            headers.update(name: key, value: value)
+        }
+        
+        return headers
+    }
+    
     func convertDate(_ dateString: String, format: String) -> NSDate? {
         
         let dateFormatter = DateFormatter()
@@ -275,6 +292,16 @@ import MobileCoreServices
         } catch _ {
             return nil
         }
+    }
+    
+    func createStandardUrl(serverUrl: String, endpoint: String) -> URLConvertible? {
+        
+        guard var serverUrl = encodeString(serverUrl) else { return nil }
+        if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
+        
+        serverUrl = serverUrl + endpoint
+        
+        return StringToUrl(serverUrl)
     }
     
     func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
