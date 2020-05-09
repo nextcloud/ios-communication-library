@@ -217,6 +217,9 @@ import SwiftyXMLParser
     @objc public var HCShopUrl = ""
     // Imagemeter
     @objc public var isImagemeterEnabled: Bool = false
+    // Pagination iOS Helper
+    @objc public var isPaginationEnabled: Bool = false
+    @objc public var paginationEndponit = ""
 }
 
 //MARK: - Data File

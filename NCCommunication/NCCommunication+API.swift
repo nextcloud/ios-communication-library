@@ -435,7 +435,7 @@ extension NCCommunication {
                 if let coreWebDavRoot = dataCapabilities["core"]["webdav-root"].string { capabilities.coreWebDavRoot = coreWebDavRoot }
                 // Files sharing
                 if let isFilesSharingAPIEnabled = dataCapabilities["files_sharing"]["api_enabled"].bool { capabilities.isFilesSharingAPIEnabled = isFilesSharingAPIEnabled }
-                if let filesSharingDefaulPermissions = dataCapabilities["files_sharing"]["api_enabled"].int { capabilities.filesSharingDefaulPermissions = filesSharingDefaulPermissions }
+                if let filesSharingDefaulPermissions = dataCapabilities["files_sharing"]["default_permissions"].int { capabilities.filesSharingDefaulPermissions = filesSharingDefaulPermissions }
                 if let isFilesSharingGroupSharing = dataCapabilities["files_sharing"]["group_sharing"].bool { capabilities.isFilesSharingGroupSharing = isFilesSharingGroupSharing }
                 if let isFilesSharingReSharing = dataCapabilities["files_sharing"]["resharing"].bool { capabilities.isFilesSharingReSharing = isFilesSharingReSharing }
                 // Files sharing Public
@@ -503,7 +503,7 @@ extension NCCommunication {
                 }
                 // Files
                 if let isFilesBigFileChunkingEnabled = dataCapabilities["files"]["bigfilechunking"].bool { capabilities.isFilesBigFileChunkingEnabled = isFilesBigFileChunkingEnabled }
-                if let results = dataCapabilities["files"]["admin-blacklisted_files"].array {
+                if let results = dataCapabilities["files"]["blacklisted_files"].array {
                     for result in results {
                         capabilities.filesBlacklistedFile.append(result.string ?? "")
                     }
