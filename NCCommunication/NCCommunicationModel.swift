@@ -39,8 +39,8 @@ import SwiftyXMLParser
     @objc public var favorite: Bool = false
     @objc public var fileId = ""
     @objc public var fileName = ""
-    @objc public var iconName = ""
     @objc public var hasPreview: Bool = false
+    @objc public var iconName = ""
     @objc public var mountType = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -61,12 +61,12 @@ import SwiftyXMLParser
 
 @objc public class NCExternalFile: NSObject {
     
-    @objc public var idExternalSite: Int = 0
-    @objc public var name = ""
-    @objc public var url = ""
-    @objc public var lang = ""
     @objc public var icon = ""
+    @objc public var idExternalSite: Int = 0
+    @objc public var lang = ""
+    @objc public var name = ""
     @objc public var type = ""
+    @objc public var url = ""
 }
 
 @objc public class NCEditorDetailsEditors: NSObject {
@@ -89,12 +89,38 @@ import SwiftyXMLParser
 
 @objc public class NCEditorTemplates: NSObject {
     
-    @objc public var identifier = ""
     @objc public var delete = ""
     @objc public var ext = ""
+    @objc public var identifier = ""
     @objc public var name = ""
     @objc public var preview = ""
     @objc public var type = ""
+}
+
+@objc public class NCUserProfile: NSObject {
+    
+    @objc public var address = ""
+    @objc public var backend = ""
+    @objc public var backendCapabilitiesSetDisplayName: Bool = false
+    @objc public var backendCapabilitiesSetPassword: Bool = false
+    @objc public var displayName = ""
+    @objc public var email = ""
+    @objc public var enabled: Bool = false
+    @objc public var groups = [String]()
+    @objc public var language = ""
+    @objc public var lastLogin: Double = 0
+    @objc public var locale = ""
+    @objc public var phone = ""
+    @objc public var quota: Double = 0
+    @objc public var quotaFree: Double = 0
+    @objc public var quotaRelative: Double = 0
+    @objc public var quotaTotal: Double = 0
+    @objc public var quotaUsed: Double = 0
+    @objc public var storageLocation = ""
+    @objc public var subadmin = [String]()
+    @objc public var twitter = ""
+    @objc public var userID = ""
+    @objc public var webpage = ""
 }
 
 //MARK: - Data File
@@ -388,7 +414,7 @@ class NCDataFileXML: NSObject {
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
             if resourcetypeElement["d:collection"].error == nil {
                 file.directory = true
-                file.contentType = "application/directory"
+                file.contentType = "httpd/unix-directory"
             } else {
                 if let resourcetype = propstat["d:prop", "d:resourcetype"].text {
                     file.resourceType = resourcetype
