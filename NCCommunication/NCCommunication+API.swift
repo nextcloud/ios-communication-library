@@ -398,7 +398,7 @@ extension NCCommunication {
         }
     }
 
-    @objc public func getCapabilities(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ capabilities: NCCapabilities?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getCapabilities(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
         let endpoint = "ocs/v1.php/cloud/capabilities?format=json"
         
@@ -410,159 +410,18 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             switch response.result {
             case.failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
-            case .success(let json):
-                let json = JSON(json)
-                let data = json["ocs"]["data"]
-                let dataCapabilities = json["ocs"]["data"]["capabilities"]
-                
-                let capabilities = NCCapabilities()
-                
-                // Version
-                if let versionEdition = data["version"]["versionEdition"].string { capabilities.versionEdition = versionEdition }
-                if let extendedSupport = data["version"]["extendedSupport"].bool { capabilities.versionExtendedSupport = extendedSupport }
-                if let versionMajor = data["version"]["major"].int { capabilities.versionMajor = versionMajor }
-                if let versionMicro = data["version"]["micro"].int { capabilities.versionMicro = versionMicro }
-                if let versionMinor = data["version"]["minor"].int { capabilities.versionMinor = versionMinor }
-                if let versionString = data["version"]["string"].string { capabilities.versionString = versionString }
-                // Core
-                if let corePollInterval = dataCapabilities["core"]["pollinterval"].int { capabilities.corePollInterval = corePollInterval }
-                if let coreWebDavRoot = dataCapabilities["core"]["webdav-root"].string { capabilities.coreWebDavRoot = coreWebDavRoot }
-                // Files sharing
-                if let isFilesSharingAPIEnabled = dataCapabilities["files_sharing"]["api_enabled"].bool { capabilities.isFilesSharingAPIEnabled = isFilesSharingAPIEnabled }
-                if let filesSharingDefaulPermissions = dataCapabilities["files_sharing"]["default_permissions"].int { capabilities.filesSharingDefaulPermissions = filesSharingDefaulPermissions }
-                if let isFilesSharingGroupSharing = dataCapabilities["files_sharing"]["group_sharing"].bool { capabilities.isFilesSharingGroupSharing = isFilesSharingGroupSharing }
-                if let isFilesSharingReSharing = dataCapabilities["files_sharing"]["resharing"].bool { capabilities.isFilesSharingReSharing = isFilesSharingReSharing }
-                // Files sharing Public
-                let filesSharingPublic = dataCapabilities["files_sharing"]["public"]
-                if let isFilesSharingPublicShareLinkEnabled = filesSharingPublic["enabled"].bool { capabilities.isFilesSharingPublicShareLinkEnabled = isFilesSharingPublicShareLinkEnabled }
-                if let isFilesSharingAllowPublicUploadsEnabled = filesSharingPublic["upload"].bool { capabilities.isFilesSharingAllowPublicUploadsEnabled = isFilesSharingAllowPublicUploadsEnabled }
-                if let isFilesSharingAllowPublicUserSendMail = filesSharingPublic["send_mail"].bool { capabilities.isFilesSharingAllowPublicUserSendMail = isFilesSharingAllowPublicUserSendMail }
-                if let isFilesSharingAllowPublicUploadFilesDrop = filesSharingPublic["upload_files_drop"].bool { capabilities.isFilesSharingAllowPublicUploadFilesDrop = isFilesSharingAllowPublicUploadFilesDrop }
-                if let isFilesSharingAllowPublicMultipleLinks = filesSharingPublic["multiple_links"].bool { capabilities.isFilesSharingAllowPublicMultipleLinks = isFilesSharingAllowPublicMultipleLinks }
-                let filesSharingPublicExpireDate = data["files_sharing"]["public"]["expire_date"]
-                if let isFilesSharingPublicExpireDateByDefaultEnabled = filesSharingPublicExpireDate["enabled"].bool { capabilities.isFilesSharingPublicExpireDateByDefaultEnabled = isFilesSharingPublicExpireDateByDefaultEnabled }
-                if let isFilesSharingPublicExpireDateEnforceEnabled = filesSharingPublicExpireDate["enforced"].bool { capabilities.isFilesSharingPublicExpireDateEnforceEnabled = isFilesSharingPublicExpireDateEnforceEnabled }
-                if let filesSharingPublicExpireDateDays = filesSharingPublicExpireDate["days"].int { capabilities.filesSharingPublicExpireDateDays = filesSharingPublicExpireDateDays }
-                let filesSharingPublicPassword = data["files_sharing"]["public"]["password"]
-                if let isFilesSharingPublicPasswordEnforced = filesSharingPublicPassword["enforced"].bool { capabilities.isFilesSharingPublicPasswordEnforced = isFilesSharingPublicPasswordEnforced }
-                if let isFilesSharingPublicPasswordAskForOptionalPassword = filesSharingPublicPassword["askForOptionalPassword"].bool { capabilities.isFilesSharingPublicPasswordAskForOptionalPassword = isFilesSharingPublicPasswordAskForOptionalPassword }
-                let filesSharingPublicExpireDateInternal = data["files_sharing"]["public"]["expire_date_internal"]
-                if let isFilesSharingPublicExpireDateInternal = filesSharingPublicExpireDateInternal["enabled"].bool { capabilities.isFilesSharingPublicExpireDateInternal = isFilesSharingPublicExpireDateInternal }
-                // Files sharing User
-                let filesSharingUser = dataCapabilities["files_sharing"]["user"]
-                if let isFilesSharingAllowUserSendMail = filesSharingUser["send_mail"].bool { capabilities.isFilesSharingAllowUserSendMail = isFilesSharingAllowUserSendMail }
-                if let isFilesSharingUserExpireDate = filesSharingUser["expire_date"]["enabled"].bool { capabilities.isFilesSharingUserExpireDate = isFilesSharingUserExpireDate }
-                // Files sharing Group
-                let filesSharingGroup = dataCapabilities["files_sharing"]["group"]
-                if let isFilesSharingGroupEnabled = filesSharingGroup["enabled"].bool { capabilities.isFilesSharingGroupEnabled = isFilesSharingGroupEnabled }
-                if let isFilesSharingGroupExpireDate = filesSharingGroup["expire_date"]["enabled"].bool { capabilities.isFilesSharingGroupExpireDate = isFilesSharingGroupExpireDate }
-                // Files sharing Federation
-                let filesSharingFederation = dataCapabilities["files_sharing"]["federation"]
-                if let isFilesSharingFederationAllowUserReceiveShares = filesSharingFederation["incoming"].bool { capabilities.isFilesSharingFederationAllowUserReceiveShares = isFilesSharingFederationAllowUserReceiveShares }
-                if let isFilesSharingFederationAllowUserSendShares = filesSharingFederation["outgoing"].bool { capabilities.isFilesSharingFederationAllowUserSendShares = isFilesSharingFederationAllowUserSendShares }
-                if let isFilesSharingFederationExpireDate = filesSharingFederation["expire_date"]["enabled"].bool { capabilities.isFilesSharingFederationExpireDate = isFilesSharingFederationExpireDate }
-                // Files sharing share by mail
-                let filesSharingSharebymail = dataCapabilities["files_sharing"]["sharebymail"]
-                if let isFileSharingShareByMailEnabled = filesSharingSharebymail["enabled"].bool { capabilities.isFileSharingShareByMailEnabled = isFileSharingShareByMailEnabled }
-                if let isFileSharingShareByMailExpireDate = filesSharingSharebymail["expire_date"]["enabled"].bool { capabilities.isFileSharingShareByMailExpireDate = isFileSharingShareByMailExpireDate }
-                if let isFileSharingShareByMailPassword = filesSharingSharebymail["password"]["enabled"].bool { capabilities.isFileSharingShareByMailPassword = isFileSharingShareByMailPassword }
-                if let isFileSharingShareByMailUploadFilesDrop = filesSharingSharebymail["upload_files_drop"]["enabled"].bool { capabilities.isFileSharingShareByMailUploadFilesDrop = isFileSharingShareByMailUploadFilesDrop }
-                // External sites
-                if dataCapabilities["external"].error == nil {
-                    capabilities.isExternalSitesServerEnabled = true
-                    if let results = dataCapabilities["external"]["v1"].array {
-                        for result in results {
-                            capabilities.externalSiteV1.append(result.string ?? "")
-                        }
-                    }
+            case .success( _):
+                if let data = response.data {
+                    completionHandler(account, data, 0, nil)
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
                 }
-                // Notification
-                if dataCapabilities["notifications"].error == nil {
-                    capabilities.isNotificationEnabled = true
-                    if let results = dataCapabilities["notifications"]["admin-notifications"].array {
-                        for result in results {
-                            capabilities.notificationAdminNotification.append(result.string ?? "")
-                        }
-                    }
-                    if let results = dataCapabilities["notifications"]["ocs-endpoints"].array {
-                        for result in results {
-                            capabilities.notificationOcsEndpoints.append(result.string ?? "")
-                        }
-                    }
-                    if let results = dataCapabilities["notifications"]["push"].array {
-                        for result in results {
-                            capabilities.notificationPush.append(result.string ?? "")
-                        }
-                    }
-                }
-                // Files
-                if let isFilesBigFileChunkingEnabled = dataCapabilities["files"]["bigfilechunking"].bool { capabilities.isFilesBigFileChunkingEnabled = isFilesBigFileChunkingEnabled }
-                if let results = dataCapabilities["files"]["blacklisted_files"].array {
-                    for result in results {
-                        capabilities.filesBlacklistedFile.append(result.string ?? "")
-                    }
-                }
-                if let filesDirectEditingEtag = dataCapabilities["files"]["directEditing"]["etag"].string { capabilities.filesDirectEditingEtag = filesDirectEditingEtag }
-                if let filesDirectEditingUrl = dataCapabilities["files"]["directEditing"]["url"].string { capabilities.filesDirectEditingUrl = filesDirectEditingUrl }
-                if let isFilesUndeleteEnabled = dataCapabilities["files"]["undelete"].bool { capabilities.isFilesUndeleteEnabled = isFilesUndeleteEnabled }
-                if let isFilesVersioningEnabled = dataCapabilities["files"]["versioning"].bool { capabilities.isFilesVersioningEnabled = isFilesVersioningEnabled }
-                // Theming
-                if let themingBackground = dataCapabilities["theming"]["background"].string { capabilities.themingBackground = themingBackground }
-                if let themingBackgroundDefault = dataCapabilities["theming"]["background-default"].bool { capabilities.themingBackgroundDefault = themingBackgroundDefault }
-                if let themingBackgroundPlain = dataCapabilities["theming"]["background-plain"].bool { capabilities.themingBackgroundPlain = themingBackgroundPlain }
-                if let themingColor = dataCapabilities["theming"]["color"].string { capabilities.themingColor = themingColor }
-                if let themingColorElement = dataCapabilities["theming"]["color-element"].string { capabilities.themingColorElement = themingColorElement }
-                if let themingColorText = dataCapabilities["theming"]["color-text"].string { capabilities.themingColorText = themingColorText }
-                if let themingFavicon = dataCapabilities["theming"]["favicon"].string { capabilities.themingFavicon = themingFavicon }
-                if let themingLogo = dataCapabilities["theming"]["logo"].string { capabilities.themingLogo = themingLogo }
-                if let themingLogoHeader = dataCapabilities["theming"]["logoheader"].string { capabilities.themingLogoHeader = themingLogoHeader }
-                if let themingName = dataCapabilities["theming"]["name"].string { capabilities.themingName = themingName }
-                if let themingSlogan = dataCapabilities["theming"]["slogan"].string { capabilities.themingSlogan = themingSlogan }
-                if let themingUrl = dataCapabilities["theming"]["url"].string { capabilities.themingUrl = themingUrl }
-                // E2EE
-                if let isEndToEndEncryptionEnabled = dataCapabilities["end-to-end-encryption"]["enabled"].bool { capabilities.isEndToEndEncryptionEnabled = isEndToEndEncryptionEnabled }
-                if let endToEndEncryptionVersion = dataCapabilities["end-to-end-encryption"]["api-version"].string { capabilities.endToEndEncryptionVersion = endToEndEncryptionVersion }
-                // Richdocuments
-                if let richdocumentsDirectEditing = dataCapabilities["richdocuments"]["direct_editing"].bool { capabilities.richdocumentsDirectEditing = richdocumentsDirectEditing }
-                if let richdocumentsProductName = dataCapabilities["richdocuments"]["productName"].string { capabilities.richdocumentsProductName = richdocumentsProductName }
-                if let richdocumentsTemplates = dataCapabilities["richdocuments"]["templates"].bool { capabilities.richdocumentsTemplates = richdocumentsTemplates }
-                if let isRichdocumentsCollaboraConvertToAvailable = dataCapabilities["richdocuments"]["collabora"]["convert-to"]["available"].bool { capabilities.isRichdocumentsCollaboraConvertToAvailable = isRichdocumentsCollaboraConvertToAvailable }
-                if let isRichdocumentsCollaboraHasMobileSupport = dataCapabilities["richdocuments"]["collabora"]["hasMobileSupport"].bool { capabilities.isRichdocumentsCollaboraHasMobileSupport = isRichdocumentsCollaboraHasMobileSupport }
-                if let isRichdocumentsCollaboraHasTemplateSaveAs = dataCapabilities["richdocuments"]["collabora"]["hasTemplateSaveAs"].bool { capabilities.isRichdocumentsCollaboraHasTemplateSaveAs = isRichdocumentsCollaboraHasTemplateSaveAs }
-                if let isRichdocumentsCollaboraHasTemplateSource = dataCapabilities["richdocuments"]["collabora"]["hasTemplateSource"].bool { capabilities.isRichdocumentsCollaboraHasTemplateSource = isRichdocumentsCollaboraHasTemplateSource }
-                if let isRichdocumentsCollaboraProductName = dataCapabilities["richdocuments"]["collabora"]["productName"].string { capabilities.isRichdocumentsCollaboraProductName = isRichdocumentsCollaboraProductName }
-                if let results = dataCapabilities["richdocuments"]["mimetypes"].array {
-                    for result in results {
-                        capabilities.richdocumentsMimetypes.append(result.string ?? "")
-                    }
-                }
-                if let results = dataCapabilities["richdocuments"]["mimetypesNoDefaultOpen"].array {
-                    for result in results {
-                        capabilities.richdocumentsMimetypesNoDefaultOpen.append(result.string ?? "")
-                    }
-                }
-                // Activity
-                if dataCapabilities["activity"].error == nil {
-                    capabilities.isActivityV2Enabled = true
-                    if let results = dataCapabilities["activity"]["apiv2"].array {
-                        for result in results {
-                            capabilities.activityV2.append(result.string ?? "")
-                        }
-                    }
-                }
-                // HC
-                if let isHandwerkcloudEnabled = dataCapabilities["handwerkcloud"]["enabled"].bool { capabilities.isHandwerkcloudEnabled = isHandwerkcloudEnabled }
-                if let HCShopUrl = dataCapabilities["handwerkcloud"]["shop_url"].string { capabilities.HCShopUrl = HCShopUrl }
-                // Imagemeter
-                if let isImagemeterEnabled = dataCapabilities["imagemeter"]["enabled"].bool { capabilities.isImagemeterEnabled = isImagemeterEnabled }
-                
-                completionHandler(account, capabilities, 0, nil)
             }
         }
     }
