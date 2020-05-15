@@ -90,23 +90,33 @@ import MobileCoreServices
 
     //MARK: - Setup
     
-    @objc public func setup(user: String, userId: String, password: String, url: String, userAgent: String?, capabilitiesGroup: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+        
+        self.setup(user: user, userId: userId, password: password, url: url)
+        self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
+        if (webDavRoot != nil) { self.setup(webDavRoot: webDavRoot!) }
+        if (davRoot != nil) { self.setup(davRoot: davRoot!) }
+        self.setup(nextcloudVersion: nextcloudVersion)
+        self.setup(delegate: delegate)
+    }
+    
+    @objc public func setup(user: String, userId: String, password: String, url: String) {
         
         self.user = user
         self.userId = userId
         self.password = password
         self.url = url
-        self.userAgent = userAgent
-        self.capabilitiesGroup = capabilitiesGroup
-        self.nextcloudVersion = nextcloudVersion
+    }
+    
+    @objc public func setup(delegate: NCCommunicationCommonDelegate?) {
+        
         self.delegate = delegate
     }
     
-    @objc public func setup(userAgent: String?, capabilitiesGroup: String?, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(userAgent: String, capabilitiesGroup: String) {
         
         self.userAgent = userAgent
         self.capabilitiesGroup = capabilitiesGroup
-        self.delegate = delegate
     }
     
     @objc public func setup(webDavRoot: String) {
@@ -123,6 +133,11 @@ import MobileCoreServices
         
         if davRoot.first == "/" { self.davRoot = String(self.davRoot.dropFirst()) }
         if davRoot.last == "/" { self.davRoot = String(self.davRoot.dropLast()) }
+    }
+    
+    @objc public func setup(nextcloudVersion: Int) {
+        
+        self.nextcloudVersion = nextcloudVersion
     }
     
     //MARK: -  Delegate session
