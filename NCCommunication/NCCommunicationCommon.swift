@@ -34,7 +34,7 @@ import MobileCoreServices
 }
 
 @objc public class NCCommunicationCommon: NSObject {
-    @objc public static let sharedInstance: NCCommunicationCommon = {
+    @objc public static let shared: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
     }()

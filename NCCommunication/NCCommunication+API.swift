@@ -31,13 +31,13 @@ extension NCCommunication {
     
     @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrlPath) else {
+        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrlPath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -62,19 +62,19 @@ extension NCCommunication {
     
     @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let fileNamePath = NCCommunicationCommon.sharedInstance.encodeString(fileNamePath) else {
+        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         let endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
             
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -101,13 +101,13 @@ extension NCCommunication {
         
         let endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileId + "&x=\(width)&y=\(height)"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -138,13 +138,13 @@ extension NCCommunication {
 
         let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, externalFiles, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -174,13 +174,13 @@ extension NCCommunication {
                 
         let endpoint = "status.php"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(nil, nil, 0, 0, 0, false, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
@@ -217,13 +217,13 @@ extension NCCommunication {
         
         let endpoint = "index.php/avatar/" + userID + "/\(size)"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -248,13 +248,13 @@ extension NCCommunication {
     
     @objc public func downloadContent(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl) else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
@@ -275,13 +275,13 @@ extension NCCommunication {
     
         let endpoint = "ocs/v2.php/cloud/user?format=json"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -358,13 +358,13 @@ extension NCCommunication {
     
         let endpoint = "ocs/v1.php/cloud/capabilities?format=json"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
@@ -388,13 +388,13 @@ extension NCCommunication {
         
         let endpoint = "index.php/core/wipe"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, false, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         // request
         var urlRequest: URLRequest
@@ -423,13 +423,13 @@ extension NCCommunication {
         
         let endpoint = "index.php/core/wipe/success"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account , NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         // request
         var urlRequest: URLRequest
@@ -456,20 +456,20 @@ extension NCCommunication {
     
     @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let fileNamePath = NCCommunicationCommon.sharedInstance.encodeString(fileNamePath) else {
+        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let endpoint = "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
                
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {

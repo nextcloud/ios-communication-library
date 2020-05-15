@@ -24,41 +24,41 @@
 import Foundation
 
 @objc public class NCCommunicationBackground: NSObject, URLSessionTaskDelegate, URLSessionDelegate, URLSessionDownloadDelegate {
-    @objc public static let sharedInstance: NCCommunicationBackground = {
+    @objc public static let shared: NCCommunicationBackground = {
         let instance = NCCommunicationBackground()
         return instance
     }()
         
     @objc public lazy var sessionManagerTransfer: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.sharedInstance.sessionIdentifierBackground)
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackground)
         configuration.allowsCellularAccess = true
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.sharedInstance.sessionMaximumConnectionsPerHost
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
         configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
         return session
     }()
     
     @objc public lazy var sessionManagerTransferWiFi: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.sharedInstance.sessionIdentifierBackgroundwifi)
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundwifi)
         configuration.allowsCellularAccess = false
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.sharedInstance.sessionMaximumConnectionsPerHost
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
         configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
         return session
     }()
     
     @objc public lazy var sessionManagerTransferExtension: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.sharedInstance.sessionIdentifierExtension)
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierExtension)
         configuration.allowsCellularAccess = true
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.sharedInstance.sessionMaximumConnectionsPerHost
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
         configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        configuration.sharedContainerIdentifier = NCCommunicationCommon.sharedInstance.capabilitiesGroup
+        configuration.sharedContainerIdentifier = NCCommunicationCommon.shared.capabilitiesGroup
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
         return session
     }()
@@ -67,17 +67,17 @@ import Foundation
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) as? URL else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) as? URL else {
             return nil
         }
         var request = URLRequest(url: url)
-        let loginString = "\(NCCommunicationCommon.sharedInstance.user):\(NCCommunicationCommon.sharedInstance.password)"
+        let loginString = "\(NCCommunicationCommon.shared.user):\(NCCommunicationCommon.shared.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
         }
         let base64LoginString = loginData.base64EncodedString()
         
-        request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(NCCommunicationCommon.shared.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
         
         let task = session.downloadTask(with: request)
@@ -96,18 +96,18 @@ import Foundation
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, description: String?, session: URLSession) -> URLSessionUploadTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) as? URL else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) as? URL else {
             return nil
         }
         var request = URLRequest(url: url)
-        let loginString = "\(NCCommunicationCommon.sharedInstance.user):\(NCCommunicationCommon.sharedInstance.password)"
+        let loginString = "\(NCCommunicationCommon.shared.user):\(NCCommunicationCommon.shared.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
         }
         let base64LoginString = loginData.base64EncodedString()
         
         request.httpMethod = "PUT"
-        request.setValue(NCCommunicationCommon.sharedInstance.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(NCCommunicationCommon.shared.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
@@ -138,7 +138,7 @@ import Foundation
         let progress = Double(Double(totalBytesWritten)/Double(totalBytesExpectedToWrite))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.sharedInstance.downloadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
+            NCCommunicationCommon.shared.downloadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
         }
     }
     
@@ -168,7 +168,7 @@ import Foundation
         let progress = Double(Double(totalBytesSent)/Double(totalBytesExpectedToSend))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.sharedInstance.uploadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
+            NCCommunicationCommon.shared.uploadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
         }
     }
     
@@ -184,22 +184,22 @@ import Foundation
         let statusCode = (task.response as! HTTPURLResponse).statusCode
 
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
-            if NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header) != nil {
-                ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: header)
-            } else if NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: header) != nil {
-                ocId = NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: header)
+            if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header) != nil {
+                ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header)
+            } else if NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: header) != nil {
+                ocId = NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: header)
             }
-            if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header) != nil {
-                etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: header)
-            } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: header) != nil {
-                etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: header)
+            if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: header) != nil {
+                etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: header)
+            } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: header) != nil {
+                etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: header)
             }
             if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
-            if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: header)  {
-                date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
+            if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: header)  {
+                date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
             }
             if let dateString = header["Last-Modified"] as? String {
-                dateLastModified = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
+                dateLastModified = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
             }
             length = header["Content-Length"] as? Double ?? 0
         }
@@ -211,18 +211,18 @@ import Foundation
                 if parameter?.count == 2 {
                     description = parameter![1]
                 }
-                NCCommunicationCommon.sharedInstance.downloadComplete(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.downloadComplete(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationCommon.sharedInstance.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
             }
         }
     }
     
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
-        NCCommunicationCommon.sharedInstance.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
+        NCCommunicationCommon.shared.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
             completionHandler(authChallengeDisposition, credential)
         })
     }

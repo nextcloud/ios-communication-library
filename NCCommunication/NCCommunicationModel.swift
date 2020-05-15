@@ -347,9 +347,9 @@ class NCDataFileXML: NSObject {
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCFile] {
         
         var files = [NCFile]()
-        let webDavRoot = "/" + NCCommunicationCommon.sharedInstance.webDavRoot + "/"
-        let davRootFiles = "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/"
-        guard let baseUrl = NCCommunicationCommon.sharedInstance.getHostName(urlString: NCCommunicationCommon.sharedInstance.url) else {
+        let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
+        let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
+        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
             return files
         }
         
@@ -379,11 +379,11 @@ class NCDataFileXML: NSObject {
                     file.serverUrl = ".."
                 } else if file.path.contains(webDavRoot) {
                     file.serverUrl = baseUrl + file.path.dropLast()
-                } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.user) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.user, with: webDavRoot.dropLast())
+                } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.user) {
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: webDavRoot.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
-                } else if file.path.contains(davRootFiles + NCCommunicationCommon.sharedInstance.userId) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.sharedInstance.userId, with: webDavRoot.dropLast())
+                } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.userId) {
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: webDavRoot.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
@@ -392,13 +392,13 @@ class NCDataFileXML: NSObject {
             let propstat = element["d:propstat"][0]
                         
             if let getlastmodified = propstat["d:prop", "d:getlastmodified"].text {
-                if let date = NCCommunicationCommon.sharedInstance.convertDate(getlastmodified, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                if let date = NCCommunicationCommon.shared.convertDate(getlastmodified, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     file.date = date
                 }
             }
             
             if let creationdate = propstat["d:prop", "d:creationdate"].text {
-                if let date = NCCommunicationCommon.sharedInstance.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                if let date = NCCommunicationCommon.shared.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     file.creationDate = date
                 }
             }
@@ -477,7 +477,7 @@ class NCDataFileXML: NSObject {
                 file.richWorkspace = richWorkspace
             }
             
-            let results = NCCommunicationCommon.sharedInstance.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+            let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
             
             file.contentType = results.contentType
             file.typeFile = results.typeFile

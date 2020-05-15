@@ -29,13 +29,13 @@ extension NCCommunication {
 
      @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
              completionHandler(account, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "MKCOL")
-         let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
@@ -43,9 +43,9 @@ extension NCCommunication {
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, nil, nil, error.errorCode, error.description)
              case .success( _):
-                 let ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
-                 if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
-                     if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                 let ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
+                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
+                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                          completionHandler(account, ocId, date, 0, nil)
                      } else { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
                  } else { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
@@ -55,13 +55,13 @@ extension NCCommunication {
      
      @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
              completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "DELETE")
-         let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
@@ -76,14 +76,14 @@ extension NCCommunication {
      
      @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
              completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "MOVE")
          
-         var headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
          if overwrite {
              headers.update(name: "Overwrite", value: "T")
@@ -104,14 +104,14 @@ extension NCCommunication {
      
      @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileNameSource) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
              completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "COPY")
          
-         var headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
          if overwrite {
              headers.update(name: "Overwrite", value: "T")
@@ -135,14 +135,14 @@ extension NCCommunication {
          var serverUrlFileName = String(serverUrlFileName)
          if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
          if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "PROPFIND")
          
-         var headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          headers.update(.contentType("application/xml"))
          headers.update(name: "Depth", value: depth)
 
@@ -174,11 +174,11 @@ extension NCCommunication {
      
      @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
+         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
-         guard let literal = NCCommunicationCommon.sharedInstance.encodeString(literal) else {
+         guard let literal = NCCommunicationCommon.shared.encodeString(literal) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
@@ -193,15 +193,15 @@ extension NCCommunication {
     
      @objc public func searchMedia(serverUrl: String, lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
             
-         guard let href = NCCommunicationCommon.sharedInstance.encodeString("/files/" + user ) else {
+         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
-         guard let lteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(lteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+         guard let lteDateLastModifiedString = NCCommunicationCommon.shared.convertDate(lteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
-         guard let gteDateLastModifiedString = NCCommunicationCommon.sharedInstance.convertDate(gteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+         guard let gteDateLastModifiedString = NCCommunicationCommon.shared.convertDate(gteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
@@ -216,14 +216,14 @@ extension NCCommunication {
      
      private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot) else {
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.davRoot) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "SEARCH")
          
-         var headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          headers.update(.contentType("text/xml"))
          
          // request
@@ -254,14 +254,14 @@ extension NCCommunication {
      
      @objc public func setFavorite(serverUrl: String, fileName: String, favorite: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId + "/" + fileName
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
              completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "PROPPATCH")
-         let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          
          var urlRequest: URLRequest
          do {
@@ -286,14 +286,14 @@ extension NCCommunication {
      
      @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
-         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.sharedInstance.davRoot + "/files/" + NCCommunicationCommon.sharedInstance.userId
-         guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+         let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId
+         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
              return
          }
          
          let method = HTTPMethod(rawValue: "REPORT")
-         let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          
          var urlRequest: URLRequest
          do {

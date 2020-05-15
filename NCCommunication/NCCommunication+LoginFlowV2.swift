@@ -31,7 +31,7 @@ extension NCCommunication {
                 
         let endpoint = "index.php/login/v2"
         
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -58,7 +58,7 @@ extension NCCommunication {
     @objc public func getLoginFlowV2Poll(token: String, endpoint: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
-        guard let url = NCCommunicationCommon.sharedInstance.StringToUrl(serverUrl) else {
+        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
             completionHandler(nil, nil, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
