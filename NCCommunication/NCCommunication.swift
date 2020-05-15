@@ -27,7 +27,7 @@ import Alamofire
 import SwiftyJSON
 
 @objc public class NCCommunication: SessionDelegate {
-    @objc public static let sharedInstance: NCCommunication = {
+    @objc public static let shared: NCCommunication = {
         let instance = NCCommunication()
         return instance
     }()
@@ -64,7 +64,7 @@ import SwiftyJSON
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
         }
@@ -76,7 +76,7 @@ import SwiftyJSON
         }
         destination = destinationFile
         
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
@@ -85,20 +85,20 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
                 var etag: String?
                 let length = response.response?.allHeaderFields["length"] as? Double ?? 0
-                if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
-                } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
+                if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
-                if let dateString = NCCommunicationCommon.sharedInstance.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
-                    if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
+                    if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, etag, date, length, 0, nil)
                     } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
                 } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
@@ -110,13 +110,13 @@ import SwiftyJSON
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
-        guard let url = NCCommunicationCommon.sharedInstance.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
-        var headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
             headers.update(name: "X-OC-Ctime", value: sDate)
@@ -135,24 +135,24 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
                 var ocId: String?, etag: String?
-                if NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    ocId = NCCommunicationCommon.sharedInstance.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
-                } else if NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    ocId = NCCommunicationCommon.sharedInstance.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields)
+                if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    ocId = NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields)
                 }
-                if NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    etag = NCCommunicationCommon.sharedInstance.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
-                } else if NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
-                    etag = NCCommunicationCommon.sharedInstance.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
+                if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
+                } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
+                    etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
-                if let dateString = NCCommunicationCommon.sharedInstance.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
-                    if let date = NCCommunicationCommon.sharedInstance.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
+                    if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, etag, date, size, 0, nil)
                     } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
                 } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
@@ -165,7 +165,7 @@ import SwiftyJSON
     //MARK: - SessionDelegate
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        NCCommunicationCommon.sharedInstance.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
+        NCCommunicationCommon.shared.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
             completionHandler(authChallengeDisposition, credential)
         })
     }
