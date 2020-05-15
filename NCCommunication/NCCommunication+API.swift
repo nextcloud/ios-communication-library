@@ -386,7 +386,7 @@ extension NCCommunication {
     
     @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        let endpoint = "index.php/core/wipe"
+        let endpoint = "index.php/core/wipe/check"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, false, NSURLErrorUnsupportedURL, "Invalid server url")
