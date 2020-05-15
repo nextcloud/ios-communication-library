@@ -39,7 +39,7 @@ extension NCCommunication {
 
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, nil, nil, error.errorCode, error.description)
              case .success( _):
@@ -65,7 +65,7 @@ extension NCCommunication {
 
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, error.errorCode, error.description)
              case .success( _):
@@ -93,7 +93,7 @@ extension NCCommunication {
          
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, error.errorCode, error.description)
              case .success( _):
@@ -121,7 +121,7 @@ extension NCCommunication {
          
          sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, error.errorCode, error.description)
              case .success( _):
@@ -158,7 +158,7 @@ extension NCCommunication {
          
          sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, nil, error.errorCode, error.description)
              case .success( _):
@@ -238,7 +238,7 @@ extension NCCommunication {
          
          sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, nil, error.errorCode, error.description)
              case .success( _):
@@ -275,7 +275,7 @@ extension NCCommunication {
          
          sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, error.errorCode, error.description)
              case .success( _):
@@ -306,7 +306,7 @@ extension NCCommunication {
          
          sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
              switch response.result {
-             case.failure(let error):
+             case .failure(let error):
                  let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                  completionHandler(account, nil, error.errorCode, error.description)
              case .success( _):

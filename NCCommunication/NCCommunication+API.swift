@@ -27,53 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
     
-    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        
-        guard let fileNamePath = NCCommunicationCommon.sharedInstance.encodeString(fileNamePath) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        
-        let endpoint = "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
-        
-        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-               
-        let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            switch response.result {
-            case.failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
-            case .success(let json):
-                var files = [NCFile]()
-                let json = JSON(json)
-                for (_, subJson):(String, JSON) in json {
-                    let file = NCFile()
-                    if let modificationDate = subJson["modificationDate"].double {
-                        let date = Date(timeIntervalSince1970: modificationDate) as NSDate
-                        file.date = date
-                    }
-                    if let directory = subJson["directory"].bool { file.directory = directory }
-                    if let etag = subJson["etag"].string { file.etag = etag }
-                    if let favorite = subJson["favorite"].bool { file.favorite = favorite }
-                    if let fileId = subJson["fileId"].int { file.fileId = String(fileId) }
-                    if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
-                    if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
-                    if let name = subJson["name"].string { file.fileName = name }
-                    if let ocId = subJson["ocId"].string { file.ocId = ocId }
-                    if let permissions = subJson["permissions"].string { file.permissions = permissions }
-                    if let size = subJson["size"].double { file.size = size }
-                    files.append(file)
-                }
-                completionHandler(account, files, 0, nil)
-            }
-        }
-    }
+    //MARK: -
     
     @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
@@ -87,7 +41,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -124,7 +78,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -157,7 +111,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -176,6 +130,8 @@ extension NCCommunication {
         }
     }
     
+    //MARK: -
+    
     @objc public func getExternalSite(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCExternalFile], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var externalFiles = [NCExternalFile]()
@@ -193,7 +149,7 @@ extension NCCommunication {
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, externalFiles, error.errorCode, error.description)
             case .success(let json):
@@ -228,7 +184,7 @@ extension NCCommunication {
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(nil, nil, 0, 0, 0, false, error.errorCode, error.description)
             case .success(let json):
@@ -271,7 +227,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -302,7 +258,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -330,7 +286,7 @@ extension NCCommunication {
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
@@ -413,7 +369,7 @@ extension NCCommunication {
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
@@ -422,6 +378,126 @@ extension NCCommunication {
                 } else {
                     completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
                 }
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let endpoint = "index.php/core/wipe"
+        
+        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account, false, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        // request
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.httpBody = ("token=" + token).data(using: .utf8)
+        } catch {
+            completionHandler(account, false, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, false, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let wipe = json["wipe"].boolValue
+                completionHandler(account, wipe, 0, "")
+            }
+        }
+    }
+    
+    @objc public func setRemoteWipeCompletition(serverUrl: String, token: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let endpoint = "index.php/core/wipe/success"
+        
+        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account , NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        // request
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.httpBody = ("token=" + token).data(using: .utf8)
+        } catch {
+            completionHandler(account, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, "")
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let fileNamePath = NCCommunicationCommon.sharedInstance.encodeString(fileNamePath) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let endpoint = "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
+        
+        guard let url = NCCommunicationCommon.sharedInstance.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+               
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = NCCommunicationCommon.sharedInstance.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                var files = [NCFile]()
+                let json = JSON(json)
+                for (_, subJson):(String, JSON) in json {
+                    let file = NCFile()
+                    if let modificationDate = subJson["modificationDate"].double {
+                        let date = Date(timeIntervalSince1970: modificationDate) as NSDate
+                        file.date = date
+                    }
+                    if let directory = subJson["directory"].bool { file.directory = directory }
+                    if let etag = subJson["etag"].string { file.etag = etag }
+                    if let favorite = subJson["favorite"].bool { file.favorite = favorite }
+                    if let fileId = subJson["fileId"].int { file.fileId = String(fileId) }
+                    if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
+                    if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
+                    if let name = subJson["name"].string { file.fileName = name }
+                    if let ocId = subJson["ocId"].string { file.ocId = ocId }
+                    if let permissions = subJson["permissions"].string { file.permissions = permissions }
+                    if let size = subJson["size"].double { file.size = size }
+                    files.append(file)
+                }
+                completionHandler(account, files, 0, nil)
             }
         }
     }

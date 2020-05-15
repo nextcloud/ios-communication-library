@@ -40,7 +40,7 @@ extension NCCommunication {
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(nil, nil, nil, error.errorCode, error.description)
             case .success(let json):
@@ -67,7 +67,7 @@ extension NCCommunication {
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(nil, nil, nil, error.errorCode, error.description)
             case .success(let json):

@@ -85,7 +85,7 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
@@ -135,7 +135,7 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             switch response.result {
-            case.failure(let error):
+            case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
