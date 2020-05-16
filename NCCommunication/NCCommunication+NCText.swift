@@ -27,10 +27,10 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func NCTextObtainEditorDetails(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextObtainEditorDetails(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        var editors = [NCEditorDetailsEditors]()
-        var creators = [NCEditorDetailsCreators]()
+        var editors = [NCCommunicationEditorDetailsEditors]()
+        var creators = [NCCommunicationEditorDetailsCreators]()
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing?format=json"
         
@@ -52,7 +52,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let ocsdataeditors = json["ocs"]["data"]["editors"]
                 for (_, subJson):(String, JSON) in ocsdataeditors {
-                    let editor = NCEditorDetailsEditors()
+                    let editor = NCCommunicationEditorDetailsEditors()
                     
                     if let mimetypes = subJson["mimetypes"].array {
                         for mimetype in mimetypes {
@@ -72,7 +72,7 @@ extension NCCommunication {
                 
                 let ocsdatacreators = json["ocs"]["data"]["creators"]
                 for (_, subJson):(String, JSON) in ocsdatacreators {
-                    let creator = NCEditorDetailsCreators()
+                    let creator = NCCommunicationEditorDetailsCreators()
                     
                     if let editor = subJson["editor"].string { creator.editor = editor }
                     if let ext = subJson["extension"].string { creator.ext = ext }
@@ -120,9 +120,9 @@ extension NCCommunication {
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        var templates = [NCEditorTemplates]()
+        var templates = [NCCommunicationEditorTemplates]()
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing/templates/text/textdocumenttemplate?format=json"
         
@@ -145,7 +145,7 @@ extension NCCommunication {
                 let ocsdatatemplates = json["ocs"]["data"]["editors"]
                 
                 for (_, subJson):(String, JSON) in ocsdatatemplates {
-                    let template = NCEditorTemplates()
+                    let template = NCCommunicationEditorTemplates()
                                    
                     if let identifier = subJson["id"].string { template.identifier = identifier }
                     if let ext = subJson["extension"].string { template.ext = ext }

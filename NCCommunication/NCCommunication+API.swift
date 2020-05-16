@@ -154,14 +154,23 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getExternalSite(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCExternalFile], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getActivity(serverUrl: String, since: Int, limit: Int, objectId: String?, objectType: String, previews: Bool, link: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        var externalFiles = [NCExternalFile]()
-
-        let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
+        var activities = [NCCommunicationActivity]()
+        var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
+        
+        if objectId == nil {
+            endpoint = endpoint + "/all?format=json&since=" + String(since) + "&limit=" + String(limit)
+        } else {
+            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType
+        }
+         
+        if previews {
+            endpoint = endpoint + "&previews=true"
+        }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            completionHandler(account, externalFiles, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, activities, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
@@ -173,21 +182,85 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, externalFiles, error.errorCode, error.description)
+                completionHandler(account, activities, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let ocsdata = json["ocs"]["meta"]["data"]
+                for (_, subJson):(String, JSON) in ocsdata {
+                    let activity = NCCommunicationActivity()
+                    activity.app = subJson["app"].stringValue
+                    activity.idActivity = subJson["activity_id"].intValue
+                        if let datetime = subJson["datetime"].double {
+                        let date = Date(timeIntervalSince1970: datetime) as NSDate
+                        activity.date = date
+                    }
+                    activity.icon = subJson["icon"].stringValue
+                    activity.link = subJson["link"].stringValue
+                    activity.message = subJson["message"].stringValue
+                    if let messages_rich = subJson["message_rich"].array {
+                        for message in messages_rich {
+                            activity.message_rich.append(message.string ?? "")
+                        }
+                    }
+                    activity.object_id = subJson["object_id"].intValue
+                    activity.object_name = subJson["object_name"].stringValue
+                    activity.object_type = subJson["object_type"].stringValue
+                    if let previews = subJson["previews"].array {
+                        for preview in previews {
+                            activity.previews.append(preview.string ?? "")
+                        }
+                    }
+                    activity.subject = subJson["subject"].stringValue
+                    if let subjects_rich = subJson["subject_rich"].array {
+                        for subject in subjects_rich {
+                            activity.subject_rich.append(subject.string ?? "")
+                        }
+                    }
+                    activity.type = subJson["type"].stringValue
+                    activity.user = subJson["user"].stringValue
+                    activities.append(activity)
+                }
+                completionHandler(account, activities, 0, nil)
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func getExternalSite(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var externalSites = [NCCommunicationExternalSite]()
+
+        let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account, externalSites, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, externalSites, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
                 let ocsdata = json["ocs"]["data"]
                 for (_, subJson):(String, JSON) in ocsdata {
-                    let extrernalFile = NCExternalFile()
-                    if let id = subJson["id"].int { extrernalFile.idExternalSite = id }
-                    if let name = subJson["name"].string { extrernalFile.name = name }
-                    if let url = subJson["url"].string { extrernalFile.url = url }
-                    if let lang = subJson["lang"].string { extrernalFile.lang = lang }
-                    if let icon = subJson["icon"].string { extrernalFile.icon = icon }
-                    if let type = subJson["type"].string { extrernalFile.type = type }
-                    externalFiles.append(extrernalFile)
+                    let extrernalSite = NCCommunicationExternalSite()
+                    extrernalSite.icon = subJson["icon"].stringValue
+                    extrernalSite.idExternalSite = subJson["id"].intValue
+                    extrernalSite.lang = subJson["lang"].stringValue
+                    extrernalSite.name = subJson["name"].stringValue
+                    extrernalSite.type = subJson["type"].stringValue
+                    extrernalSite.url = subJson["url"].stringValue
+                    externalSites.append(extrernalSite)
                 }
-                completionHandler(account, externalFiles, 0, nil)
+                completionHandler(account, externalSites, 0, nil)
             }
         }
     }
@@ -213,10 +286,10 @@ extension NCCommunication {
                 let json = JSON(json)
                 var versionMajor = 0, versionMinor = 0, versionMicro = 0
                 
-                let serverProductName = json["productname"].string?.lowercased() ?? ""
-                let serverVersion = json["version"].string ?? ""
-                let serverVersionString = json["versionstring"].string ?? ""
-                let extendedSupport = json["extendedSupport"].bool ?? false
+                let serverProductName = json["productname"].stringValue.lowercased()
+                let serverVersion = json["version"].stringValue
+                let serverVersionString = json["versionstring"].stringValue
+                let extendedSupport = json["extendedSupport"].boolValue
                     
                 let arrayVersion = serverVersion.components(separatedBy: ".")
                 if arrayVersion.count == 1 {
@@ -293,7 +366,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getUserProfile(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getUserProfile(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
         let endpoint = "ocs/v2.php/cloud/user?format=json"
         
@@ -314,61 +387,50 @@ extension NCCommunication {
             case .success(let json):
                 let json = JSON(json)
                 let ocs = json["ocs"]
-                let meta = ocs["meta"]
                 let data = ocs["data"]
                 
-                let statusCode = meta["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
                 
                 if statusCode == 200 {
                     
-                    let userProfile = NCUserProfile()
+                    let userProfile = NCCommunicationUserProfile()
                     
-                    if let address = data["address"].string { userProfile.address = address }
-                    if let backend = data["backend"].string { userProfile.backend = backend }
-                                        
-                    let backendCapabilities = data["backendCapabilities"]
-                    if let setDisplayName = backendCapabilities["setDisplayName"].bool { userProfile.backendCapabilitiesSetDisplayName = setDisplayName }
-                    if let setPassword = backendCapabilities["setPassword"].bool { userProfile.backendCapabilitiesSetPassword = setPassword }
-                    
-                    if let displayName = data["display-name"].string { userProfile.displayName = displayName }
-                    if let email = data["email"].string { userProfile.email = email }
-                    if let enabled = data["enabled"].bool { userProfile.enabled = enabled }
-                    
+                    userProfile.address = data["address"].stringValue
+                    userProfile.backend = data["backend"].stringValue
+                    userProfile.backendCapabilitiesSetDisplayName = data["backendCapabilities"]["setDisplayName"].boolValue
+                    userProfile.backendCapabilitiesSetPassword = data["backendCapabilities"]["setPassword"].boolValue
+                    userProfile.displayName = data["display-name"].stringValue
+                    userProfile.email = data["email"].stringValue
+                    userProfile.enabled = data["enabled"].boolValue
                     if let groups = data["groups"].array {
                         for group in groups {
-                            userProfile.groups.append(group.string ?? "")
+                            userProfile.groups.append(group.stringValue)
                         }
                     }
-                    
-                    if let userID = data["id"].string { userProfile.userID = userID }
-                    if let language = data["language"].string { userProfile.language = language }
-                    if let lastLogin = data["lastLogin"].double { userProfile.lastLogin = lastLogin }
-                    if let locale = data["locale"].string { userProfile.locale = locale }
-                    if let phone = data["phone"].string { userProfile.phone = phone }
-                    
-                    let quotaJSON = data["quota"]
-                    if let free = quotaJSON["free"].double { userProfile.quotaFree = free }
-                    if let quota = quotaJSON["quota"].double { userProfile.quota = quota }
-                    if let relative = quotaJSON["relative"].double { userProfile.quotaRelative = relative }
-                    if let total = quotaJSON["total"].double { userProfile.quotaTotal = total }
-                    if let used = quotaJSON["used"].double { userProfile.quotaUsed = used }
-                    
-                    if let storageLocation = data["storageLocation"].string { userProfile.storageLocation = storageLocation }
-
+                    userProfile.userID = data["id"].stringValue
+                    userProfile.language = data["language"].stringValue
+                    userProfile.lastLogin = data["lastLogin"].doubleValue
+                    userProfile.locale = data["locale"].stringValue
+                    userProfile.phone = data["phone"].stringValue
+                    userProfile.quotaFree = data["quota"]["free"].doubleValue
+                    userProfile.quota = data["quota"]["quota"].doubleValue
+                    userProfile.quotaRelative = data["quota"]["relative"].doubleValue
+                    userProfile.quotaTotal = data["quota"]["total"].doubleValue
+                    userProfile.quotaUsed = data["quota"]["used"].doubleValue
+                    userProfile.storageLocation = data["storageLocation"].stringValue
                     if let subadmins = data["subadmin"].array {
                         for subadmin in subadmins {
-                            userProfile.subadmin.append(subadmin.string ?? "")
+                            userProfile.subadmin.append(subadmin.stringValue)
                         }
                     }
-                    
-                    if let twitter = data["twitter"].string { userProfile.twitter = twitter }
-                    if let webpage = data["webpage"].string { userProfile.webpage = webpage }
+                    userProfile.twitter = data["twitter"].stringValue
+                    userProfile.webpage = data["webpage"].stringValue
                     
                     completionHandler(account, userProfile, 0, nil)
                     
                 } else {
                     
-                    let errorDescription = meta["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
                     
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
@@ -476,7 +538,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -499,24 +561,24 @@ extension NCCommunication {
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
-                var files = [NCFile]()
+                var files = [NCCommunicationFile]()
                 let json = JSON(json)
                 for (_, subJson):(String, JSON) in json {
-                    let file = NCFile()
+                    let file = NCCommunicationFile()
+                    file.contentType = subJson["mimetype"].stringValue
+                    file.directory = subJson["directory"].boolValue
+                    file.etag = subJson["etag"].stringValue
+                    file.favorite = subJson["favorite"].boolValue
+                    file.fileId = String(subJson["fileId"].intValue)
+                    file.fileName = subJson["name"].stringValue
+                    file.hasPreview = subJson["hasPreview"].boolValue
                     if let modificationDate = subJson["modificationDate"].double {
                         let date = Date(timeIntervalSince1970: modificationDate) as NSDate
                         file.date = date
                     }
-                    if let directory = subJson["directory"].bool { file.directory = directory }
-                    if let etag = subJson["etag"].string { file.etag = etag }
-                    if let favorite = subJson["favorite"].bool { file.favorite = favorite }
-                    if let fileId = subJson["fileId"].int { file.fileId = String(fileId) }
-                    if let hasPreview = subJson["hasPreview"].bool { file.hasPreview = hasPreview }
-                    if let mimetype = subJson["mimetype"].string { file.contentType = mimetype }
-                    if let name = subJson["name"].string { file.fileName = name }
-                    if let ocId = subJson["ocId"].string { file.ocId = ocId }
-                    if let permissions = subJson["permissions"].string { file.permissions = permissions }
-                    if let size = subJson["size"].double { file.size = size }
+                    file.ocId = subJson["ocId"].stringValue
+                    file.permissions = subJson["permissions"].stringValue
+                    file.size = subJson["size"].doubleValue
                     files.append(file)
                 }
                 completionHandler(account, files, 0, nil)
