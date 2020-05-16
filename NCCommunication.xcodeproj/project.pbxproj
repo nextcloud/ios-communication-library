@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */; };
-		F74AA256246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA255246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift */; };
+		F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */; };
 		F74AA258246405B200DD13B1 /* NCCommunication+API.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA257246405B200DD13B1 /* NCCommunication+API.swift */; };
 		F74D5C34235DE83B0006DA38 /* NCCommunication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C2A235DE83B0006DA38 /* NCCommunication.framework */; };
 		F74D5C39235DE83B0006DA38 /* NCCommunicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */; };
@@ -36,7 +36,7 @@
 
 /* Begin PBXFileReference section */
 		F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+NCText.swift"; sourceTree = "<group>"; };
-		F74AA255246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+LoginFlowV2.swift"; sourceTree = "<group>"; };
+		F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Login.swift"; sourceTree = "<group>"; };
 		F74AA257246405B200DD13B1 /* NCCommunication+API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+API.swift"; sourceTree = "<group>"; };
 		F74D5C2A235DE83B0006DA38 /* NCCommunication.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NCCommunication.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F74D5C2D235DE83B0006DA38 /* NCCommunication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCCommunication.h; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 			children = (
 				F74D5C2D235DE83B0006DA38 /* NCCommunication.h */,
 				F74D5C44235DE8F80006DA38 /* NCCommunication.swift */,
-				F74AA255246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift */,
+				F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */,
 				F74AA257246405B200DD13B1 /* NCCommunication+API.swift */,
 				F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */,
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
@@ -246,7 +246,7 @@
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
 				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
-				F74AA256246404CD00DD13B1 /* NCCommunication+LoginFlowV2.swift in Sources */,
+				F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */,
 				F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */,
 				F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */,
 				F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */,

@@ -27,6 +27,52 @@ import SwiftyJSON
 
 extension NCCommunication {
         
+    //MARK: - App Password
+    
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String?, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        let endpoint = "/ocs/v2.php/core/getapppassword"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        var headers: HTTPHeaders = [.authorization(username: username, password: password)]
+        if customUserAgent != nil {
+            headers.update(.userAgent(customUserAgent!))
+        } else if let userAgent = NCCommunicationCommon.shared.userAgent {
+            headers.update(.userAgent(userAgent))
+        }
+        headers.update(name: "OCS-APIRequest", value: "true")
+               
+        // request
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: "GET"), headers: headers)
+        } catch {
+            completionHandler(nil, error._code, error.localizedDescription)
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(nil, error.errorCode, error.description)
+            case .success(let data):
+                if let data = data {
+                    let apppassword = NCDataFileXML().convertDataAppPassword(data: data)
+                    completionHandler(apppassword, 0, "")
+                } else {
+                    completionHandler(nil, NSURLErrorBadServerResponse, "Response error decode XML")
+                }
+            }
+        }
+    }
+    
+    //MARK: - Login Flow V2
+    
     @objc public func getLoginFlowV2(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let endpoint = "index.php/login/v2"

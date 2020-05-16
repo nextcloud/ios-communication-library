@@ -344,6 +344,12 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
+    func convertDataAppPassword(data: Data) -> String? {
+        
+        let xml = XML.parse(data)
+        return xml["ocs", "data", "apppassword"].text        
+    }
+    
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCFile] {
         
         var files = [NCFile]()

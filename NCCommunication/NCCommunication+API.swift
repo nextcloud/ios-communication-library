@@ -29,6 +29,28 @@ extension NCCommunication {
     
     //MARK: -
     
+    @objc public func checkServer(serverUrl: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
+            completionHandler(NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "HEAD")
+                
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).response { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(error.errorCode, error.description)
+            case .success( _):
+                completionHandler(0, nil)
+            }
+        }
+    }
+    
+    //MARK: -
+    
     @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrlPath) else {
