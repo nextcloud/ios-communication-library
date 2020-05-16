@@ -56,17 +56,16 @@ extension NCCommunication {
                     
                     if let mimetypes = subJson["mimetypes"].array {
                         for mimetype in mimetypes {
-                            editor.mimetypes.append(mimetype.string ?? "")
+                            editor.mimetypes.append(mimetype.stringValue)
                         }
                     }
-                    if let name = subJson["name"].string { editor.name = name }
+                    editor.name = subJson["name"].stringValue
                     if let optionalMimetypes = subJson["optionalMimetypes"].array {
                         for optionalMimetype in optionalMimetypes {
-                            editor.optionalMimetypes.append(optionalMimetype.string ?? "")
+                            editor.optionalMimetypes.append(optionalMimetype.stringValue)
                         }
                     }
-                    if let secure = subJson["secure"].int { editor.secure = secure }
-                    
+                    editor.secure = subJson["secure"].intValue
                     editors.append(editor)
                 }
                 
@@ -74,12 +73,12 @@ extension NCCommunication {
                 for (_, subJson):(String, JSON) in ocsdatacreators {
                     let creator = NCCommunicationEditorDetailsCreators()
                     
-                    if let editor = subJson["editor"].string { creator.editor = editor }
-                    if let ext = subJson["extension"].string { creator.ext = ext }
-                    if let identifier = subJson["id"].string { creator.identifier = identifier }
-                    if let mimetype = subJson["mimetype"].string { creator.mimetype = mimetype }
-                    if let name = subJson["name"].string { creator.name = name }
-                    if let templates = subJson["templates"].int { creator.templates = templates }
+                    creator.editor = subJson["editor"].stringValue
+                    creator.ext = subJson["extension"].stringValue
+                    creator.identifier = subJson["id"].stringValue
+                    creator.mimetype = subJson["mimetype"].stringValue
+                    creator.name = subJson["name"].stringValue
+                    creator.templates = subJson["templates"].intValue
 
                     creators.append(creator)
                 }
@@ -114,7 +113,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let url = json["ocs"]["data"]["url"].string
+                let url = json["ocs"]["data"]["url"].stringValue
                 completionHandler(account, url, 0, nil)
             }
         }
@@ -146,12 +145,12 @@ extension NCCommunication {
                 
                 for (_, subJson):(String, JSON) in ocsdatatemplates {
                     let template = NCCommunicationEditorTemplates()
-                                   
-                    if let identifier = subJson["id"].string { template.identifier = identifier }
-                    if let ext = subJson["extension"].string { template.ext = ext }
-                    if let name = subJson["name"].string { template.name = name }
-                    if let preview = subJson["preview"].string { template.preview = preview }
-
+                    
+                    template.ext = subJson["extension"].stringValue
+                    template.identifier = subJson["id"].stringValue
+                    template.name = subJson["name"].stringValue
+                    template.preview = subJson["preview"].stringValue
+                    
                     templates.append(template)
                 }
                 
@@ -191,7 +190,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let url = json["ocs"]["data"]["url"].string
+                let url = json["ocs"]["data"]["url"].stringValue
                 completionHandler(account, url, 0, nil)
             }
         }

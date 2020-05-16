@@ -188,6 +188,7 @@ extension NCCommunication {
                 let ocsdata = json["ocs"]["meta"]["data"]
                 for (_, subJson):(String, JSON) in ocsdata {
                     let activity = NCCommunicationActivity()
+                    
                     activity.app = subJson["app"].stringValue
                     activity.idActivity = subJson["activity_id"].intValue
                         if let datetime = subJson["datetime"].double {
@@ -199,7 +200,7 @@ extension NCCommunication {
                     activity.message = subJson["message"].stringValue
                     if let messages_rich = subJson["message_rich"].array {
                         for message in messages_rich {
-                            activity.message_rich.append(message.string ?? "")
+                            activity.message_rich.append(message.stringValue)
                         }
                     }
                     activity.object_id = subJson["object_id"].intValue
@@ -207,17 +208,18 @@ extension NCCommunication {
                     activity.object_type = subJson["object_type"].stringValue
                     if let previews = subJson["previews"].array {
                         for preview in previews {
-                            activity.previews.append(preview.string ?? "")
+                            activity.previews.append(preview.stringValue)
                         }
                     }
                     activity.subject = subJson["subject"].stringValue
                     if let subjects_rich = subJson["subject_rich"].array {
                         for subject in subjects_rich {
-                            activity.subject_rich.append(subject.string ?? "")
+                            activity.subject_rich.append(subject.stringValue)
                         }
                     }
                     activity.type = subJson["type"].stringValue
                     activity.user = subJson["user"].stringValue
+                    
                     activities.append(activity)
                 }
                 completionHandler(account, activities, 0, nil)
@@ -252,12 +254,14 @@ extension NCCommunication {
                 let ocsdata = json["ocs"]["data"]
                 for (_, subJson):(String, JSON) in ocsdata {
                     let extrernalSite = NCCommunicationExternalSite()
+                    
                     extrernalSite.icon = subJson["icon"].stringValue
                     extrernalSite.idExternalSite = subJson["id"].intValue
                     extrernalSite.lang = subJson["lang"].stringValue
                     extrernalSite.name = subJson["name"].stringValue
                     extrernalSite.type = subJson["type"].stringValue
                     extrernalSite.url = subJson["url"].stringValue
+                    
                     externalSites.append(extrernalSite)
                 }
                 completionHandler(account, externalSites, 0, nil)
@@ -565,6 +569,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 for (_, subJson):(String, JSON) in json {
                     let file = NCCommunicationFile()
+                    
                     file.contentType = subJson["mimetype"].stringValue
                     file.directory = subJson["directory"].boolValue
                     file.etag = subJson["etag"].stringValue
@@ -579,6 +584,7 @@ extension NCCommunication {
                     file.ocId = subJson["ocId"].stringValue
                     file.permissions = subJson["permissions"].stringValue
                     file.size = subJson["size"].doubleValue
+                    
                     files.append(file)
                 }
                 completionHandler(account, files, 0, nil)
