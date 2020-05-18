@@ -24,6 +24,7 @@
 import Foundation
 import MobileCoreServices
 import SwiftyXMLParser
+import SwiftyJSON
 
 //MARK: - File
 
@@ -35,13 +36,13 @@ import SwiftyXMLParser
     @objc public var icon = ""
     @objc public var link = ""
     @objc public var message = ""
-    @objc public var message_rich = [String]()
+    @objc public var message_rich: Data?
     @objc public var object_id: Int = 0
     @objc public var object_name = ""
     @objc public var object_type = ""
-    @objc public var previews = [String]()
+    @objc public var previews: Data?
     @objc public var subject = ""
-    @objc public var subject_rich = [String]()
+    @objc public var subject_rich: Data?
     @objc public var type = ""
     @objc public var user = ""
 }

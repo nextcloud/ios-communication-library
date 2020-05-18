@@ -154,15 +154,15 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getActivity(serverUrl: String, since: Int, limit: Int, objectId: String?, objectType: String, previews: Bool, link: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getActivity(serverUrl: String, since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var activities = [NCCommunicationActivity]()
         var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
         
         if objectId == nil {
             endpoint = endpoint + "/all?format=json&since=" + String(since) + "&limit=" + String(limit)
-        } else {
-            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType
+        } else if objectId != nil && objectType != nil {
+            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType!
         }
          
         if previews {
@@ -185,37 +185,38 @@ extension NCCommunication {
                 completionHandler(account, activities, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let ocsdata = json["ocs"]["meta"]["data"]
+                let ocsdata = json["ocs"]["data"]
                 for (_, subJson):(String, JSON) in ocsdata {
                     let activity = NCCommunicationActivity()
                     
                     activity.app = subJson["app"].stringValue
                     activity.idActivity = subJson["activity_id"].intValue
-                        if let datetime = subJson["datetime"].double {
-                        let date = Date(timeIntervalSince1970: datetime) as NSDate
-                        activity.date = date
+                    if let datetime = subJson["datetime"].string {
+                        if let date = NCCommunicationCommon.shared.convertDate(datetime, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") {
+                            activity.date = date
+                        }
                     }
                     activity.icon = subJson["icon"].stringValue
                     activity.link = subJson["link"].stringValue
                     activity.message = subJson["message"].stringValue
-                    if let messages_rich = subJson["message_rich"].array {
-                        for message in messages_rich {
-                            activity.message_rich.append(message.stringValue)
-                        }
+                    if subJson["message_rich"].exists() {
+                        do {
+                            activity.message_rich = try subJson["message_rich"].rawData()
+                        } catch {}
                     }
                     activity.object_id = subJson["object_id"].intValue
                     activity.object_name = subJson["object_name"].stringValue
                     activity.object_type = subJson["object_type"].stringValue
-                    if let previews = subJson["previews"].array {
-                        for preview in previews {
-                            activity.previews.append(preview.stringValue)
-                        }
+                    if subJson["previews"].exists() {
+                        do {
+                            activity.previews = try subJson["previews"].rawData()
+                        } catch {}
                     }
                     activity.subject = subJson["subject"].stringValue
-                    if let subjects_rich = subJson["subject_rich"].array {
-                        for subject in subjects_rich {
-                            activity.subject_rich.append(subject.stringValue)
-                        }
+                    if subJson["subject_rich"].exists() {
+                        do {
+                            activity.subject_rich = try subJson["subject_rich"].rawData()
+                        } catch {}
                     }
                     activity.type = subJson["type"].stringValue
                     activity.user = subJson["user"].stringValue
