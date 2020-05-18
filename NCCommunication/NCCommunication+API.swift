@@ -397,7 +397,6 @@ extension NCCommunication {
                 let data = ocs["data"]
                 
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
-                
                 if statusCode == 200 {
                     
                     let userProfile = NCCommunicationUserProfile()
@@ -438,7 +437,6 @@ extension NCCommunication {
                 } else {
                     
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
-                    
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
@@ -487,7 +485,6 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "POST")
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        // request
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
@@ -522,7 +519,6 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "POST")
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        // request
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)

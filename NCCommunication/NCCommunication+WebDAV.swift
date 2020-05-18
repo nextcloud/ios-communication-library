@@ -146,7 +146,6 @@ extension NCCommunication {
          headers.update(.contentType("application/xml"))
          headers.update(name: "Depth", value: depth)
 
-         // request
          var urlRequest: URLRequest
          do {
              try urlRequest = URLRequest(url: url, method: method, headers: headers)
@@ -226,7 +225,6 @@ extension NCCommunication {
          var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          headers.update(.contentType("text/xml"))
          
-         // request
          var urlRequest: URLRequest
          do {
              try urlRequest = URLRequest(url: url, method: method, headers: headers)
@@ -319,5 +317,4 @@ extension NCCommunication {
              }
          }
      }
-
 }
