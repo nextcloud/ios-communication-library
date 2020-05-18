@@ -117,6 +117,16 @@ import SwiftyJSON
     @objc public var typeFile = ""
 }
 
+@objc public class NCCommunicationRichdocumentsTemplate: NSObject {
+
+    @objc public var delete = ""
+    @objc public var ext = ""
+    @objc public var name = ""
+    @objc public var preview = ""
+    @objc public var templateID: Int = 0
+    @objc public var type = ""
+}
+
 @objc public class NCCommunicationUserProfile: NSObject {
     
     @objc public var address = ""
