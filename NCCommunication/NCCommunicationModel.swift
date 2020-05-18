@@ -24,10 +24,68 @@
 import Foundation
 import MobileCoreServices
 import SwiftyXMLParser
+import SwiftyJSON
 
 //MARK: - File
 
-@objc public class NCFile: NSObject {
+@objc public class NCCommunicationActivity: NSObject {
+    
+    @objc public var app = ""
+    @objc public var date = NSDate()
+    @objc public var idActivity: Int = 0
+    @objc public var icon = ""
+    @objc public var link = ""
+    @objc public var message = ""
+    @objc public var message_rich: Data?
+    @objc public var object_id: Int = 0
+    @objc public var object_name = ""
+    @objc public var object_type = ""
+    @objc public var previews: Data?
+    @objc public var subject = ""
+    @objc public var subject_rich: Data?
+    @objc public var type = ""
+    @objc public var user = ""
+}
+
+@objc public class NCCommunicationEditorDetailsCreators: NSObject {
+    
+    @objc public var editor = ""
+    @objc public var ext = ""
+    @objc public var identifier = ""
+    @objc public var mimetype = ""
+    @objc public var name = ""
+    @objc public var templates: Int = 0
+}
+
+@objc public class NCCommunicationEditorDetailsEditors: NSObject {
+    
+    @objc public var mimetypes = [String]()
+    @objc public var name = ""
+    @objc public var optionalMimetypes = [String]()
+    @objc public var secure: Int = 0
+}
+
+@objc public class NCCommunicationEditorTemplates: NSObject {
+    
+    @objc public var delete = ""
+    @objc public var ext = ""
+    @objc public var identifier = ""
+    @objc public var name = ""
+    @objc public var preview = ""
+    @objc public var type = ""
+}
+
+@objc public class NCCommunicationExternalSite: NSObject {
+    
+    @objc public var icon = ""
+    @objc public var idExternalSite: Int = 0
+    @objc public var lang = ""
+    @objc public var name = ""
+    @objc public var type = ""
+    @objc public var url = ""
+}
+
+@objc public class NCCommunicationFile: NSObject {
     
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
@@ -59,45 +117,7 @@ import SwiftyXMLParser
     @objc public var typeFile = ""
 }
 
-@objc public class NCExternalFile: NSObject {
-    
-    @objc public var icon = ""
-    @objc public var idExternalSite: Int = 0
-    @objc public var lang = ""
-    @objc public var name = ""
-    @objc public var type = ""
-    @objc public var url = ""
-}
-
-@objc public class NCEditorDetailsEditors: NSObject {
-    
-    @objc public var mimetypes = [String]()
-    @objc public var name = ""
-    @objc public var optionalMimetypes = [String]()
-    @objc public var secure: Int = 0
-}
-
-@objc public class NCEditorDetailsCreators: NSObject {
-    
-    @objc public var editor = ""
-    @objc public var ext = ""
-    @objc public var identifier = ""
-    @objc public var mimetype = ""
-    @objc public var name = ""
-    @objc public var templates: Int = 0
-}
-
-@objc public class NCEditorTemplates: NSObject {
-    
-    @objc public var delete = ""
-    @objc public var ext = ""
-    @objc public var identifier = ""
-    @objc public var name = ""
-    @objc public var preview = ""
-    @objc public var type = ""
-}
-
-@objc public class NCUserProfile: NSObject {
+@objc public class NCCommunicationUserProfile: NSObject {
     
     @objc public var address = ""
     @objc public var backend = ""
@@ -344,9 +364,15 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCFile] {
+    func convertDataAppPassword(data: Data) -> String? {
         
-        var files = [NCFile]()
+        let xml = XML.parse(data)
+        return xml["ocs", "data", "apppassword"].text        
+    }
+    
+    func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
+        
+        var files = [NCCommunicationFile]()
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -356,7 +382,7 @@ class NCDataFileXML: NSObject {
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
         for element in elements {
-            let file = NCFile()
+            let file = NCCommunicationFile()
             if let href = element["d:href"].text {
                 var fileNamePath = href
                 

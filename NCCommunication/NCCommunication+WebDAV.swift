@@ -130,7 +130,7 @@ extension NCCommunication {
          }
      }
      
-     @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+     @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
          var serverUrlFileName = String(serverUrlFileName)
          if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
@@ -172,7 +172,7 @@ extension NCCommunication {
          }
      }
      
-     @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+     @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
          guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -191,7 +191,7 @@ extension NCCommunication {
          }
      }
     
-     @objc public func searchMedia(serverUrl: String, lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+     @objc public func searchMedia(serverUrl: String, lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, user: String, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
             
          guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -214,7 +214,7 @@ extension NCCommunication {
          }
      }
      
-     private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+     private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
          guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.davRoot) else {
              completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -284,7 +284,7 @@ extension NCCommunication {
          }
      }
      
-     @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+     @objc public func listingFavorites(serverUrl: String, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
          
          let serverUrlFileName = serverUrl + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId
          guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {

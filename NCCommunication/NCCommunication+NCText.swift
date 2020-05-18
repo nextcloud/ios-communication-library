@@ -27,10 +27,10 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func NCTextObtainEditorDetails(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCEditorDetailsEditors], _ creators: [NCEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextObtainEditorDetails(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        var editors = [NCEditorDetailsEditors]()
-        var creators = [NCEditorDetailsCreators]()
+        var editors = [NCCommunicationEditorDetailsEditors]()
+        var creators = [NCCommunicationEditorDetailsCreators]()
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing?format=json"
         
@@ -52,34 +52,33 @@ extension NCCommunication {
                 let json = JSON(json)
                 let ocsdataeditors = json["ocs"]["data"]["editors"]
                 for (_, subJson):(String, JSON) in ocsdataeditors {
-                    let editor = NCEditorDetailsEditors()
+                    let editor = NCCommunicationEditorDetailsEditors()
                     
                     if let mimetypes = subJson["mimetypes"].array {
                         for mimetype in mimetypes {
-                            editor.mimetypes.append(mimetype.string ?? "")
+                            editor.mimetypes.append(mimetype.stringValue)
                         }
                     }
-                    if let name = subJson["name"].string { editor.name = name }
+                    editor.name = subJson["name"].stringValue
                     if let optionalMimetypes = subJson["optionalMimetypes"].array {
                         for optionalMimetype in optionalMimetypes {
-                            editor.optionalMimetypes.append(optionalMimetype.string ?? "")
+                            editor.optionalMimetypes.append(optionalMimetype.stringValue)
                         }
                     }
-                    if let secure = subJson["secure"].int { editor.secure = secure }
-                    
+                    editor.secure = subJson["secure"].intValue
                     editors.append(editor)
                 }
                 
                 let ocsdatacreators = json["ocs"]["data"]["creators"]
                 for (_, subJson):(String, JSON) in ocsdatacreators {
-                    let creator = NCEditorDetailsCreators()
+                    let creator = NCCommunicationEditorDetailsCreators()
                     
-                    if let editor = subJson["editor"].string { creator.editor = editor }
-                    if let ext = subJson["extension"].string { creator.ext = ext }
-                    if let identifier = subJson["id"].string { creator.identifier = identifier }
-                    if let mimetype = subJson["mimetype"].string { creator.mimetype = mimetype }
-                    if let name = subJson["name"].string { creator.name = name }
-                    if let templates = subJson["templates"].int { creator.templates = templates }
+                    creator.editor = subJson["editor"].stringValue
+                    creator.ext = subJson["extension"].stringValue
+                    creator.identifier = subJson["id"].stringValue
+                    creator.mimetype = subJson["mimetype"].stringValue
+                    creator.name = subJson["name"].stringValue
+                    creator.templates = subJson["templates"].intValue
 
                     creators.append(creator)
                 }
@@ -114,15 +113,15 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let url = json["ocs"]["data"]["url"].string
+                let url = json["ocs"]["data"]["url"].stringValue
                 completionHandler(account, url, 0, nil)
             }
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextGetListOfTemplates(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        var templates = [NCEditorTemplates]()
+        var templates = [NCCommunicationEditorTemplates]()
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing/templates/text/textdocumenttemplate?format=json"
         
@@ -145,13 +144,13 @@ extension NCCommunication {
                 let ocsdatatemplates = json["ocs"]["data"]["editors"]
                 
                 for (_, subJson):(String, JSON) in ocsdatatemplates {
-                    let template = NCEditorTemplates()
-                                   
-                    if let identifier = subJson["id"].string { template.identifier = identifier }
-                    if let ext = subJson["extension"].string { template.ext = ext }
-                    if let name = subJson["name"].string { template.name = name }
-                    if let preview = subJson["preview"].string { template.preview = preview }
-
+                    let template = NCCommunicationEditorTemplates()
+                    
+                    template.ext = subJson["extension"].stringValue
+                    template.identifier = subJson["id"].stringValue
+                    template.name = subJson["name"].stringValue
+                    template.preview = subJson["preview"].stringValue
+                    
                     templates.append(template)
                 }
                 
@@ -191,7 +190,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let url = json["ocs"]["data"]["url"].string
+                let url = json["ocs"]["data"]["url"].stringValue
                 completionHandler(account, url, 0, nil)
             }
         }

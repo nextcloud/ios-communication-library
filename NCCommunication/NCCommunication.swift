@@ -32,12 +32,41 @@ import SwiftyJSON
         return instance
     }()
     
-    // Session Manager
+    private let reachabilityManager = Alamofire.NetworkReachabilityManager()
+    
+    //MARK: - Session Manager
     
     lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
     }()
+    
+    //MARK: - Reachability
+    
+    @objc public func isNetworkReachable() -> Bool {
+        return reachabilityManager?.isReachable ?? false
+    }
+    
+    @objc public func startNetworkReachabilityObserver() {
+        
+        reachabilityManager?.startListening(onUpdatePerforming: { (status) in
+            switch status {
+
+            case .unknown :
+                NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.unknown)
+
+            case .notReachable:
+                NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.notReachable)
+                
+            case .reachable(.ethernetOrWiFi):
+                NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.reachableEthernetOrWiFi)
+
+            case .reachable(.cellular):
+                NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.reachableCellular)
+
+            }
+        })
+    }
     
     //MARK: - monitor
     
@@ -165,9 +194,14 @@ import SwiftyJSON
     //MARK: - SessionDelegate
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        NCCommunicationCommon.shared.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
-            completionHandler(authChallengeDisposition, credential)
-        })
+        
+        if NCCommunicationCommon.shared.delegate == nil {
+            completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
+        } else {
+            NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
+                completionHandler(authChallengeDisposition, credential)
+            })
+        }
     }
 }
 
