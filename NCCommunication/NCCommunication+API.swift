@@ -371,6 +371,8 @@ extension NCCommunication {
         }
     }
     
+    //MARK: -
+    
     @objc public func getUserProfile(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
         let endpoint = "ocs/v2.php/cloud/user?format=json"

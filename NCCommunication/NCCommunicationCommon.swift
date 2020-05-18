@@ -53,19 +53,15 @@ import MobileCoreServices
     var webDavRoot: String = "remote.php/webdav"
     var davRoot: String = "remote.php/dav"
     
-    // Protocol
     var delegate: NCCommunicationCommonDelegate?
     
-    // Session
     @objc let sessionMaximumConnectionsPerHost = 5
     @objc let sessionIdentifierBackground: String = "com.nextcloud.session.background"
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    // Constant
     let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
     
-    // Enum
     @objc public enum typeReachability: Int {
         case unknown = 0
         case notReachable = 1
