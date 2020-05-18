@@ -26,7 +26,11 @@ import Alamofire
 import MobileCoreServices
 
 @objc public protocol NCCommunicationCommonDelegate {
+    
     @objc optional func authenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    
+    @objc optional func networkReachabilityObserver(_ typeReachability: NCCommunicationCommon.typeReachability)
+    
     @objc optional func downloadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask)
     @objc optional func uploadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask)
     @objc optional func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: NSDate?, dateLastModified: NSDate?, length: Double, description: String?, error: Error?, statusCode: Int)
@@ -60,6 +64,14 @@ import MobileCoreServices
     
     // Constant
     let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    
+    // Enum
+    @objc public enum typeReachability: Int {
+        case unknown = 0
+        case notReachable = 1
+        case reachableEthernetOrWiFi = 2
+        case reachableCellular = 3
+    }
     
     enum typeFile: String {
         case audio = "audio"
@@ -140,34 +152,6 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
-    //MARK: -  Delegate session
-    
-    public func authenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if delegate == nil {
-            completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
-        } else {
-            delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
-                completionHandler(authChallengeDisposition, credential)
-            })
-        }
-    }
-    
-    public func downloadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask) {
-        delegate?.downloadProgress?(progress, fileName: fileName, ServerUrl: ServerUrl, session: session, task: task)
-    }
-
-    public func uploadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask) {
-        delegate?.uploadProgress?(progress, fileName: fileName, ServerUrl: ServerUrl, session: session, task: task)
-    }
-    
-    public func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, error: Error?, statusCode: Int) {
-        delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: size, description: description, error: error, statusCode: statusCode)
-    }
-    
-    public func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: NSDate?, dateLastModified: NSDate?, length: Double, description: String?, error: Error?, statusCode: Int) {
-        delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
-    }
-
     //MARK: -  Common public
     
     @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {

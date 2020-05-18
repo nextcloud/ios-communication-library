@@ -138,7 +138,7 @@ import Foundation
         let progress = Double(Double(totalBytesWritten)/Double(totalBytesExpectedToWrite))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.downloadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
+            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
         }
     }
     
@@ -168,7 +168,7 @@ import Foundation
         let progress = Double(Double(totalBytesSent)/Double(totalBytesExpectedToSend))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.uploadProgress(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
+            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
         }
     }
     
@@ -211,19 +211,23 @@ import Foundation
                 if parameter?.count == 2 {
                     description = parameter![1]
                 }
-                NCCommunicationCommon.shared.downloadComplete(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationCommon.shared.uploadComplete(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
             }
         }
     }
     
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
-        NCCommunicationCommon.shared.authenticationChallenge(challenge, completionHandler: { (authChallengeDisposition, credential) in
-            completionHandler(authChallengeDisposition, credential)
-        })
+        if NCCommunicationCommon.shared.delegate == nil {
+            completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
+        } else {
+            NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
+                completionHandler(authChallengeDisposition, credential)
+            })
+        }
     }
 }
