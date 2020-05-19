@@ -82,7 +82,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(serverUrl: String, fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreview(fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -90,7 +90,7 @@ extension NCCommunication {
         }
         let endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
             
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -119,11 +119,13 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreviewTrash(serverUrl: String, fileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    //MARK: -
+
+    @objc public func downloadPreviewTrash(fileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileId + "&x=\(width)&y=\(height)"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -154,7 +156,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getActivity(serverUrl: String, since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var activities = [NCCommunicationActivity]()
         var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
@@ -169,7 +171,7 @@ extension NCCommunication {
             endpoint = endpoint + "&previews=true"
         }
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, activities, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -230,13 +232,13 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getExternalSite(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getExternalSite(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var externalSites = [NCCommunicationExternalSite]()
 
         let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, externalSites, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -313,11 +315,11 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(serverUrl: String, userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let endpoint = "index.php/avatar/" + userID + "/\(size)"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -373,11 +375,11 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getUserProfile(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getUserProfile(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
         let endpoint = "ocs/v2.php/cloud/user?format=json"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -443,11 +445,11 @@ extension NCCommunication {
         }
     }
 
-    @objc public func getCapabilities(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getCapabilities(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
         let endpoint = "ocs/v1.php/cloud/capabilities?format=json"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -543,7 +545,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(serverUrl: String, fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
@@ -552,7 +554,7 @@ extension NCCommunication {
         
         let endpoint = "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
         
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }

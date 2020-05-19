@@ -127,6 +127,23 @@ import SwiftyJSON
     @objc public var type = ""
 }
 
+@objc public class NCCommunicationTrash: NSObject {
+
+    @objc public var contentType = ""
+    @objc public var date = NSDate()
+    @objc public var directory: Bool = false
+    @objc public var fileId = ""
+    @objc public var fileName = ""
+    @objc public var filePath = ""
+    @objc public var hasPreview: Bool = false
+    @objc public var iconName = ""
+    @objc public var size: Double = 0
+    @objc public var typeFile = ""
+    @objc public var trashbinFileName = ""
+    @objc public var trashbinOriginalLocation = ""
+    @objc public var trashbinDeletionTime = NSDate()
+}
+
 @objc public class NCCommunicationUserProfile: NSObject {
     
     @objc public var address = ""
@@ -374,6 +391,39 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
+    let requestBodyTrash =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:prop>
+            <d:displayname />
+            <d:getcontenttype />
+            <d:resourcetype />
+            <d:getcontentlength />
+            <d:getlastmodified />
+            <d:creationdate />
+            <d:getetag />
+            <d:quota-used-bytes />
+            <d:quota-available-bytes />
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
+        </d:prop>
+    </d:propfind>
+    """
+    
     func convertDataAppPassword(data: Data) -> String? {
         
         let xml = XML.parse(data)
@@ -513,6 +563,91 @@ class NCDataFileXML: NSObject {
                 file.richWorkspace = richWorkspace
             }
             
+            let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+            
+            file.contentType = results.contentType
+            file.typeFile = results.typeFile
+            file.iconName = results.iconName
+            
+            files.append(file)
+        }
+        
+        return files
+    }
+    
+    func convertDataTrash(data: Data, showHiddenFiles: Bool) -> [NCCommunicationTrash] {
+        
+        var files = [NCCommunicationTrash]()
+        var first: Bool = true
+    
+        let xml = XML.parse(data)
+        let elements = xml["d:multistatus", "d:response"]
+        for element in elements {
+            if first {
+                first = false
+                continue
+            }
+            let file = NCCommunicationTrash()
+            if let href = element["d:href"].text {
+                var fileNamePath = href
+                
+                if href.last == "/" {
+                    fileNamePath = String(href.dropLast())
+                }
+                
+                // path
+                file.filePath = (fileNamePath as NSString).deletingLastPathComponent + "/"
+                file.filePath = file.filePath.removingPercentEncoding ?? ""
+                
+                // fileName
+                file.fileName = (fileNamePath as NSString).lastPathComponent
+                file.fileName = file.fileName.removingPercentEncoding ?? ""
+            }
+            
+            let propstat = element["d:propstat"][0]
+                        
+            if let getlastmodified = propstat["d:prop", "d:getlastmodified"].text {
+                if let date = NCCommunicationCommon.shared.convertDate(getlastmodified, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                    file.date = date
+                }
+            }
+            
+            if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
+                file.contentType = getcontenttype
+            }
+            
+            let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
+            if resourcetypeElement["d:collection"].error == nil {
+                file.directory = true
+                file.contentType = "httpd/unix-directory"
+            }
+            
+            if let fileId = propstat["d:prop", "oc:fileid"].text {
+                file.fileId = fileId
+            }
+            
+            if let haspreview = propstat["d:prop", "nc:has-preview"].text {
+                file.hasPreview = (haspreview as NSString).boolValue
+            }
+            
+            if let size = propstat["d:prop", "oc:size"].text {
+                file.size = Double(size) ?? 0
+            }
+            
+            if let trashbinFileName = propstat["d:prop", "nc:trashbin-filename"].text {
+                file.trashbinFileName = trashbinFileName
+            }
+            
+            if let trashbinOriginalLocation = propstat["d:prop", "nc:trashbin-original-location"].text {
+                file.trashbinOriginalLocation = trashbinOriginalLocation
+            }
+            
+            if let trashbinDeletionTime = propstat["d:prop", "nc:trashbin-deletion-time"].text {
+                if let trashbinDeletionTimeDouble = Double(trashbinDeletionTime) {
+                    file.trashbinDeletionTime = Date.init(timeIntervalSince1970: trashbinDeletionTimeDouble) as NSDate
+                }
+            }
+
             let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
             
             file.contentType = results.contentType
