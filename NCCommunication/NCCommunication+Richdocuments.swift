@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func createLinkRichdocuments(serverUrl: String, fileID: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  link: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createUrlRichdocuments(serverUrl: String, fileID: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/document?format=json"
         
@@ -42,7 +42,8 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            urlRequest.httpBody = ("fileId=" + fileID).data(using: .utf8)
+            let parameters = "fileId=" + fileID
+            urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
@@ -87,6 +88,103 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
+                let data = json["ocs"]["data"].arrayValue
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                if statusCode == 200 {
+                    var templates = [NCCommunicationRichdocumentsTemplate]()
+                    for templateJSON in data {
+                        let template = NCCommunicationRichdocumentsTemplate()
+                        
+                        template.delete = templateJSON["delete"].stringValue
+                        template.templateID = templateJSON["id"].intValue
+                        template.ext = templateJSON["extension"].stringValue
+                        template.name = templateJSON["name"].stringValue
+                        template.preview = templateJSON["preview"].stringValue
+                        template.type = templateJSON["type"].stringValue
+
+                        templates.append(template)
+                    }
+                    completionHandler(account, templates, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func createRichdocuments(serverUrl: String, path: String, templateID: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/new?format=json"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            let parameters = "path=" + path + "&template=" + templateID
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                if statusCode == 200 {
+                    let url = json["ocs"]["data"]["url"].stringValue
+                    completionHandler(account, url, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func createAssetRichdocuments(serverUrl: String, path: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        let endpoint = "index.php/apps/richdocuments/assets?format=json"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            let parameters = "path=" + path
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let url = json["url"].string
+                completionHandler(account, url, 0, nil)
             }
         }
     }

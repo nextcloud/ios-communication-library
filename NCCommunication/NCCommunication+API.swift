@@ -488,7 +488,8 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            urlRequest.httpBody = ("token=" + token).data(using: .utf8)
+            let parameters = "token=" + token
+            urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
             completionHandler(account, false, error._code, error.localizedDescription)
             return
@@ -522,7 +523,8 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            urlRequest.httpBody = ("token=" + token).data(using: .utf8)
+            let parameters = "token=" + token
+            urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
             completionHandler(account, error._code, error.localizedDescription)
             return
