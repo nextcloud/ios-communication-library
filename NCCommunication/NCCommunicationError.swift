@@ -62,6 +62,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_found_", value: "The requested resource could not be found", comment: ""))
             case 412:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_precondition_", value: "The server does not meet one of the preconditions that the requester", comment: ""))
+            case 413:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_request_entity_too_large_", value: "The file is too large", comment: ""))
             case 423:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_webdav_locked_", value: "WebDAV Locked: Trying to access locked resource", comment: ""))
             case 500:

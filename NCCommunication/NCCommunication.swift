@@ -63,7 +63,6 @@ import SwiftyJSON
 
             case .reachable(.cellular):
                 NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.reachableCellular)
-
             }
         })
     }

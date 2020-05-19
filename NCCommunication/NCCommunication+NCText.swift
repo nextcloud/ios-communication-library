@@ -159,7 +159,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
