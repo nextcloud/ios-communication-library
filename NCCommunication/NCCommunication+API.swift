@@ -212,16 +212,12 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, downloadFromTrash: Bool, endpointIncluded: Bool, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, downloadFromTrash: Bool, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         var endpoint = ""
         var url: URLConvertible?
         
-        if endpointIncluded {
-            
-            url = NCCommunicationCommon.shared.StringToUrl(fileNamePathOrFileId)
-            
-        } else {
+        if useInternalEndpoint {
             
             if downloadFromTrash {
                 endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileNamePathOrFileId + "&x=\(width)&y=\(height)"
@@ -234,6 +230,9 @@ extension NCCommunication {
             }
                 
             url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint)
+        } else {
+            
+            url = NCCommunicationCommon.shared.StringToUrl(fileNamePathOrFileId)
         }
         
         guard let urlRequest = url else {
