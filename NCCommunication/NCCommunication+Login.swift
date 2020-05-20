@@ -46,7 +46,6 @@ extension NCCommunication {
         }
         headers.update(name: "OCS-APIRequest", value: "true")
                
-        // request
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: "GET"), headers: headers)
