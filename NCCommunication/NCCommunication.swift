@@ -33,21 +33,25 @@ import SwiftyJSON
     }()
     
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
-    
-    //MARK: - Session Manager
-    
+        
     lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
     }()
     
+    override public init(fileManager: FileManager = .default) {
+        super.init(fileManager: fileManager)
+        
+        startNetworkReachabilityObserver()
+    }
+        
     //MARK: - Reachability
     
     @objc public func isNetworkReachable() -> Bool {
         return reachabilityManager?.isReachable ?? false
     }
     
-    @objc public func startNetworkReachabilityObserver() {
+    private func startNetworkReachabilityObserver() {
         
         reachabilityManager?.startListening(onUpdatePerforming: { (status) in
             switch status {
