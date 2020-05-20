@@ -300,7 +300,7 @@ extension NCCommunication {
     
     @objc public func downloadContent(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl) else {
+        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
