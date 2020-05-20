@@ -117,6 +117,26 @@ import SwiftyJSON
     @objc public var typeFile = ""
 }
 
+@objc public class NCCommunicationNotifications: NSObject {
+    
+    @objc public var actions: Data?
+    @objc public var app = ""
+    @objc public var date = NSDate()
+    @objc public var icon = ""
+    @objc public var idNotification: Int = 0
+    @objc public var link = ""
+    @objc public var message = ""
+    @objc public var messageRich = ""
+    @objc public var messageRichParameters: Data?
+    @objc public var objectId = ""
+    @objc public var objectType = ""
+    @objc public var subject = ""
+    @objc public var subjectRich = ""
+    @objc public var subjectRichParameters: Data?
+    @objc public var user = ""
+}
+
+
 @objc public class NCCommunicationRichdocumentsTemplate: NSObject {
 
     @objc public var delete = ""

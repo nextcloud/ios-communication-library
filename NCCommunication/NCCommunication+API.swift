@@ -51,82 +51,6 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        
-        var activities = [NCCommunicationActivity]()
-        var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
-        
-        if objectId == nil {
-            endpoint = endpoint + "/all?format=json&since=" + String(since) + "&limit=" + String(limit)
-        } else if objectId != nil && objectType != nil {
-            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType!
-        }
-         
-        if previews {
-            endpoint = endpoint + "&previews=true"
-        }
-        
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, activities, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, activities, error.errorCode, error.description)
-            case .success(let json):
-                let json = JSON(json)
-                let ocsdata = json["ocs"]["data"]
-                for (_, subJson):(String, JSON) in ocsdata {
-                    let activity = NCCommunicationActivity()
-                    
-                    activity.app = subJson["app"].stringValue
-                    activity.idActivity = subJson["activity_id"].intValue
-                    if let datetime = subJson["datetime"].string {
-                        if let date = NCCommunicationCommon.shared.convertDate(datetime, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") {
-                            activity.date = date
-                        }
-                    }
-                    activity.icon = subJson["icon"].stringValue
-                    activity.link = subJson["link"].stringValue
-                    activity.message = subJson["message"].stringValue
-                    if subJson["message_rich"].exists() {
-                        do {
-                            activity.message_rich = try subJson["message_rich"].rawData()
-                        } catch {}
-                    }
-                    activity.object_id = subJson["object_id"].intValue
-                    activity.object_name = subJson["object_name"].stringValue
-                    activity.object_type = subJson["object_type"].stringValue
-                    if subJson["previews"].exists() {
-                        do {
-                            activity.previews = try subJson["previews"].rawData()
-                        } catch {}
-                    }
-                    activity.subject = subJson["subject"].stringValue
-                    if subJson["subject_rich"].exists() {
-                        do {
-                            activity.subject_rich = try subJson["subject_rich"].rawData()
-                        } catch {}
-                    }
-                    activity.type = subJson["type"].stringValue
-                    activity.user = subJson["user"].stringValue
-                    
-                    activities.append(activity)
-                }
-                completionHandler(account, activities, 0, nil)
-            }
-        }
-    }
-    
-    //MARK: -
-    
     @objc public func getExternalSite(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var externalSites = [NCCommunicationExternalSite]()
@@ -541,6 +465,179 @@ extension NCCommunication {
                     files.append(file)
                 }
                 completionHandler(account, files, 0, nil)
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        var activities = [NCCommunicationActivity]()
+        var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
+        
+        if objectId == nil {
+            endpoint = endpoint + "/all?format=json&since=" + String(since) + "&limit=" + String(limit)
+        } else if objectId != nil && objectType != nil {
+            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType!
+        }
+         
+        if previews {
+            endpoint = endpoint + "&previews=true"
+        }
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, activities, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, activities, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let ocsdata = json["ocs"]["data"]
+                for (_, subJson):(String, JSON) in ocsdata {
+                    let activity = NCCommunicationActivity()
+                    
+                    activity.app = subJson["app"].stringValue
+                    activity.idActivity = subJson["activity_id"].intValue
+                    if let datetime = subJson["datetime"].string {
+                        if let date = NCCommunicationCommon.shared.convertDate(datetime, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") {
+                            activity.date = date
+                        }
+                    }
+                    activity.icon = subJson["icon"].stringValue
+                    activity.link = subJson["link"].stringValue
+                    activity.message = subJson["message"].stringValue
+                    if subJson["message_rich"].exists() {
+                        do {
+                            activity.message_rich = try subJson["message_rich"].rawData()
+                        } catch {}
+                    }
+                    activity.object_id = subJson["object_id"].intValue
+                    activity.object_name = subJson["object_name"].stringValue
+                    activity.object_type = subJson["object_type"].stringValue
+                    if subJson["previews"].exists() {
+                        do {
+                            activity.previews = try subJson["previews"].rawData()
+                        } catch {}
+                    }
+                    activity.subject = subJson["subject"].stringValue
+                    if subJson["subject_rich"].exists() {
+                        do {
+                            activity.subject_rich = try subJson["subject_rich"].rawData()
+                        } catch {}
+                    }
+                    activity.type = subJson["type"].stringValue
+                    activity.user = subJson["user"].stringValue
+                    
+                    activities.append(activity)
+                }
+                completionHandler(account, activities, 0, nil)
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func getNotifications(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    
+        var notifications = [NCCommunicationNotifications]()
+        let endpoint = "ocs/v2.php/apps/notifications/api/v2/notifications?format=json"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                if statusCode == 200 {
+                    let ocsdata = json["ocs"]["data"]
+                    for (_, subJson):(String, JSON) in ocsdata {
+                        let notification = NCCommunicationNotifications()
+                    
+                        if subJson["actions"].exists() {
+                            do {
+                                notification.actions = try subJson["actions"].rawData()
+                            } catch {}
+                        }
+                        notification.app = subJson["app"].stringValue
+                        if let datetime = subJson["datetime"].string {
+                            if let date = NCCommunicationCommon.shared.convertDate(datetime, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") {
+                                notification.date = date
+                            }
+                        }
+                        notification.icon = subJson["icon"].stringValue
+                        notification.idNotification = subJson["notification_id"].intValue
+                        notification.link = subJson["link"].stringValue
+                        notification.message = subJson["message"].stringValue
+                        notification.messageRich = subJson["messageRich"].stringValue
+                        if subJson["messageRichParameters"].exists() {
+                            do {
+                                notification.messageRichParameters = try subJson["messageRichParameters"].rawData()
+                            } catch {}
+                        }
+                        notification.objectId = subJson["object_id"].stringValue
+                        notification.objectType = subJson["object_type"].stringValue
+                        notification.subject = subJson["subject"].stringValue
+                        notification.subjectRich = subJson["subjectRich"].stringValue
+                        if subJson["subjectRichParameters"].exists() {
+                            do {
+                                notification.subjectRichParameters = try subJson["subjectRichParameters"].rawData()
+                            } catch {}
+                        }
+                        notification.user = subJson["user"].stringValue
+
+                        notifications.append(notification)
+                    }
+                
+                    completionHandler(account, notifications, 0, nil)
+                    
+                } else {
+                    
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func setNotification(serverUrl: String, method: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
+            completionHandler(account , NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: method)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
             }
         }
     }
