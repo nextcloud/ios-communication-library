@@ -51,111 +51,6 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func downloadPreview(serverUrlPath: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        
-        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrlPath) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-                
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
-            case .success( _):
-                if let data = response.data {
-                    do {
-                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, nil)
-                    } catch {
-                        completionHandler(account, nil, error._code, error.localizedDescription)
-                    }
-                } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
-                }
-            }
-        }
-    }
-    
-    @objc public func downloadPreview(fileNamePath: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        
-        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        let endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
-            
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-                
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
-            case .success( _):
-                if let data = response.data {
-                    do {
-                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, nil)
-                    } catch {
-                        completionHandler(account, nil, error._code, error.localizedDescription)
-                    }
-                } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
-                }
-            }
-        }
-    }
-    
-    //MARK: -
-
-    @objc public func downloadPreviewTrash(fileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-        
-        let endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileId + "&x=\(width)&y=\(height)"
-        
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-                
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
-            case .success( _):
-                if let data = response.data {
-                    do {
-                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try  data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, nil)
-                    } catch {
-                        completionHandler(account, nil, error._code, error.localizedDescription)
-                    }
-                } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
-                }
-            }
-        }
-    }
-    
-    //MARK: -
-    
     @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         var activities = [NCCommunicationActivity]()
@@ -311,6 +206,61 @@ extension NCCommunication {
                 }
                 
                 completionHandler(serverProductName, serverVersionString, versionMajor, versionMinor, versionMicro, extendedSupport, 0, "")
+            }
+        }
+    }
+    
+    //MARK: -
+    
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, downloadFromTrash: Bool, endpointIncluded: Bool, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        var endpoint = ""
+        var url: URLConvertible?
+        
+        if endpointIncluded {
+            
+            url = NCCommunicationCommon.shared.StringToUrl(fileNamePathOrFileId)
+            
+        } else {
+            
+            if downloadFromTrash {
+                endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileNamePathOrFileId + "&x=\(width)&y=\(height)"
+            } else {
+                guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePathOrFileId) else {
+                    completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+                    return
+                }
+                endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(width)&y=\(height)&a=1&mode=cover"
+            }
+                
+            url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint)
+        }
+        
+        guard let urlRequest = url else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+                
+        sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    do {
+                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                        try data.write(to: url, options: .atomic)
+                        completionHandler(account, data, 0, nil)
+                    } catch {
+                        completionHandler(account, nil, error._code, error.localizedDescription)
+                    }
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                }
             }
         }
     }

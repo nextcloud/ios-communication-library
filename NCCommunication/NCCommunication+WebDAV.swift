@@ -318,7 +318,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationTrash]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationTrash]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
            
         let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
             
@@ -349,8 +349,8 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataTrash(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, nil)
+                    let items = NCDataFileXML().convertDataTrash(data: data, showHiddenFiles: showHiddenFiles)
+                    completionHandler(account, items, 0, nil)
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
                 }
