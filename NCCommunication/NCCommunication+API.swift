@@ -51,8 +51,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getExternalSite(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getExternalSite(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         var externalSites = [NCCommunicationExternalSite]()
 
         let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
@@ -91,7 +92,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getServerStatus(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getServerStatus(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let endpoint = "status.php"
         
@@ -136,8 +137,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, downloadFromTrash: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-                
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, downloadFromTrash: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+               
+        let account = NCCommunicationCommon.shared.account
         var endpoint = ""
         var url: URLConvertible?
         
@@ -189,8 +191,9 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + userID + "/\(size)"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
@@ -222,8 +225,10 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadContent(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadContent(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -249,8 +254,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getUserProfile(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getUserProfile(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/cloud/user?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
@@ -319,8 +325,9 @@ extension NCCommunication {
         }
     }
 
-    @objc public func getCapabilities(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getCapabilities(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v1.php/cloud/capabilities?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
@@ -349,8 +356,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/core/wipe/check"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
@@ -384,8 +392,9 @@ extension NCCommunication {
         }
     }
     
-    @objc public func setRemoteWipeCompletition(serverUrl: String, token: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func setRemoteWipeCompletition(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/core/wipe/success"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
@@ -419,8 +428,10 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
@@ -471,8 +482,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         var activities = [NCCommunicationActivity]()
         var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
         
@@ -547,8 +559,9 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getNotifications(customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getNotifications(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
     
+        let account = NCCommunicationCommon.shared.account
         var notifications = [NCCommunicationNotifications]()
         let endpoint = "ocs/v2.php/apps/notifications/api/v2/notifications?format=json"
         
@@ -620,8 +633,9 @@ extension NCCommunication {
         }
     }
     
-    @objc public func setNotification(serverUrl: String?, idNotification: Int, method: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-                        
+    @objc public func setNotification(serverUrl: String?, idNotification: Int, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                    
+        let account = NCCommunicationCommon.shared.account
         var url: URLConvertible?
 
         if serverUrl == nil {

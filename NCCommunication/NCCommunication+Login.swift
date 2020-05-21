@@ -29,7 +29,7 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String?, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let endpoint = "/ocs/v2.php/core/getapppassword"
         
@@ -72,7 +72,7 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
@@ -100,7 +100,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, customUserAgent: String?, addCustomHeaders: [String:String]?, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
