@@ -203,7 +203,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchMedia(lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         
