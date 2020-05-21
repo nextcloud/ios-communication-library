@@ -26,11 +26,11 @@ import Alamofire
 
 extension NCCommunication {
 
-    @objc public func getComments(fileId:String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, account: String, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
            
-        let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
             
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
@@ -65,4 +65,73 @@ extension NCCommunication {
         }
     }
 
+    @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
+            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        headers.update(.contentType("application/json"))
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            let parameters = "{\"actorType\":\"users\",\"verb\":\"comment\",\"message\":\"" + message + "\"}"
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
+            }
+        }
+    }
+    
+    @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
+        
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
+            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "PROPPATCH")
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        headers.update(.contentType("application/xml"))
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            let parameters = String(format: NCDataFileXML().requestBodyCommentsUpdate, message)
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
+            }
+        }
+    }
 }
