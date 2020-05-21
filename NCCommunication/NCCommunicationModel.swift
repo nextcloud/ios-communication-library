@@ -52,7 +52,7 @@ import SwiftyJSON
     @objc public var actorDisplayName = ""
     @objc public var actorId = ""
     @objc public var actorType = ""
-    @objc public var date = NSDate()
+    @objc public var creationDateTime = NSDate()
     @objc public var isUnread: Bool = false
     @objc public var message = ""
     @objc public var messageId = ""
@@ -742,7 +742,7 @@ class NCDataFileXML: NSObject {
             
             if let creationDateTime = element["d:propstat", "d:prop", "d:creationDateTime"].text {
                 if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                    item.date = date
+                    item.creationDateTime = date
                 }
             }
            
