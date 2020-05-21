@@ -122,7 +122,7 @@ import SwiftyJSON
     @objc public var actions: Data?
     @objc public var app = ""
     @objc public var date = NSDate()
-    @objc public var icon = ""
+    @objc public var icon: String?
     @objc public var idNotification: Int = 0
     @objc public var link = ""
     @objc public var message = ""

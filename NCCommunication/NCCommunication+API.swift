@@ -585,7 +585,7 @@ extension NCCommunication {
                                 notification.date = date
                             }
                         }
-                        notification.icon = subJson["icon"].stringValue
+                        notification.icon = subJson["icon"].string
                         notification.idNotification = subJson["notification_id"].intValue
                         notification.link = subJson["link"].stringValue
                         notification.message = subJson["message"].stringValue
