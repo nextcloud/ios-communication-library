@@ -99,7 +99,7 @@ import SwiftyJSON
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         
@@ -134,8 +134,12 @@ import SwiftyJSON
                 if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, etag, date, length, 0, nil)
-                    } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
+                    } else {
+                        completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    }
+                } else {
+                    completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                }
             }
         }
         
@@ -147,7 +151,7 @@ import SwiftyJSON
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
@@ -190,8 +194,12 @@ import SwiftyJSON
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, etag, date, size, 0, nil)
-                    } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
+                    } else {
+                        completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    }
+                } else {
+                    completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                }
             }
         }
         

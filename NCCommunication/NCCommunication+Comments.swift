@@ -32,7 +32,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
             
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -60,7 +60,7 @@ extension NCCommunication {
                     let items = NCDataFileXML().convertDataComments(data: data)
                     completionHandler(account, items, 0, nil)
                 } else {
-                    completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
+                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
             }
         }
@@ -72,7 +72,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -108,7 +108,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -144,7 +144,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -168,7 +168,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         

@@ -33,7 +33,7 @@ extension NCCommunication {
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/document?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -75,7 +75,7 @@ extension NCCommunication {
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/" + typeTemplate + "?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -121,7 +121,7 @@ extension NCCommunication {
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/new?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -163,7 +163,7 @@ extension NCCommunication {
         let endpoint = "index.php/apps/richdocuments/assets?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
