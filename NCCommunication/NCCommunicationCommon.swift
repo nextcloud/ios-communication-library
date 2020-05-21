@@ -99,9 +99,9 @@ import MobileCoreServices
 
     //MARK: - Setup
     
-    @objc public func setup(user: String, userId: String, password: String, account: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
-        self.setup(user: user, userId: userId, password: password, account:account, url: url)
+        self.setup(account:account, user: user, userId: userId, password: password, url: url)
         self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
         if (webDavRoot != nil) { self.setup(webDavRoot: webDavRoot!) }
         if (davRoot != nil) { self.setup(davRoot: davRoot!) }
@@ -109,12 +109,12 @@ import MobileCoreServices
         self.setup(delegate: delegate)
     }
     
-    @objc public func setup(user: String, userId: String, password: String, account: String, url: String) {
+    @objc public func setup(account: String, user: String, userId: String, password: String, url: String) {
         
+        self.account = account
         self.user = user
         self.userId = userId
         self.password = password
-        self.account = account
         self.url = url
     }
     
