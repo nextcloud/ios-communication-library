@@ -47,6 +47,21 @@ import SwiftyJSON
     @objc public var user = ""
 }
 
+@objc public class NCCommunicationComments: NSObject {
+    
+    @objc public var actorDisplayName = ""
+    @objc public var actorId = ""
+    @objc public var actorType = ""
+    @objc public var date = NSDate()
+    @objc public var isUnread: Bool = false
+    @objc public var message = ""
+    @objc public var messageID = ""
+    @objc public var objectId = ""
+    @objc public var objectType = ""
+    @objc public var verb = ""    
+}
+
+
 @objc public class NCCommunicationEditorDetailsCreators: NSObject {
     
     @objc public var editor = ""

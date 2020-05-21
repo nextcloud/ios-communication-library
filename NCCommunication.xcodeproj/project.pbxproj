@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */; };
 		F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */; };
 		F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */; };
 		F74AA258246405B200DD13B1 /* NCCommunication+API.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA257246405B200DD13B1 /* NCCommunication+API.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Comments.swift"; sourceTree = "<group>"; };
 		F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+NCText.swift"; sourceTree = "<group>"; };
 		F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Login.swift"; sourceTree = "<group>"; };
 		F74AA257246405B200DD13B1 /* NCCommunication+API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+API.swift"; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 				F74AA257246405B200DD13B1 /* NCCommunication+API.swift */,
 				F7BBDFFF2472F42200C3B0E2 /* NCCommunication+Richdocuments.swift */,
 				F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */,
+				F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */,
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
@@ -249,6 +252,7 @@
 				F7BBE0002472F42200C3B0E2 /* NCCommunication+Richdocuments.swift in Sources */,
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
+				F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */,
 				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
 				F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */,
 				F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */,
