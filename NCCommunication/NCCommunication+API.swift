@@ -620,17 +620,26 @@ extension NCCommunication {
         }
     }
     
-    @objc public func setNotification(serverUrl: String, method: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
-                
-        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
-            completionHandler(account , NSURLErrorUnsupportedURL, "Invalid server url")
+    @objc public func setNotification(serverUrl: String?, idNotification: Int, method: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                        
+        var url: URLConvertible?
+
+        if serverUrl == nil {
+            let endpoint = "ocs/v2.php/apps/notifications/api/v2/notifications/" + String(idNotification)
+            url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint)
+        } else {
+            url = NCCommunicationCommon.shared.StringToUrl(serverUrl!)
+        }
+        
+        guard let urlRequest = url else {
+            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
             return
         }
         
         let method = HTTPMethod(rawValue: method)
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             switch response.result {
             case .failure(let error):
