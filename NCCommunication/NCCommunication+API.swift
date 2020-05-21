@@ -289,7 +289,7 @@ extension NCCommunication {
                             userProfile.groups.append(group.stringValue)
                         }
                     }
-                    userProfile.userID = data["id"].stringValue
+                    userProfile.userId = data["id"].stringValue
                     userProfile.language = data["language"].stringValue
                     userProfile.lastLogin = data["lastLogin"].doubleValue
                     userProfile.locale = data["locale"].stringValue

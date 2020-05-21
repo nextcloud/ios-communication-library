@@ -55,7 +55,7 @@ import SwiftyJSON
     @objc public var date = NSDate()
     @objc public var isUnread: Bool = false
     @objc public var message = ""
-    @objc public var messageID = ""
+    @objc public var messageId = ""
     @objc public var objectId = ""
     @objc public var objectType = ""
     @objc public var verb = ""    
@@ -158,7 +158,7 @@ import SwiftyJSON
     @objc public var ext = ""
     @objc public var name = ""
     @objc public var preview = ""
-    @objc public var templateID: Int = 0
+    @objc public var templateId: Int = 0
     @objc public var type = ""
 }
 
@@ -201,7 +201,7 @@ import SwiftyJSON
     @objc public var storageLocation = ""
     @objc public var subadmin = [String]()
     @objc public var twitter = ""
-    @objc public var userID = ""
+    @objc public var userId = ""
     @objc public var webpage = ""
 }
 
@@ -209,6 +209,25 @@ import SwiftyJSON
 
 class NCDataFileXML: NSObject {
 
+    let requestBodyComments =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:prop>
+            <oc:id />
+            <oc:verb />
+            <oc:actorType />
+            <oc:actorId />
+            <oc:creationDateTime />
+            <oc:objectType />
+            <oc:objectId />
+            <oc:isUnread />
+            <oc:message />
+            <oc:actorDisplayName />"
+        </d:prop>
+    </d:propfind>
+    """
+    
     let requestBodyFile =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -693,6 +712,59 @@ class NCDataFileXML: NSObject {
         }
         
         return files
+    }
+    
+    func convertDataComments(data: Data) -> [NCCommunicationComments] {
+        
+        var items = [NCCommunicationComments]()
+    
+        let xml = XML.parse(data)
+        let elements = xml["d:multistatus", "d:response"]
+        for element in elements {
+            let item = NCCommunicationComments()
+            
+            if let value = element["d:prop", "oc:actorDisplayName"].text {
+                item.actorDisplayName = value
+            }
+            
+            if let value = element["d:prop", "oc:actorId"].text {
+                item.actorId = value
+            }
+            
+            if let value = element["d:prop", "oc:actorType"].text {
+                item.actorType = value
+            }
+            
+            if let creationDateTime = element["d:prop", "d:creationDateTime"].text {
+                if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                    item.date = date
+                }
+            }
+           
+            if let value = element["d:prop", "oc:isUnread"].text {
+                item.isUnread = (value as NSString).boolValue
+            }
+            
+            if let value = element["d:prop", "oc:message"].text {
+                item.message = value
+            }
+            
+            if let value = element["d:prop", "oc:id"].text {
+                item.messageId = value
+            }
+            
+            if let value = element["d:prop", "oc:objectType"].text {
+                item.objectType = value
+            }
+            
+            if let value = element["d:prop", "oc:verb"].text {
+                item.verb = value
+            }
+            
+            items.append(item)
+        }
+        
+        return items
     }
 }
 

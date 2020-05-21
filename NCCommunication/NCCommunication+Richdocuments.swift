@@ -96,7 +96,7 @@ extension NCCommunication {
                         let template = NCCommunicationRichdocumentsTemplate()
                         
                         template.delete = templateJSON["delete"].stringValue
-                        template.templateID = templateJSON["id"].intValue
+                        template.templateId = templateJSON["id"].intValue
                         template.ext = templateJSON["extension"].stringValue
                         template.name = templateJSON["name"].stringValue
                         template.preview = templateJSON["preview"].stringValue

@@ -23,9 +23,46 @@
 
 import Foundation
 import Alamofire
-import SwiftyJSON
 
 extension NCCommunication {
 
+    @objc public func getComments(fileId:String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+           
+        let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "//comments/files/" + fileId
+            
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "PROPFIND")
+             
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        headers.update(.contentType("application/xml"))
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.httpBody = NCDataFileXML().requestBodyComments.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+             
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success( _):
+                if let data = response.data {
+                    let items = NCDataFileXML().convertDataComments(data: data)
+                    completionHandler(account, items, 0, nil)
+                } else {
+                    completionHandler(account, nil, NSURLErrorBadServerResponse, "Response error decode XML")
+                }
+            }
+        }
+    }
 
 }
