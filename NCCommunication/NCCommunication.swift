@@ -94,8 +94,10 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
@@ -140,8 +142,10 @@ import SwiftyJSON
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
             return nil
