@@ -58,6 +58,7 @@ import SwiftyJSON
     @objc public var messageId = ""
     @objc public var objectId = ""
     @objc public var objectType = ""
+    @objc public var path = ""
     @objc public var verb = ""    
 }
 
@@ -722,46 +723,58 @@ class NCDataFileXML: NSObject {
         let elements = xml["d:multistatus", "d:response"]
         for element in elements {
             let item = NCCommunicationComments()
+
+            if let value = element["d:href"].text {
+                item.path = value
+            }
             
-            if let value = element["d:prop", "oc:actorDisplayName"].text {
+            if let value = element["d:propstat", "d:prop", "oc:actorDisplayName"].text {
                 item.actorDisplayName = value
             }
             
-            if let value = element["d:prop", "oc:actorId"].text {
+            if let value = element["d:propstat", "d:prop", "oc:actorId"].text {
                 item.actorId = value
             }
             
-            if let value = element["d:prop", "oc:actorType"].text {
+            if let value = element["d:propstat", "d:prop", "oc:actorType"].text {
                 item.actorType = value
             }
             
-            if let creationDateTime = element["d:prop", "d:creationDateTime"].text {
+            if let creationDateTime = element["d:propstat", "d:prop", "d:creationDateTime"].text {
                 if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     item.date = date
                 }
             }
            
-            if let value = element["d:prop", "oc:isUnread"].text {
+            if let value = element["d:propstat", "d:prop", "oc:isUnread"].text {
                 item.isUnread = (value as NSString).boolValue
             }
             
-            if let value = element["d:prop", "oc:message"].text {
+            if let value = element["d:propstat", "d:prop", "oc:message"].text {
                 item.message = value
             }
             
-            if let value = element["d:prop", "oc:id"].text {
+            if let value = element["d:propstat", "d:prop", "oc:id"].text {
                 item.messageId = value
             }
             
-            if let value = element["d:prop", "oc:objectType"].text {
+            if let value = element["d:propstat", "d:prop", "oc:objectId"].text {
+                item.objectId = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:objectType"].text {
                 item.objectType = value
             }
             
-            if let value = element["d:prop", "oc:verb"].text {
+            if let value = element["d:propstat", "d:prop", "oc:verb"].text {
                 item.verb = value
             }
             
-            items.append(item)
+            if let value = element["d:propstat", "d:status"].text {
+                if value.contains("200") {
+                    items.append(item)
+                }
+            }
         }
         
         return items
