@@ -62,7 +62,7 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
@@ -108,7 +108,7 @@ extension NCCommunication {
                     }
                     completionHandler(account, templates, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
@@ -150,7 +150,7 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }

@@ -185,7 +185,7 @@ extension NCCommunication {
                         completionHandler(account, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
@@ -219,7 +219,7 @@ extension NCCommunication {
                         completionHandler(account, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
@@ -246,7 +246,7 @@ extension NCCommunication {
                 if let data = response.data {
                     completionHandler(account, data, 0, nil)
                 } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
@@ -318,7 +318,7 @@ extension NCCommunication {
                     
                 } else {
                     
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
@@ -348,7 +348,7 @@ extension NCCommunication {
                 if let data = response.data {
                     completionHandler(account, data, 0, nil)
                 } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, "Response error data null")
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
@@ -626,7 +626,7 @@ extension NCCommunication {
                     
                 } else {
                     
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }

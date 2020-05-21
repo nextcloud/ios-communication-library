@@ -49,8 +49,12 @@ extension NCCommunication {
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, date, 0, nil)
-                    } else { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, "Response error decode date format") }
+                    } else {
+                        completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    }
+                } else {
+                    completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                }
             }
         }
     }
