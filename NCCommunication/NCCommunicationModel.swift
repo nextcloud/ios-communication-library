@@ -229,6 +229,18 @@ class NCDataFileXML: NSObject {
     </d:propfind>
     """
     
+    let requestBodyCommentsMarkAsRead =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:set>
+            <d:prop>
+                <readMarker xmlns=\"http://owncloud.org/ns\"/>
+            </d:prop>
+        </d:set>
+    </d:propertyupdate>
+    """
+    
     let requestBodyCommentsUpdate =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>

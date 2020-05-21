@@ -161,4 +161,40 @@ extension NCCommunication {
             }
         }
     }
+    
+    @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        let account = NCCommunicationCommon.shared.account
+        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
+            completionHandler(account, NSURLErrorUnsupportedURL, "Invalid server url")
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "PROPPATCH")
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        headers.update(.contentType("application/xml"))
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            let parameters = String(format: NCDataFileXML().requestBodyCommentsMarkAsRead)
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, error._code, error.localizedDescription)
+            return
+        }
+        
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
+            }
+        }
+    }
 }
