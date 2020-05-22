@@ -58,7 +58,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, lock: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -68,13 +68,19 @@ extension NCCommunication {
             endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/lock/" + fileId + "?format=json" + "&e2e-token=" + e2eToken!
         }
         
-        
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
-        let method = HTTPMethod(rawValue: "POST")
+        var typeMethod = ""
+        if lock {
+            typeMethod = "POST"
+        } else {
+            typeMethod = "DELETE"
+        }
+        let method = HTTPMethod(rawValue: typeMethod)
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
