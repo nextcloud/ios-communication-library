@@ -227,7 +227,14 @@ import MobileCoreServices
     
     //MARK: - Common
     
+    
+    
     func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+        
+        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent)
+    }
+    
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {

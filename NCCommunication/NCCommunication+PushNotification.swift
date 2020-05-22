@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func subscribingPushNotification(serverUrl: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func subscribingPushNotification(serverUrl: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
             
@@ -36,7 +36,7 @@ extension NCCommunication {
             return
         }
         
-        let endpoint = "/ocs/v2.php/apps/notifications/api/v2/push?format=json&pushTokenHash=" + pushTokenHash + "&devicePublicKey=" + devicePublicKeyEncoded + "&proxyServer=" + proxyServerUrl
+        let endpoint = "ocs/v2.php/apps/notifications/api/v2/push?format=json&pushTokenHash=" + pushTokenHash + "&devicePublicKey=" + devicePublicKeyEncoded + "&proxyServer=" + proxyServerUrl
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -44,7 +44,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(user: user, password: password, appendHeaders: addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -73,11 +73,11 @@ extension NCCommunication {
         }
     }
     
-    @objc public func unsubscribingPushNotification(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func unsubscribingPushNotification(serverUrl: String, user: String, password: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
             
-        let endpoint = "/ocs/v2.php/apps/notifications/api/v2/push"
+        let endpoint = "ocs/v2.php/apps/notifications/api/v2/push"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -85,7 +85,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "DELETE")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(user: user, password: password, appendHeaders: addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
@@ -99,7 +99,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
@@ -111,8 +111,9 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
+        var headers = HTTPHeaders()
+        headers.update(.userAgent(userAgent))
+                
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             switch response.result {
@@ -125,7 +126,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
@@ -137,9 +138,8 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             switch response.result {
             case .failure(let error):
