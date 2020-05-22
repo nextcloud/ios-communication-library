@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func subscribingPushNotification(serverProxyUrl: String, pushToken: String, pushTokenHash: String, devicePublicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func subscribingPushNotification(pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
             
@@ -36,7 +36,7 @@ extension NCCommunication {
             return
         }
         
-        let endpoint = "/ocs/v2.php/apps/notifications/api/v2/push?format=json&pushTokenHash=" + pushTokenHash + "&devicePublicKey=" + devicePublicKeyEncoded + "&proxyServer=" + serverProxyUrl
+        let endpoint = "/ocs/v2.php/apps/notifications/api/v2/push?format=json&pushTokenHash=" + pushTokenHash + "&devicePublicKey=" + devicePublicKeyEncoded + "&proxyServer=" + proxyServerUrl
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -56,14 +56,45 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
                 if 200..<300 ~= statusCode  {
-                    let deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
-                    let signature = json["ocs"]["data"]["signature"].stringValue
-                    let publicKey = json["ocs"]["data"]["publicKey"].stringValue
+                    var deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
+                    var signature = json["ocs"]["data"]["signature"].stringValue
+                    var publicKey = json["ocs"]["data"]["publicKey"].stringValue
+                    
+                    deviceIdentifier = NCCommunicationCommon.shared.encodeString(deviceIdentifier) ?? ""
+                    signature = NCCommunicationCommon.shared.encodeString(signature) ?? ""
+                    publicKey = NCCommunicationCommon.shared.encodeString(publicKey) ?? ""
+                    
                     completionHandler(account, deviceIdentifier, signature, publicKey, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, nil, nil, statusCode, errorDescription)
                 }
+            }
+        }
+    }
+    
+    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                
+        let account = NCCommunicationCommon.shared.account
+
+        let endpoint = "/devices?format=json&pushToken=" + pushToken + "&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKey
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
+            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description)
+            case .success( _):
+                completionHandler(account, 0, nil)
             }
         }
     }
