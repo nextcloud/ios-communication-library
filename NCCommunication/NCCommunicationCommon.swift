@@ -99,7 +99,7 @@ import MobileCoreServices
 
     //MARK: - Setup
     
-    @objc public func setup(account: String, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.setup(account:account, user: user, userId: userId, password: password, url: url)
         self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
@@ -109,9 +109,9 @@ import MobileCoreServices
         self.setup(delegate: delegate)
     }
     
-    @objc public func setup(account: String, user: String, userId: String, password: String, url: String) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
         
-        self.account = account
+        if account == nil { self.account = "" } else { self.account = account! }
         self.user = user
         self.userId = userId
         self.password = password
