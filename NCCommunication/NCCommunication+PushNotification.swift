@@ -95,14 +95,12 @@ extension NCCommunication {
         }
     }
     
-    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        let account = NCCommunicationCommon.shared.account
-
         let endpoint = "/devices?format=json&pushToken=" + pushToken + "&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKey
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -115,21 +113,19 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(error.errorCode, error.description)
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(0, nil)
             }
         }
     }
     
-    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
-        let account = NCCommunicationCommon.shared.account
-
         let endpoint = "/devices?format=json&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKey
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
-            completionHandler(account, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -140,9 +136,9 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(error.errorCode, error.description)
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(0, nil)
             }
         }
     }
