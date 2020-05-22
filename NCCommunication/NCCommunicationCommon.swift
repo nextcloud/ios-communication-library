@@ -229,12 +229,12 @@ import MobileCoreServices
     
     
     
-    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
-        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent)
+        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
-    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String?) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {
@@ -243,6 +243,9 @@ import MobileCoreServices
             headers.update(.userAgent(userAgent))
         }
         headers.update(name: "OCS-APIRequest", value: "true")
+        if e2eToken != nil {
+            headers.update(name: "e2e-token", value: e2eToken!)
+        }
         
         for (key, value) in appendHeaders ?? [:] {
             headers.update(name: key, value: value)
