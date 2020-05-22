@@ -26,7 +26,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func markE2EEFolder(fileId: String, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func markE2EEFolder(fileId: String, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/encrypted/" + fileId + "?format=json"
@@ -36,8 +36,13 @@ extension NCCommunication {
             return
         }
         
-        // PUT (mark), DELETE (unmark)
-        let method = HTTPMethod(rawValue: method.uppercased())
+        var typeMethod = ""
+        if delete {
+            typeMethod = "DELETE"
+        } else {
+            typeMethod = "PUT"
+        }
+        let method = HTTPMethod(rawValue: typeMethod)
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
       
@@ -60,7 +65,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -75,8 +80,13 @@ extension NCCommunication {
             return
         }
         
-        // POST (lock), DELETE (unlock)
-        let method = HTTPMethod(rawValue: method.uppercased())
+        var typeMethod = ""
+        if delete {
+            typeMethod = "DELETE"
+        } else {
+            typeMethod = "POST"
+        }
+        let method = HTTPMethod(rawValue: typeMethod)
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
         
