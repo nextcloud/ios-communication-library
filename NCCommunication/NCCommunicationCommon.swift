@@ -61,7 +61,7 @@ import MobileCoreServices
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -70,7 +70,7 @@ import MobileCoreServices
         case reachableCellular = 3
     }
     
-    enum typeFile: String {
+    private enum typeFile: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
@@ -81,7 +81,7 @@ import MobileCoreServices
         case video = "video"
     }
 
-    enum iconName: String {
+    private enum iconName: String {
         case audio = "file_audio"
         case code = "file_code"
         case compress = "file_compress"

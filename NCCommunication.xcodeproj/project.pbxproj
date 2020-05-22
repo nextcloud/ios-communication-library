@@ -22,6 +22,7 @@
 		F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; };
 		F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */; };
 		F7BBE0002472F42200C3B0E2 /* NCCommunication+Richdocuments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7BBDFFF2472F42200C3B0E2 /* NCCommunication+Richdocuments.swift */; };
+		F7D0A5382477C37C002F2164 /* NCCommunication+PushNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */; };
 		F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */; };
 		F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */; };
 /* End PBXBuildFile section */
@@ -54,6 +55,7 @@
 		F74D5C50235DE99D0006DA38 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
 		F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+WebDAV.swift"; sourceTree = "<group>"; };
 		F7BBDFFF2472F42200C3B0E2 /* NCCommunication+Richdocuments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Richdocuments.swift"; sourceTree = "<group>"; };
+		F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+PushNotification.swift"; sourceTree = "<group>"; };
 		F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationBackground.swift; sourceTree = "<group>"; };
 		F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -112,6 +114,7 @@
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
+				F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */,
 				F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */,
 				F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */,
 			);
@@ -253,6 +256,7 @@
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
 				F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */,
+				F7D0A5382477C37C002F2164 /* NCCommunication+PushNotification.swift in Sources */,
 				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
 				F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */,
 				F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */,
