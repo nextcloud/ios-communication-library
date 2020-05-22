@@ -33,21 +33,25 @@ import SwiftyJSON
     }()
     
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
-    
-    //MARK: - Session Manager
-    
+        
     lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
     }()
     
+    override public init(fileManager: FileManager = .default) {
+        super.init(fileManager: fileManager)
+        
+        startNetworkReachabilityObserver()
+    }
+        
     //MARK: - Reachability
     
     @objc public func isNetworkReachable() -> Bool {
         return reachabilityManager?.isReachable ?? false
     }
     
-    @objc public func startNetworkReachabilityObserver() {
+    private func startNetworkReachabilityObserver() {
         
         reachabilityManager?.startListening(onUpdatePerforming: { (status) in
             switch status {
@@ -90,10 +94,12 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         
@@ -128,18 +134,24 @@ import SwiftyJSON
                 if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, etag, date, length, 0, nil)
-                    } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
+                    } else {
+                        completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    }
+                } else {
+                    completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                }
             }
         }
         
         return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
         
+        let account = NCCommunicationCommon.shared.account
+
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
@@ -182,8 +194,12 @@ import SwiftyJSON
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, etag, date, size, 0, nil)
-                    } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
-                } else { completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, "Response error decode date format") }
+                    } else {
+                        completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    }
+                } else {
+                    completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                }
             }
         }
         

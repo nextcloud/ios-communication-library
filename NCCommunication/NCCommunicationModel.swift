@@ -47,6 +47,22 @@ import SwiftyJSON
     @objc public var user = ""
 }
 
+@objc public class NCCommunicationComments: NSObject {
+    
+    @objc public var actorDisplayName = ""
+    @objc public var actorId = ""
+    @objc public var actorType = ""
+    @objc public var creationDateTime = NSDate()
+    @objc public var isUnread: Bool = false
+    @objc public var message = ""
+    @objc public var messageId = ""
+    @objc public var objectId = ""
+    @objc public var objectType = ""
+    @objc public var path = ""
+    @objc public var verb = ""    
+}
+
+
 @objc public class NCCommunicationEditorDetailsCreators: NSObject {
     
     @objc public var editor = ""
@@ -117,13 +133,33 @@ import SwiftyJSON
     @objc public var typeFile = ""
 }
 
+@objc public class NCCommunicationNotifications: NSObject {
+    
+    @objc public var actions: Data?
+    @objc public var app = ""
+    @objc public var date = NSDate()
+    @objc public var icon: String?
+    @objc public var idNotification: Int = 0
+    @objc public var link = ""
+    @objc public var message = ""
+    @objc public var messageRich = ""
+    @objc public var messageRichParameters: Data?
+    @objc public var objectId = ""
+    @objc public var objectType = ""
+    @objc public var subject = ""
+    @objc public var subjectRich = ""
+    @objc public var subjectRichParameters: Data?
+    @objc public var user = ""
+}
+
+
 @objc public class NCCommunicationRichdocumentsTemplate: NSObject {
 
     @objc public var delete = ""
     @objc public var ext = ""
     @objc public var name = ""
     @objc public var preview = ""
-    @objc public var templateID: Int = 0
+    @objc public var templateId: Int = 0
     @objc public var type = ""
 }
 
@@ -166,7 +202,7 @@ import SwiftyJSON
     @objc public var storageLocation = ""
     @objc public var subadmin = [String]()
     @objc public var twitter = ""
-    @objc public var userID = ""
+    @objc public var userId = ""
     @objc public var webpage = ""
 }
 
@@ -174,6 +210,49 @@ import SwiftyJSON
 
 class NCDataFileXML: NSObject {
 
+    let requestBodyComments =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:prop>
+            <oc:id />
+            <oc:verb />
+            <oc:actorType />
+            <oc:actorId />
+            <oc:creationDateTime />
+            <oc:objectType />
+            <oc:objectId />
+            <oc:isUnread />
+            <oc:message />
+            <oc:actorDisplayName />"
+        </d:prop>
+    </d:propfind>
+    """
+    
+    let requestBodyCommentsMarkAsRead =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:set>
+            <d:prop>
+                <readMarker xmlns=\"http://owncloud.org/ns\"/>
+            </d:prop>
+        </d:set>
+    </d:propertyupdate>
+    """
+    
+    let requestBodyCommentsUpdate =
+    """
+    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+        <d:set>
+            <d:prop>
+                <oc:message>%@</oc:message>
+            </d:prop>
+        </d:set>
+    </d:propertyupdate>
+    """
+    
     let requestBodyFile =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -658,6 +737,71 @@ class NCDataFileXML: NSObject {
         }
         
         return files
+    }
+    
+    func convertDataComments(data: Data) -> [NCCommunicationComments] {
+        
+        var items = [NCCommunicationComments]()
+    
+        let xml = XML.parse(data)
+        let elements = xml["d:multistatus", "d:response"]
+        for element in elements {
+            let item = NCCommunicationComments()
+
+            if let value = element["d:href"].text {
+                item.path = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:actorDisplayName"].text {
+                item.actorDisplayName = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:actorId"].text {
+                item.actorId = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:actorType"].text {
+                item.actorType = value
+            }
+            
+            if let creationDateTime = element["d:propstat", "d:prop", "d:creationDateTime"].text {
+                if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
+                    item.creationDateTime = date
+                }
+            }
+           
+            if let value = element["d:propstat", "d:prop", "oc:isUnread"].text {
+                item.isUnread = (value as NSString).boolValue
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:message"].text {
+                item.message = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:id"].text {
+                item.messageId = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:objectId"].text {
+                item.objectId = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:objectType"].text {
+                item.objectType = value
+            }
+            
+            if let value = element["d:propstat", "d:prop", "oc:verb"].text {
+                item.verb = value
+            }
+            
+            if let value = element["d:propstat", "d:status"].text {
+                if value.contains("200") {
+                    items.append(item)
+                }
+            }
+        }
+        
+        return items
     }
 }
 

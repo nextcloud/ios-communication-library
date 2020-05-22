@@ -46,6 +46,7 @@ import MobileCoreServices
     var user = ""
     var userId = ""
     var password = ""
+    var account = ""
     var url = ""
     var userAgent: String?
     var capabilitiesGroup: String?
@@ -60,7 +61,7 @@ import MobileCoreServices
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -69,7 +70,7 @@ import MobileCoreServices
         case reachableCellular = 3
     }
     
-    enum typeFile: String {
+    private enum typeFile: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
@@ -80,7 +81,7 @@ import MobileCoreServices
         case video = "video"
     }
 
-    enum iconName: String {
+    private enum iconName: String {
         case audio = "file_audio"
         case code = "file_code"
         case compress = "file_compress"
@@ -98,9 +99,9 @@ import MobileCoreServices
 
     //MARK: - Setup
     
-    @objc public func setup(user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
-        self.setup(user: user, userId: userId, password: password, url: url)
+        self.setup(account:account, user: user, userId: userId, password: password, url: url)
         self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
         if (webDavRoot != nil) { self.setup(webDavRoot: webDavRoot!) }
         if (davRoot != nil) { self.setup(davRoot: davRoot!) }
@@ -108,8 +109,9 @@ import MobileCoreServices
         self.setup(delegate: delegate)
     }
     
-    @objc public func setup(user: String, userId: String, password: String, url: String) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
         
+        if account == nil { self.account = "" } else { self.account = account! }
         self.user = user
         self.userId = userId
         self.password = password
@@ -225,7 +227,14 @@ import MobileCoreServices
     
     //MARK: - Common
     
+    
+    
     func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+        
+        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent)
+    }
+    
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {

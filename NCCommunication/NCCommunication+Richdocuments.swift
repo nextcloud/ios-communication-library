@@ -27,12 +27,13 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func createUrlRichdocuments(fileID: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createUrlRichdocuments(fileID: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/document?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -61,19 +62,20 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
         }
     }
     
-    @objc public func getTemplatesRichdocuments(typeTemplate: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ templates: [NCCommunicationRichdocumentsTemplate]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getTemplatesRichdocuments(typeTemplate: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ templates: [NCCommunicationRichdocumentsTemplate]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/" + typeTemplate + "?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -96,7 +98,7 @@ extension NCCommunication {
                         let template = NCCommunicationRichdocumentsTemplate()
                         
                         template.delete = templateJSON["delete"].stringValue
-                        template.templateID = templateJSON["id"].intValue
+                        template.templateId = templateJSON["id"].intValue
                         template.ext = templateJSON["extension"].stringValue
                         template.name = templateJSON["name"].stringValue
                         template.preview = templateJSON["preview"].stringValue
@@ -106,19 +108,20 @@ extension NCCommunication {
                     }
                     completionHandler(account, templates, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
         }
     }
     
-    @objc public func createRichdocuments(path: String, templateID: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createRichdocuments(path: String, templateID: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/new?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -147,19 +150,20 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? "Internal error"
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
         }
     }
     
-    @objc public func createAssetRichdocuments(path: String, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createAssetRichdocuments(path: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
+        let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/apps/richdocuments/assets?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, "Invalid server url")
+            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         

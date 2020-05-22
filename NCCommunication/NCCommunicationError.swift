@@ -60,6 +60,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_permission_", value: "You don't have permission to complete the operation", comment: ""))
             case 404:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_found_", value: "The requested resource could not be found", comment: ""))
+            case 405:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_method_not_allowed_", value: "The requested method is not supported", comment: ""))
             case 412:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_precondition_", value: "The server does not meet one of the preconditions that the requester", comment: ""))
             case 413:
