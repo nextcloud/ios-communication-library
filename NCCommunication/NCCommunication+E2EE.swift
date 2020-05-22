@@ -47,7 +47,13 @@ extension NCCommunication {
                 completionHandler(account, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                completionHandler(account, 0, nil)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                if 200..<300 ~= statusCode  {
+                    completionHandler(account, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, statusCode, errorDescription)
+                }
             }
         }
     }
