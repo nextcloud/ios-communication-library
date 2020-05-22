@@ -100,7 +100,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEMetadata(fileId: String, e2eToken: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
