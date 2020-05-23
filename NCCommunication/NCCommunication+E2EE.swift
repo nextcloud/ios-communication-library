@@ -154,7 +154,7 @@ extension NCCommunication {
             return
         }
         
-        // POST (store ), PUT (update), DELETE (delete)
+        // POST (store), PUT (update), DELETE (delete)
         let method = HTTPMethod(rawValue: method.uppercased())
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
@@ -163,8 +163,10 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             if metadata != nil {
-                let parameters = "metaData=" + metadata!
-                urlRequest.httpBody = parameters.data(using: .utf8)
+                if let metadataEncoded = NCCommunicationCommon.shared.encodeString(metadata!) {
+                    let parameters = "metaData=" + metadataEncoded
+                    urlRequest.httpBody = parameters.data(using: .utf8)
+                }
             }
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
