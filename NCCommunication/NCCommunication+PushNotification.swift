@@ -108,8 +108,7 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
-        var headers = HTTPHeaders()
-        headers.update(.userAgent(userAgent))
+        let headers = HTTPHeaders.init(arrayLiteral: .userAgent(userAgent))
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
