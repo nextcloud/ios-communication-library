@@ -61,7 +61,8 @@ import MobileCoreServices
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n"
+    // " #;?@&=$+{}<>,!'*|"
+    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n\"\\"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
