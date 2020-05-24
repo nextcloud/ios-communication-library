@@ -77,6 +77,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/json"))
 
@@ -113,6 +114,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "PROPPATCH")
+        
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/xml"))
 
@@ -149,6 +151,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "DELETE")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -173,6 +176,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "PROPPATCH")
+        
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/xml"))
 

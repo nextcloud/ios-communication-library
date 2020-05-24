@@ -37,6 +37,7 @@ extension NCCommunication {
         }
          
         let method = HTTPMethod(rawValue: "MKCOL")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -69,6 +70,7 @@ extension NCCommunication {
         }
          
         let method = HTTPMethod(rawValue: "DELETE")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -280,6 +282,7 @@ extension NCCommunication {
         }
          
         let method = HTTPMethod(rawValue: "PROPPATCH")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          
         var urlRequest: URLRequest
@@ -314,6 +317,7 @@ extension NCCommunication {
         }
          
         let method = HTTPMethod(rawValue: "REPORT")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
          
         var urlRequest: URLRequest

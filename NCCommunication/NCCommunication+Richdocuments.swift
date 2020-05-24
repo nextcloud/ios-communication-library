@@ -155,19 +155,12 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            let parameters = "path=" + path
-            urlRequest.httpBody = parameters.data(using: .utf8)
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
-        }
+        let parameters: [String:Any] = ["path": path]
         
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
