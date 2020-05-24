@@ -38,19 +38,12 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            let parameters = "fileId=" + fileID
-            urlRequest.httpBody = parameters.data(using: .utf8)
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
-        }
-        
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+
+        let parameters: [String:Any] = ["fileId": fileID]
+              
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -80,6 +73,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -115,7 +109,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func createRichdocuments(path: String, templateID: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createRichdocuments(path: String, templateId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/richdocuments/api/v1/templates/new?format=json"
@@ -126,19 +120,12 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            let parameters = "path=" + path + "&template=" + templateID
-            urlRequest.httpBody = parameters.data(using: .utf8)
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
-        }
-        
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+        let parameters: [String:Any] = ["path": path, "template": templateId]
+       
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)

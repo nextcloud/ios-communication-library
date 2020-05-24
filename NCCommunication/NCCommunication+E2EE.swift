@@ -158,13 +158,15 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: method.uppercased())
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
-    
+        
         var parameters: [String:Any]?
         if metadata != nil {
-            parameters = ["metaData": metadata!]
+            if let metadataEncoded = NCCommunicationCommon.shared.encodeString(metadata!) {
+                parameters = ["metaData": metadataEncoded]
+            }
         }
-        
-        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.httpBody, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
+
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
