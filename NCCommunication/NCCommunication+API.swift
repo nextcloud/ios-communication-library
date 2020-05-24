@@ -64,6 +64,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -102,6 +103,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -168,6 +170,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -202,6 +205,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -235,6 +239,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -265,6 +270,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -336,6 +342,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
@@ -367,19 +374,12 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            let parameters = "token=" + token
-            urlRequest.httpBody = parameters.data(using: .utf8)
-        } catch {
-            completionHandler(account, false, error._code, error.localizedDescription)
-            return
-        }
-        
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+        let parameters: [String:Any] = ["token": token]
+              
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -403,19 +403,12 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            let parameters = "token=" + token
-            urlRequest.httpBody = parameters.data(using: .utf8)
-        } catch {
-            completionHandler(account, error._code, error.localizedDescription)
-            return
-        }
-        
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+        let parameters: [String:Any] = ["token": token]
+              
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -445,6 +438,7 @@ extension NCCommunication {
         }
                
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -504,6 +498,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -571,6 +566,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "GET")
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -651,6 +647,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: method)
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
