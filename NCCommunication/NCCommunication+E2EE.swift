@@ -144,7 +144,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, method: String, metadata: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func storeE2EEMetadata(fileId: String, e2eToken: String, metadata: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?e2e-token=" + e2eToken +   "&format=json"
@@ -154,8 +154,7 @@ extension NCCommunication {
             return
         }
         
-        // POST (store), PUT (update), DELETE (delete)
-        let method = HTTPMethod(rawValue: method.uppercased())
+        let method = HTTPMethod(rawValue: "POST")
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
         
