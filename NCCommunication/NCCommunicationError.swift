@@ -25,12 +25,16 @@ import Foundation
 import Alamofire
 
 class NCCommunicationError: NSObject {
-   
+
+    func getInternalError() -> Int {
+        return -9999
+    }
+    
     func getError(error: AFError?, httResponse: HTTPURLResponse?) -> (errorCode: Int, description: String?) {
         
         if let errorCode = httResponse?.statusCode  {
             switch errorCode {
-            case -999:
+            case -9999:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_internal_server_", value: "Internal error", comment: ""))
             case -1001:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_time_out_", value: "Time out", comment: ""))

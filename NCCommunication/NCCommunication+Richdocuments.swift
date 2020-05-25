@@ -50,7 +50,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)
@@ -85,7 +85,7 @@ extension NCCommunication {
             case .success(let json):
                 let json = JSON(json)
                 let data = json["ocs"]["data"].arrayValue
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     var templates = [NCCommunicationRichdocumentsTemplate]()
                     for templateJSON in data {
@@ -132,7 +132,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     let url = json["ocs"]["data"]["url"].stringValue
                     completionHandler(account, url, 0, nil)

@@ -30,7 +30,7 @@ extension NCCommunication {
     @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeString(devicePublicKey) else {
-            completionHandler(account, nil, nil, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
             return
         }
         
@@ -53,7 +53,7 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     var deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
                     var signature = json["ocs"]["data"]["signature"].stringValue

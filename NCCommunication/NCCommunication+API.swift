@@ -284,7 +284,7 @@ extension NCCommunication {
                 let ocs = json["ocs"]
                 let data = ocs["data"]
                 
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     
                     let userProfile = NCCommunicationUserProfile()
@@ -577,7 +577,7 @@ extension NCCommunication {
                 completionHandler(account, nil, error.errorCode, error.description)
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     let ocsdata = json["ocs"]["data"]
                     for (_, subJson):(String, JSON) in ocsdata {
