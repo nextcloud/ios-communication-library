@@ -174,7 +174,7 @@ extension NCCommunication {
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
-                    if 200..<300 ~= statusCode  {
+                if 200..<300 ~= statusCode {
                     let metadata = json["ocs"]["data"]["meta-data"].string
                     completionHandler(account, metadata, 0, nil)
                 } else {
