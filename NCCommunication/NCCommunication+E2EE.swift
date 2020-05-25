@@ -190,7 +190,7 @@ extension NCCommunication {
     @objc public func updateE2EEMetadata(fileId: String, e2eToken: String, metadata: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
-        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1" + fileId + "?e2e-token=" + e2eToken +   "&format=json"
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?e2e-token=" + e2eToken + "&format=json"
                
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -199,21 +199,37 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
 
-        var parameters: [String:Any]?
-        if let metadataEncoded = NCCommunicationCommon.shared.encodeString(metadata) {
-            parameters = ["metaData": metadataEncoded]
-        } else {
-            completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: .put, headers: headers)
+            if let metadataEncoded = NCCommunicationCommon.shared.encodeString(metadata) {
+                let parameters = "metaData=" + metadataEncoded
+                urlRequest.httpBody = parameters.data(using: .utf8)
+            }
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
             return
         }
-        
-        sessionManager.request(url, method: .put, parameters: parameters, encoding: URLEncoding.default, headers: headers).responseData { (response) in
-            if let data = response.data {
-                let json = JSON(data)
-                print("")
-            } else {
-                
+       
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? -999
+                if 200..<300 ~= statusCode {
+                    let metadata = json["ocs"]["data"]["meta-data"].string
+                    completionHandler(account, metadata, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
             }
         }
+        
+        
     }
+       
 }
