@@ -160,7 +160,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
-                if let metadataEncoded = NCCommunicationCommon.shared.encodeString(e2eMetadata!) {
+                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringE2EMetadata(e2eMetadata!) {
                     let parameters = "metaData=" + metadataEncoded
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {

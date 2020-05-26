@@ -61,8 +61,8 @@ import MobileCoreServices
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    // " #;?@&=$+{}<>,!'*|"
-    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n\"\\"
+    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    private let k_encodeCharacterSetE2EE = " #;?@&=$+{}<>,!'*|\n\"\\"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -291,7 +291,15 @@ import MobileCoreServices
         
         return encodeString
     }
+    
+    func encodeStringE2EMetadata(_ string: String) -> String? {
         
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetE2EE).inverted)
+        let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+        
+        return encodeString
+    }
+    
     func StringToUrl(_ string: String) -> URLConvertible? {
         
         var url: URLConvertible
