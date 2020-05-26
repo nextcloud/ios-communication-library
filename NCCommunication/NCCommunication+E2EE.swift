@@ -160,7 +160,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
-                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringE2EMetadata(e2eMetadata!) {
+                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringE2EE(e2eMetadata!) {
                     let parameters = "metaData=" + metadataEncoded
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
@@ -313,8 +313,13 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            let parameters = "csr=" + publicKey
-            urlRequest.httpBody = parameters.data(using: .utf8)
+            if let key = NCCommunicationCommon.shared.encodeStringE2EE(publicKey) {
+                let parameters = "csr=" + key
+                urlRequest.httpBody = parameters.data(using: .utf8)
+            } else {
+                completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                return
+            }
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
@@ -354,8 +359,13 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            let parameters = "privateKey=" + privateKey
-            urlRequest.httpBody = parameters.data(using: .utf8)
+            if let key = NCCommunicationCommon.shared.encodeStringE2EE(privateKey) {
+                let parameters = "privateKey=" + key
+                urlRequest.httpBody = parameters.data(using: .utf8)
+            } else {
+                completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                return
+            }
         } catch {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
