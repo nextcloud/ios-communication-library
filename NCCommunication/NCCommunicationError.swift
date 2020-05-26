@@ -66,6 +66,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_found_", value: "The requested resource could not be found", comment: ""))
             case 405:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_method_not_allowed_", value: "The requested method is not supported", comment: ""))
+            case 409:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_error_conflict_", value: "The request could not be completed due to a conflict with the current state of the resource", comment: ""))
             case 412:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_precondition_", value: "The server does not meet one of the preconditions that the requester", comment: ""))
             case 413:
