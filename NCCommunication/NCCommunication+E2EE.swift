@@ -110,7 +110,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eeMetadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
@@ -134,8 +134,8 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let metadata = json["ocs"]["data"]["meta-data"].string
-                    completionHandler(account, metadata, 0, nil)
+                    let e2eeMetadata = json["ocs"]["data"]["meta-data"].string
+                    completionHandler(account, e2eeMetadata, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -144,7 +144,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, metadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, e2eeMetadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?e2e-token=" + e2eToken + "&format=json"
@@ -159,8 +159,8 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
-            if metadata != nil {
-                if let metadataEncoded = NCCommunicationCommon.shared.encodeString(metadata!) {
+            if e2eeMetadata != nil {
+                if let metadataEncoded = NCCommunicationCommon.shared.encodeString(e2eeMetadata!) {
                     let parameters = "metaData=" + metadataEncoded
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
