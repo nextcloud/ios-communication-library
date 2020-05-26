@@ -196,6 +196,190 @@ extension NCCommunication {
     
     //MARK: -
 
+    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                               
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
+           
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+           
+        let method = HTTPMethod(rawValue: "GET")
+           
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+           
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if 200..<300 ~= statusCode  {
+                    let key = json["ocs"]["data"]["public-keys"].string
+                    completionHandler(account, key, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func getE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
+       
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+       
+        let method = HTTPMethod(rawValue: "GET")
+       
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+       
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if 200..<300 ~= statusCode  {
+                    let key = json["ocs"]["data"]["private-key"].string
+                    completionHandler(account, key, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                               
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/server-key?format=json"
+           
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+           
+        let method = HTTPMethod(rawValue: "GET")
+           
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+           
+        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if 200..<300 ~= statusCode  {
+                    let key = json["ocs"]["data"]["public-key"].string
+                    completionHandler(account, key, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                               
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
+           
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+           
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: .post, headers: headers)
+            let parameters = "csr=" + publicKey
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if 200..<300 ~= statusCode {
+                    let key = json["ocs"]["data"]["public-key"].string
+                    completionHandler(account, key, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func storeE2EEPrivateKey(privateKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+                               
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
+           
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+           
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: .post, headers: headers)
+            let parameters = "privateKey=" + privateKey
+            urlRequest.httpBody = parameters.data(using: .utf8)
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description)
+            case .success(let json):
+                let json = JSON(json)
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if 200..<300 ~= statusCode {
+                    let key = json["ocs"]["data"]["private-key"].string
+                    completionHandler(account, key, 0, nil)
+                } else {
+                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
     @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
