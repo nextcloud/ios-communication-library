@@ -99,7 +99,7 @@ import SwiftyJSON
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         
@@ -151,7 +151,7 @@ import SwiftyJSON
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, nil, 0, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return nil
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)

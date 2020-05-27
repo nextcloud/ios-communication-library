@@ -61,7 +61,8 @@ import MobileCoreServices
     @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
     @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
     
-    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|\n"
+    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+    private let k_encodeCharacterSetE2EE = " #;?@&=$+{}<>,!'*|\n\"\\/"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -229,12 +230,12 @@ import MobileCoreServices
     
     
     
-    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
-        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent)
+        return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
-    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?) -> HTTPHeaders {
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {
@@ -242,7 +243,11 @@ import MobileCoreServices
         } else if let userAgent = userAgent {
             headers.update(.userAgent(userAgent))
         }
+        headers.update(.contentType("application/x-www-form-urlencoded"))
         headers.update(name: "OCS-APIRequest", value: "true")
+        if e2eToken != nil {
+            headers.update(name: "e2e-token", value: e2eToken!)
+        }
         
         for (key, value) in appendHeaders ?? [:] {
             headers.update(name: key, value: value)
@@ -286,7 +291,15 @@ import MobileCoreServices
         
         return encodeString
     }
+    
+    func encodeStringE2EE(_ string: String) -> String? {
         
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetE2EE).inverted)
+        let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
+        
+        return encodeString
+    }
+    
     func StringToUrl(_ string: String) -> URLConvertible? {
         
         var url: URLConvertible

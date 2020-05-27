@@ -25,12 +25,16 @@ import Foundation
 import Alamofire
 
 class NCCommunicationError: NSObject {
-   
+
+    func getInternalError() -> Int {
+        return -9999
+    }
+    
     func getError(error: AFError?, httResponse: HTTPURLResponse?) -> (errorCode: Int, description: String?) {
         
         if let errorCode = httResponse?.statusCode  {
             switch errorCode {
-            case -999:
+            case -9999:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_internal_server_", value: "Internal error", comment: ""))
             case -1001:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_time_out_", value: "Time out", comment: ""))
@@ -62,6 +66,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_found_", value: "The requested resource could not be found", comment: ""))
             case 405:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_method_not_allowed_", value: "The requested method is not supported", comment: ""))
+            case 409:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_error_conflict_", value: "The request could not be completed due to a conflict with the current state of the resource", comment: ""))
             case 412:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_precondition_", value: "The server does not meet one of the preconditions that the requester", comment: ""))
             case 413:
@@ -74,6 +80,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_server_error_retry_", value: "The server is temporarily unavailable", comment: ""))
             case 507:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_user_over_quota_", value: "Storage quota is reached", comment: ""))
+            case 207:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_error_multi_status_", value: "WebDAV multistatus", comment: ""))
             default:
                 return(errorCode, "\(errorCode): " + (httResponse?.description ?? ""))
             }

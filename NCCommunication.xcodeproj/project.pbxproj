@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */; };
 		F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */; };
 		F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */; };
 		F74AA256246404CD00DD13B1 /* NCCommunication+Login.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */; };
@@ -38,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+E2EE.swift"; sourceTree = "<group>"; };
 		F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Comments.swift"; sourceTree = "<group>"; };
 		F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+NCText.swift"; sourceTree = "<group>"; };
 		F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Login.swift"; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
 				F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */,
+				F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */,
 				F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */,
 				F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */,
 			);
@@ -253,6 +256,7 @@
 				F74AA258246405B200DD13B1 /* NCCommunication+API.swift in Sources */,
 				F74D5C48235DE8F80006DA38 /* NCCommunication.swift in Sources */,
 				F7BBE0002472F42200C3B0E2 /* NCCommunication+Richdocuments.swift in Sources */,
+				F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */,
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
 				F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */,
