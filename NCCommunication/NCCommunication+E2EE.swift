@@ -220,7 +220,8 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let key = json["ocs"]["data"]["public-keys"].string
+                    let userId = NCCommunicationCommon.shared.userId
+                    let key = json["ocs"]["data"]["public-keys"][userId].stringValue
                     completionHandler(account, key, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -254,7 +255,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let key = json["ocs"]["data"]["private-key"].string
+                    let key = json["ocs"]["data"]["private-key"].stringValue
                     completionHandler(account, key, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -288,7 +289,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let key = json["ocs"]["data"]["public-key"].string
+                    let key = json["ocs"]["data"]["public-key"].stringValue
                     completionHandler(account, key, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -334,7 +335,8 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode {
-                    let key = json["ocs"]["data"]["public-key"].string
+                    let key = json["ocs"]["data"]["public-key"].stringValue
+                    print(key)
                     completionHandler(account, key, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -380,7 +382,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode {
-                    let key = json["ocs"]["data"]["private-key"].string
+                    let key = json["ocs"]["data"]["private-key"].stringValue
                     completionHandler(account, key, 0, nil)
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
