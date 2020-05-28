@@ -71,7 +71,7 @@ import SwiftyJSON
         })
     }
     
-    //MARK: - monitor
+    //MARK: - monitor - Session
     
     private func makeEvents() -> [EventMonitor] {
         
@@ -91,16 +91,20 @@ import SwiftyJSON
         }
         return [events]
     }
+        
+    @objc public func getSessionManager() -> URLSession {
+       return sessionManager.session
+    }
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return nil
+            return
         }
         
         var destination: Alamofire.DownloadRequest.Destination?
@@ -112,7 +116,7 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
+        sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
             progressHandler(progress)
         }
@@ -142,17 +146,15 @@ import SwiftyJSON
                 }
             }
         }
-        
-        return request.task
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return nil
+            return
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
@@ -167,7 +169,7 @@ import SwiftyJSON
         }
         
         var size: Int64 = 0
-        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
+        sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
         .uploadProgress { progress in
             progressHandler(progress)
             size = progress.totalUnitCount
@@ -202,8 +204,6 @@ import SwiftyJSON
                 }
             }
         }
-        
-        return request.task
     }
     
     //MARK: - SessionDelegate
