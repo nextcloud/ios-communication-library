@@ -54,6 +54,8 @@ import MobileCoreServices
     var webDavRoot: String = "remote.php/webdav"
     var davRoot: String = "remote.php/dav"
     
+    var cookies = [String:[HTTPCookie]]()
+
     var delegate: NCCommunicationCommonDelegate?
     
     @objc let sessionMaximumConnectionsPerHost = 5
@@ -112,6 +114,10 @@ import MobileCoreServices
     
     @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
         
+        if self.account != account {
+            NotificationCenter.default.post(name: Notification.Name.init(rawValue: "changeUser"), object: nil)
+        }
+        
         if account == nil { self.account = "" } else { self.account = account! }
         self.user = user
         self.userId = userId
@@ -151,6 +157,11 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
+    //MARK: -
+    @objc public func remove(account: String) {
+        cookies[account] = nil
+    }
+        
     //MARK: -  Common public
     
     @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {
@@ -227,9 +238,7 @@ import MobileCoreServices
     }
     
     //MARK: - Common
-    
-    
-    
+        
     func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)

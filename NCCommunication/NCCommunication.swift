@@ -31,19 +31,55 @@ import SwiftyJSON
         let instance = NCCommunication()
         return instance
     }()
-    
-    private let reachabilityManager = Alamofire.NetworkReachabilityManager()
-        
+            
     lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
-        configuration.httpCookieStorage = nil
+        //configuration.httpCookieStorage = nil
+        configuration.httpCookieAcceptPolicy = .always
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
     }()
+    
+    private let reachabilityManager = Alamofire.NetworkReachabilityManager()
     
     override public init(fileManager: FileManager = .default) {
         super.init(fileManager: fileManager)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(changeUser(_:)), name: NSNotification.Name(rawValue: "changeUser"), object: nil)
+        
         startNetworkReachabilityObserver()
+    }
+    
+    //MARK: - Notification Center
+    
+    @objc func changeUser(_ notification: NSNotification) {
+        clearSessionCookies()
+    }
+    
+    //MARK: -  Cookies
+        
+    func saveCookies(response : HTTPURLResponse?) {
+        if let headerFields = response?.allHeaderFields as? [String : String] {
+            if let url = URL(string: NCCommunicationCommon.shared.url) {
+                let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
+                NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
+            }
+        }
+    }
+    
+    func injectsCookies() {
+        if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
+            if let url = URL(string: NCCommunicationCommon.shared.url) {
+                sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
+            }
+        }
+    }
+    
+    func clearSessionCookies() {
+        if let cookieStore = sessionManager.session.configuration.httpCookieStorage {
+            for cookie in cookieStore.cookies ?? [] {
+                cookieStore.deleteCookie(cookie)
+            }
+        }
     }
         
     //MARK: - Reachability
