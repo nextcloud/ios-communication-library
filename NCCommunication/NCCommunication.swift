@@ -70,10 +70,10 @@ import SwiftyJSON
     }
     
     internal func injectsCookies() {
-        NCCommunicationCommon.shared.queueSafe.async {
+        NCCommunicationCommon.shared.queueSafe.async { [weak self] in
             if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
                 if let url = URL(string: NCCommunicationCommon.shared.url) {
-                    self.sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
+                    self?.sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
                 }
             }
         }
