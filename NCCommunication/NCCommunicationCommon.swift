@@ -55,6 +55,7 @@ import MobileCoreServices
     var davRoot: String = "remote.php/dav"
     
     var cookies = [String:[HTTPCookie]]()
+    let queueSafe = DispatchQueue(label: "com.nextcloud.readerWriter", qos: .default, attributes: .concurrent)
 
     var delegate: NCCommunicationCommonDelegate?
     
