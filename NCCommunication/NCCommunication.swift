@@ -52,7 +52,7 @@ import SwiftyJSON
     //MARK: - Notification Center
     
     @objc func changeUser(_ notification: NSNotification) {
-        clearSessionCookies()
+        sessionDeleteCookies()
     }
     
     //MARK: -  Cookies
@@ -74,7 +74,7 @@ import SwiftyJSON
         }
     }
     
-    internal func clearSessionCookies() {
+    internal func sessionDeleteCookies() {
         if let cookieStore = sessionManager.session.configuration.httpCookieStorage {
             for cookie in cookieStore.cookies ?? [] {
                 cookieStore.deleteCookie(cookie)
