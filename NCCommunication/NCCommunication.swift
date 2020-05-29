@@ -32,7 +32,7 @@ import SwiftyJSON
         return instance
     }()
             
-    lazy var sessionManager: Alamofire.Session = {
+    internal lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
         //configuration.httpCookieStorage = nil
         configuration.httpCookieAcceptPolicy = .always
