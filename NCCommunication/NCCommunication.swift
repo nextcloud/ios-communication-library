@@ -57,8 +57,9 @@ import SwiftyJSON
     
     //MARK: -  Cookies
         
-    internal func saveCookies(response : HTTPURLResponse?) {
-        if let headerFields = response?.allHeaderFields as? [String : String] {
+    internal func saveCookies(response : AFDataResponse<Any>) {
+        debugPrint(response)
+        if let headerFields = response.response?.allHeaderFields as? [String : String] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
                 NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
