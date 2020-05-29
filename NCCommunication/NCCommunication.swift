@@ -57,7 +57,7 @@ import SwiftyJSON
     
     //MARK: -  Cookies
         
-    func saveCookies(response : HTTPURLResponse?) {
+    internal func saveCookies(response : HTTPURLResponse?) {
         if let headerFields = response?.allHeaderFields as? [String : String] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
@@ -66,7 +66,7 @@ import SwiftyJSON
         }
     }
     
-    func injectsCookies() {
+    internal func injectsCookies() {
         if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
@@ -74,7 +74,7 @@ import SwiftyJSON
         }
     }
     
-    func clearSessionCookies() {
+    internal func clearSessionCookies() {
         if let cookieStore = sessionManager.session.configuration.httpCookieStorage {
             for cookie in cookieStore.cookies ?? [] {
                 cookieStore.deleteCookie(cookie)
