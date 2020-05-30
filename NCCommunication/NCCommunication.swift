@@ -137,9 +137,10 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, taskHandler: @escaping (_ task: URLSessionTask) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
+        var task: URLSessionTask?
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -155,12 +156,17 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
-        .downloadProgress { progress in
+        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination).validate(statusCode: 200..<300)
+            
+        request.downloadProgress { progress in
             progressHandler(progress)
+            if task == nil {
+                task = request.task
+                taskHandler(task!)
+            }
         }
-        .validate(statusCode: 200..<300)
-        .response { response in
+        
+        request.response { response in
             debugPrint(response)
             
             switch response.result {
