@@ -171,8 +171,12 @@ extension NCCommunication {
             completionHandler(account, nil, error._code, error.localizedDescription)
             return
         }
-         
+        
+        injectsCookies()
         sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
