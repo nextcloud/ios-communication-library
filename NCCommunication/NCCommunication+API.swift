@@ -39,6 +39,7 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "HEAD")
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).response { (response) in
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -67,8 +68,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -106,7 +110,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -173,7 +181,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                 
+        injectsCookies()
         sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -207,8 +219,12 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-                
+               
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -241,8 +257,12 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-                
+              
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -385,7 +405,11 @@ extension NCCommunication {
         
         let parameters: [String:Any] = ["token": token]
               
+        injectsCookies()
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -413,8 +437,12 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         let parameters: [String:Any] = ["token": token]
-              
+         
+        injectsCookies()
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -447,7 +475,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -506,9 +538,12 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
+       
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -575,8 +610,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
+        injectsCookies()
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -656,8 +694,11 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
+        injectsCookies()
         sessionManager.request(urlRequest, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
