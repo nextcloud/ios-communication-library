@@ -57,7 +57,7 @@ import SwiftyJSON
     
     //MARK: -  Cookies
    
-    internal func saveCookies(response : HTTPURLResponse?) {
+    internal func saveCookiesTEST(response : HTTPURLResponse?) {
         if let headerFields = response?.allHeaderFields as? [String : String] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
@@ -70,7 +70,7 @@ import SwiftyJSON
         }
     }
     
-    internal func injectsCookies() {
+    internal func injectsCookiesTEST() {
         if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
@@ -157,7 +157,6 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        injectsCookies()
         sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
             progressHandler(progress)
@@ -165,7 +164,6 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             debugPrint(response)
-            self.saveCookies(response: response.response)
             
             switch response.result {
             case .failure(let error):
@@ -214,7 +212,6 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
-        injectsCookies()
         sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
         .uploadProgress { progress in
             progressHandler(progress)
@@ -223,7 +220,6 @@ import SwiftyJSON
         .validate(statusCode: 200..<300)
         .response { response in
             debugPrint(response)
-            self.saveCookies(response: response.response)
             
             switch response.result {
             case .failure(let error):
