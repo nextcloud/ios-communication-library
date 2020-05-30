@@ -157,12 +157,16 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
+        injectsCookies()
         sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
         .downloadProgress { progress in
             progressHandler(progress)
         }
         .validate(statusCode: 200..<300)
         .response { response in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -192,6 +196,7 @@ import SwiftyJSON
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
+        var size: Int64 = 0
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -209,7 +214,7 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
-        var size: Int64 = 0
+        injectsCookies()
         sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
         .uploadProgress { progress in
             progressHandler(progress)
@@ -217,6 +222,9 @@ import SwiftyJSON
         }
         .validate(statusCode: 200..<300)
         .response { response in
+            debugPrint(response)
+            self.saveCookies(response: response.response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
