@@ -55,6 +55,8 @@ extension NCCommunication {
         }
 
         sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -84,6 +86,8 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "POST")
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -111,6 +115,8 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "POST")
         
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
