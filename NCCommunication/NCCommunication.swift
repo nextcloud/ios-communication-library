@@ -62,19 +62,15 @@ import SwiftyJSON
         if let headerFields = response.response?.allHeaderFields as? [String : String] {
             if let url = URL(string: NCCommunicationCommon.shared.url) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
-                NCCommunicationCommon.shared.queueSafe.async(flags: .barrier) { //[weak self] in
                     NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
-                }
             }
         }
     }
     
     internal func injectsCookies() {
-        NCCommunicationCommon.shared.queueSafe.async { [weak self] in
-            if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
-                if let url = URL(string: NCCommunicationCommon.shared.url) {
-                    self?.sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
-                }
+        if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
+            if let url = URL(string: NCCommunicationCommon.shared.url) {
+                sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
             }
         }
     }
