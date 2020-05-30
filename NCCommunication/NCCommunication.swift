@@ -189,10 +189,11 @@ import SwiftyJSON
         }
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, taskHandler: @escaping (_ task: URLSessionTask) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var size: Int64 = 0
+        var task: URLSessionTask?
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -210,13 +211,18 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
-        sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
-        .uploadProgress { progress in
+        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300)
+            
+        request.uploadProgress { progress in
             progressHandler(progress)
             size = progress.totalUnitCount
+            if task == nil {
+                task = request.task
+                taskHandler(task!)
+            }
         }
-        .validate(statusCode: 200..<300)
-        .response { response in
+    
+        request.response { response in
             debugPrint(response)
             
             switch response.result {
