@@ -174,13 +174,20 @@ import SwiftyJSON
                 completionHandler(account, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
                 var etag: String?
-                let length = response.response?.allHeaderFields["length"] as? Double ?? 0
+                var length: Double = 0
+                
+                if let result = response.response?.allHeaderFields["Content-Length"] as? String {
+                    length = Double(result) ?? 0
+                }
+                
                 if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
+                
                 if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, etag, date, length, 0, nil)
@@ -235,17 +242,21 @@ import SwiftyJSON
                 completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description)
             case .success( _):
                 var ocId: String?, etag: String?
+                
                 if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
                     ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
                     ocId = NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
+                
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
                         completionHandler(account, ocId, etag, date, size, 0, nil)
