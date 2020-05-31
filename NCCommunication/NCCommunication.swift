@@ -167,7 +167,6 @@ import SwiftyJSON
         }
         
         request.response { response in
-            debugPrint(response)
             
             switch response.result {
             case .failure(let error):
@@ -229,7 +228,6 @@ import SwiftyJSON
         }
     
         request.response { response in
-            debugPrint(response)
             
             switch response.result {
             case .failure(let error):
