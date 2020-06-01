@@ -26,7 +26,7 @@ import Alamofire
 
 extension NCCommunication {
 
-    @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
@@ -56,11 +56,11 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let items = NCDataFileXML().convertDataComments(data: data)
-                    completionHandler(account, items, 0, nil)
+                    completionHandler(account, items, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
@@ -68,7 +68,7 @@ extension NCCommunication {
         }
     }
 
-    @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
@@ -99,14 +99,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
     
-    @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
@@ -137,14 +137,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
     
-    @objc public func deleteComments(fileId: String, messageId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func deleteComments(fileId: String, messageId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
@@ -164,14 +164,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
     
-    @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
@@ -202,9 +202,9 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }

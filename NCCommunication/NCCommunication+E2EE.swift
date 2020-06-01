@@ -26,7 +26,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func markE2EEFolder(fileId: String, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func markE2EEFolder(fileId: String, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/encrypted/" + fileId + "?format=json"
@@ -52,12 +52,12 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    completionHandler(account, 0, nil)
+                    completionHandler(account, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, statusCode, errorDescription)
@@ -66,7 +66,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -97,13 +97,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     let e2eToken = json["ocs"]["data"]["e2e-token"].string
-                    completionHandler(account, e2eToken, 0, nil)
+                    completionHandler(account, e2eToken, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -112,7 +112,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eMetadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eMetadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
@@ -132,13 +132,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     let e2eMetadata = json["ocs"]["data"]["meta-data"].string
-                    completionHandler(account, e2eMetadata, 0, nil)
+                    completionHandler(account, e2eMetadata, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -147,7 +147,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, e2eMetadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, e2eMetadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?e2e-token=" + e2eToken + "&format=json"
@@ -184,13 +184,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode {
                     let metadata = json["ocs"]["data"]["meta-data"].string
-                    completionHandler(account, metadata, 0, nil)
+                    completionHandler(account, metadata, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -201,7 +201,7 @@ extension NCCommunication {
     
     //MARK: -
 
-    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -221,14 +221,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     let userId = NCCommunicationCommon.shared.userId
                     let key = json["ocs"]["data"]["public-keys"][userId].stringValue
-                    completionHandler(account, key, 0, nil)
+                    completionHandler(account, key, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -237,7 +237,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
@@ -257,13 +257,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     let key = json["ocs"]["data"]["private-key"].stringValue
-                    completionHandler(account, key, 0, nil)
+                    completionHandler(account, key, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -272,7 +272,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/server-key?format=json"
@@ -292,13 +292,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     let key = json["ocs"]["data"]["public-key"].stringValue
-                    completionHandler(account, key, 0, nil)
+                    completionHandler(account, key, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -307,7 +307,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -340,14 +340,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode {
                     let key = json["ocs"]["data"]["public-key"].stringValue
                     print(key)
-                    completionHandler(account, key, 0, nil)
+                    completionHandler(account, key, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -356,7 +356,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func storeE2EEPrivateKey(privateKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func storeE2EEPrivateKey(privateKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
@@ -389,13 +389,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode {
                     let key = json["ocs"]["data"]["private-key"].stringValue
-                    completionHandler(account, key, 0, nil)
+                    completionHandler(account, key, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -404,7 +404,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -424,14 +424,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
     
-    @objc public func deleteE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func deleteE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
@@ -451,9 +451,9 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }

@@ -29,7 +29,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func checkServer(serverUrl: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func checkServer(serverUrl: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
         
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
             completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -43,16 +43,16 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(error.errorCode, error.description)
+                completionHandler(error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(0, nil)
+                completionHandler(0, "")
             }
         }
     }
     
     //MARK: -
     
-    @objc public func getExternalSite(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getExternalSite(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var externalSites = [NCCommunicationExternalSite]()
@@ -74,7 +74,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, externalSites, error.errorCode, error.description)
+                completionHandler(account, externalSites, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let ocsdata = json["ocs"]["data"]
@@ -90,12 +90,12 @@ extension NCCommunication {
                     
                     externalSites.append(extrernalSite)
                 }
-                completionHandler(account, externalSites, 0, nil)
+                completionHandler(account, externalSites, 0, "")
             }
         }
     }
     
-    @objc public func getServerStatus(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getServerStatus(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ serverProductName: String?, _ serverVersion: String? , _ versionMajor: Int, _ versionMinor: Int, _ versionMicro: Int, _ extendedSupport: Bool, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "status.php"
         
@@ -114,7 +114,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, nil, 0, 0, 0, false, error.errorCode, error.description)
+                completionHandler(nil, nil, 0, 0, 0, false, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 var versionMajor = 0, versionMinor = 0, versionMicro = 0
@@ -143,7 +143,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, downloadFromTrash: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNameLocalPath: String, width: Int, height: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, downloadFromTrash: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -182,13 +182,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         try data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, nil)
+                        completionHandler(account, data, 0, "")
                     } catch {
                         completionHandler(account, nil, error._code, error.localizedDescription)
                     }
@@ -199,7 +199,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + userID + "/\(size)"
@@ -218,13 +218,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         try  data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, nil)
+                        completionHandler(account, data, 0, "")
                     } catch {
                         completionHandler(account, nil, error._code, error.localizedDescription)
                     }
@@ -235,7 +235,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadContent(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func downloadContent(serverUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
@@ -253,10 +253,10 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    completionHandler(account, data, 0, nil)
+                    completionHandler(account, data, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
@@ -266,7 +266,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getUserProfile(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getUserProfile(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ userProfile: NCCommunicationUserProfile?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/cloud/user?format=json"
@@ -286,7 +286,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let ocs = json["ocs"]
@@ -328,7 +328,7 @@ extension NCCommunication {
                     userProfile.twitter = data["twitter"].stringValue
                     userProfile.webpage = data["webpage"].stringValue
                     
-                    completionHandler(account, userProfile, 0, nil)
+                    completionHandler(account, userProfile, 0, "")
                     
                 } else {
                     
@@ -339,7 +339,7 @@ extension NCCommunication {
         }
     }
 
-    @objc public func getCapabilities(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getCapabilities(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v1.php/cloud/capabilities?format=json"
@@ -359,10 +359,10 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    completionHandler(account, data, 0, nil)
+                    completionHandler(account, data, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
@@ -372,7 +372,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getRemoteWipeStatus(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ wipe: Bool, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/core/wipe/check"
@@ -394,7 +394,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, false, error.errorCode, error.description)
+                completionHandler(account, false, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let wipe = json["wipe"].boolValue
@@ -403,7 +403,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func setRemoteWipeCompletition(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func setRemoteWipeCompletition(serverUrl: String, token: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/core/wipe/success"
@@ -425,7 +425,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
                 completionHandler(account, 0, "")
             }
@@ -434,7 +434,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
@@ -460,7 +460,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 var files = [NCCommunicationFile]()
                 let json = JSON(json)
@@ -484,14 +484,14 @@ extension NCCommunication {
                     
                     files.append(file)
                 }
-                completionHandler(account, files, 0, nil)
+                completionHandler(account, files, 0, "")
             }
         }
     }
     
     //MARK: -
     
-    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var activities = [NCCommunicationActivity]()
@@ -522,7 +522,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, activities, error.errorCode, error.description)
+                completionHandler(account, activities, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let ocsdata = json["ocs"]["data"]
@@ -563,14 +563,14 @@ extension NCCommunication {
                     
                     activities.append(activity)
                 }
-                completionHandler(account, activities, 0, nil)
+                completionHandler(account, activities, 0, "")
             }
         }
     }
     
     //MARK: -
     
-    @objc public func getNotifications(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getNotifications(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         var notifications = [NCCommunicationNotifications]()
@@ -591,7 +591,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -635,7 +635,7 @@ extension NCCommunication {
                         notifications.append(notification)
                     }
                 
-                    completionHandler(account, notifications, 0, nil)
+                    completionHandler(account, notifications, 0, "")
                     
                 } else {
                     
@@ -646,7 +646,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func setNotification(serverUrl: String?, idNotification: Int, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func setNotification(serverUrl: String?, idNotification: Int, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                     
         let account = NCCommunicationCommon.shared.account
         var url: URLConvertible?
@@ -673,9 +673,9 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }

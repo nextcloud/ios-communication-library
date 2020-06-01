@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -46,12 +46,12 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, error.errorCode, error.description)
+                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 let ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, date, 0, nil)
+                        completionHandler(account, ocId, date, 0, "")
                     } else {
                         completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                     }
@@ -62,7 +62,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -81,14 +81,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
      
-    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -113,14 +113,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
      
-    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -145,14 +145,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
      
-    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         var serverUrlFileName = String(serverUrlFileName)
@@ -186,11 +186,11 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, nil)
+                    completionHandler(account, files, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
@@ -198,7 +198,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -219,7 +219,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func searchMedia(lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         
@@ -244,7 +244,7 @@ extension NCCommunication {
         }
     }
      
-    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String:String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.davRoot) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -271,11 +271,11 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, nil)
+                    completionHandler(account, files, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
@@ -283,7 +283,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func setFavorite(fileName: String, favorite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func setFavorite(fileName: String, favorite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
@@ -313,14 +313,14 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description)
+                completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
-                completionHandler(account, 0, nil)
+                completionHandler(account, 0, "")
             }
         }
     }
      
-    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId
@@ -349,11 +349,11 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, nil)
+                    completionHandler(account, files, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
@@ -361,7 +361,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationTrash]?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationTrash]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
@@ -392,11 +392,11 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let items = NCDataFileXML().convertDataTrash(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, items, 0, nil)
+                    completionHandler(account, items, 0, "")
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
