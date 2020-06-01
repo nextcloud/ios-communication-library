@@ -110,6 +110,28 @@ import SwiftyJSON
         })
     }
     
+    //MARK: - Session utility
+        
+    @objc public func getSessionManager() -> URLSession {
+       return sessionManager.session
+    }
+    
+    //MARK: - Task utility
+    
+    @objc public func getDownloadTask(taskIdentifier: Int, taskHandler: @escaping (_ task: URLSessionTask?) -> Void) {
+        
+        var foundTask: URLSessionTask? = nil
+        
+        sessionManager.session.getAllTasks { (tasks) in
+            for task in tasks {
+                if task.taskIdentifier == taskIdentifier {
+                    foundTask = task
+                }
+            }
+            taskHandler(foundTask)
+        }
+    }
+    
     //MARK: - monitor - Session
     
     private func makeEvents() -> [EventMonitor] {
@@ -129,10 +151,6 @@ import SwiftyJSON
             */
         }
         return [events]
-    }
-        
-    @objc public func getSessionManager() -> URLSession {
-       return sessionManager.session
     }
     
     //MARK: - download / upload
