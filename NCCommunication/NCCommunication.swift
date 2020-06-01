@@ -205,7 +205,9 @@ import SwiftyJSON
             }
         }
         
-        requestHandler(request)
+        DispatchQueue.main.async {
+            requestHandler(request)
+        }
     }
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
@@ -280,7 +282,9 @@ import SwiftyJSON
             }
         }
         
-        requestHandler(request)
+        DispatchQueue.main.async {
+            requestHandler(request)
+        }
     }
     
     //MARK: - SessionDelegate
