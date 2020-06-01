@@ -208,11 +208,20 @@ import SwiftyJSON
         requestHandler(request)
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, taskHandler: @escaping (_ task: URLSessionTask) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in } , progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+        
+        uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: requestHandler, progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    private func uploadFile(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var size: Int64 = 0
-        var task: URLSessionTask?
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -230,18 +239,13 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
-        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300)
+        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).uploadProgress { progress in
             
-        request.uploadProgress { progress in
             progressHandler(progress)
             size = progress.totalUnitCount
-            if task == nil {
-                task = request.task
-                taskHandler(task!)
-            }
         }
     
-        request.response { response in
+        .response { response in
             
             switch response.result {
             case .failure(let error):
@@ -274,7 +278,9 @@ import SwiftyJSON
                     completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                 }
             }
-        }        
+        }
+        
+        requestHandler(request)
     }
     
     //MARK: - SessionDelegate
