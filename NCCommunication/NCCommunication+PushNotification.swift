@@ -28,13 +28,8 @@ import SwiftyJSON
 extension NCCommunication {
 
     @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-                            
-        guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(devicePublicKey) else {
-            completionHandler(account, nil, nil, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-            return
-        }
         
-        let endpoint = "ocs/v2.php/apps/notifications/api/v2/push?format=json&pushTokenHash=" + pushTokenHash + "&devicePublicKey=" + devicePublicKeyEncoded + "&proxyServer=" + proxyServerUrl
+        let endpoint = "ocs/v2.php/apps/notifications/api/v2/push?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -43,27 +38,30 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
+        let parameters = [
+            "pushTokenHash": pushTokenHash,
+            "devicePublicKey": devicePublicKey,
+            "proxyServer": proxyServerUrl,
+        ]
+        
         let headers = NCCommunicationCommon.shared.getStandardHeaders(user: user, password: password, appendHeaders: addCustomHeaders, customUserAgent: customUserAgent)
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters:parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
+                print("Failed subscribing for Push Notifications \(response)")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success(let json):
+                print("Subscribed successfully for Push Notifications \(response)")
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
                     var deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
                     var signature = json["ocs"]["data"]["signature"].stringValue
                     var publicKey = json["ocs"]["data"]["publicKey"].stringValue
-                    
-                    deviceIdentifier = NCCommunicationCommon.shared.encodeString(deviceIdentifier) ?? ""
-                    signature = NCCommunicationCommon.shared.encodeString(signature) ?? ""
-                    publicKey = NCCommunicationCommon.shared.encodeString(publicKey) ?? ""
-                    
                     completionHandler(account, deviceIdentifier, signature, publicKey, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -100,13 +98,8 @@ extension NCCommunication {
     }
     
     @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
-                
-        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) else {
-            completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-            return
-        }
         
-        let endpoint = "/devices?format=json&pushToken=" + pushToken + "&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKeyEncoded
+        let endpoint = "/devices?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
             completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -115,16 +108,25 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
+        let parameters = [
+            "pushToken": pushToken,
+            "deviceIdentifier": deviceIdentifier,
+            "deviceIdentifierSignature": signature,
+            "userPublicKey": publicKey
+        ]
+        
         let headers = HTTPHeaders.init(arrayLiteral: .userAgent(userAgent))
                 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters:parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
+                print("Failed registering device in Push Notification Proxy \(response)")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(error.errorCode, error.description ?? "")
             case .success( _):
+                print("Device successfully registered in Push Notification Proxy \(response)")
                 completionHandler(0, "")
             }
         }
