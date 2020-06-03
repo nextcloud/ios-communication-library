@@ -51,17 +51,17 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                print("Failed subscribing for Push Notifications \(response)")
+                debugPrint("Failed subscribing for Push Notifications")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success(let json):
-                print("Subscribed successfully for Push Notifications \(response)")
+                debugPrint("Subscribed successfully for Push Notifications")
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    var deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
-                    var signature = json["ocs"]["data"]["signature"].stringValue
-                    var publicKey = json["ocs"]["data"]["publicKey"].stringValue
+                    let deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
+                    let signature = json["ocs"]["data"]["signature"].stringValue
+                    let publicKey = json["ocs"]["data"]["publicKey"].stringValue
                     completionHandler(account, deviceIdentifier, signature, publicKey, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -122,11 +122,11 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                print("Failed registering device in Push Notification Proxy \(response)")
+                debugPrint("Failed registering device in Push Notification Proxy")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(error.errorCode, error.description ?? "")
             case .success( _):
-                print("Device successfully registered in Push Notification Proxy \(response)")
+                debugPrint("Device successfully registered in Push Notification Proxy")
                 completionHandler(0, "")
             }
         }
@@ -146,7 +146,7 @@ extension NCCommunication {
             return
         }
         
-        let method = HTTPMethod(rawValue: "POST")
+        let method = HTTPMethod(rawValue: "DELETE")
         
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
