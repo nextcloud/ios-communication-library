@@ -495,16 +495,18 @@ extension NCCommunication {
         
         let account = NCCommunicationCommon.shared.account
         var activities = [NCCommunicationActivity]()
-        var endpoint = "ocs/v2.php/apps/activity/api/v2/activity"
+        
+        let endpoint = "ocs/v2.php/apps/activity/api/v2/activity/all?format=json"
+        var parameters = [String:Any]()
         
         if objectId == nil {
-            endpoint = endpoint + "/all?format=json&since=" + String(since) + "&limit=" + String(limit)
+            parameters = ["since": String(since), "limit": String(limit)]
         } else if objectId != nil && objectType != nil {
-            endpoint = endpoint + "/filter?format=json&since=" + String(since) + "&limit=" + String(limit) + "&object_id=" + objectId! + "&object_type=" + objectType!
+            parameters = ["since": String(since), "limit": String(limit), "object_id": objectId!, "object_type": objectType!]
         }
          
         if previews {
-            endpoint = endpoint + "&previews=true"
+            parameters["previews"] = "true"
         }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
@@ -516,7 +518,7 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
        
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
