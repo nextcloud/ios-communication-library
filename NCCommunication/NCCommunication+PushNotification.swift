@@ -132,14 +132,9 @@ extension NCCommunication {
         }
     }
     
-    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) else {
-            completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-            return
-        }
-        
-        let endpoint = "/devices?format=json&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKeyEncoded
+        let endpoint = "/devices" 
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
             completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -148,7 +143,15 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "DELETE")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        let parameters = [
+            "deviceIdentifier": deviceIdentifier,
+            "deviceIdentifierSignature": signature,
+            "userPublicKey": publicKey
+        ]
+        
+        let headers = HTTPHeaders.init(arrayLiteral: .userAgent(userAgent))
+        
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             
             switch response.result {
