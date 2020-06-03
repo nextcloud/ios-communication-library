@@ -66,7 +66,7 @@ import MobileCoreServices
     @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
 
     private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
-    private let k_encodeCharacterSetE2EE = " #;?@&=$+{}<>,!'*|\n\"\\/"
+    private let k_encodeCharacterSetForCryptographyKey = " #;?@&=$+{}<>,!'*|\n\"\\/"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -303,9 +303,9 @@ import MobileCoreServices
         return encodeString
     }
     
-    func encodeStringE2EE(_ string: String) -> String? {
+    func encodeStringForCryptographyKey(_ string: String) -> String? {
         
-        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetE2EE).inverted)
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetForCryptographyKey).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
         return encodeString
