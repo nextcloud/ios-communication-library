@@ -51,11 +51,9 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                debugPrint("Failed subscribing for Push Notifications")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success(let json):
-                debugPrint("Subscribed successfully for Push Notifications")
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
@@ -122,11 +120,9 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                debugPrint("Failed registering device in Push Notification Proxy")
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(error.errorCode, error.description ?? "")
             case .success( _):
-                debugPrint("Device successfully registered in Push Notification Proxy")
                 completionHandler(0, "")
             }
         }
