@@ -163,7 +163,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
-                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptographyKey(e2eMetadata!) {
+                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(e2eMetadata!) {
                     let parameters = "metaData=" + metadataEncoded
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
@@ -322,7 +322,7 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            if let key = NCCommunicationCommon.shared.encodeStringForCryptographyKey(publicKey) {
+            if let key = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) {
                 let parameters = "csr=" + key
                 urlRequest.httpBody = parameters.data(using: .utf8)
             } else {
@@ -371,7 +371,7 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            if let key = NCCommunicationCommon.shared.encodeStringForCryptographyKey(privateKey) {
+            if let key = NCCommunicationCommon.shared.encodeStringForCryptography(privateKey) {
                 let parameters = "privateKey=" + key
                 urlRequest.httpBody = parameters.data(using: .utf8)
             } else {

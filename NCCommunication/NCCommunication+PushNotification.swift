@@ -29,7 +29,7 @@ extension NCCommunication {
 
     @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
-        guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptographyKey(devicePublicKey) else {
+        guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(devicePublicKey) else {
             completionHandler(account, nil, nil, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
             return
         }
@@ -101,7 +101,7 @@ extension NCCommunication {
     
     @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptographyKey(publicKey) else {
+        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) else {
             completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
             return
         }
@@ -132,7 +132,7 @@ extension NCCommunication {
     
     @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptographyKey(publicKey) else {
+        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) else {
             completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
             return
         }
