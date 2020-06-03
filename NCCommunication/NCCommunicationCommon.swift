@@ -54,15 +54,19 @@ import MobileCoreServices
     var webDavRoot: String = "remote.php/webdav"
     var davRoot: String = "remote.php/dav"
     
+    var cookies = [String:[HTTPCookie]]()
+
     var delegate: NCCommunicationCommonDelegate?
     
-    @objc let sessionMaximumConnectionsPerHost = 5
-    @objc let sessionIdentifierBackground: String = "com.nextcloud.session.background"
-    @objc let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.backgroundwifi"
-    @objc let sessionIdentifierExtension: String = "com.nextcloud.session.extension"
-    
+    @objc public let sessionMaximumConnectionsPerHost = 5
+    @objc public let sessionIdentifierBackground: String = "com.nextcloud.session.upload.background"
+    @objc public let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.upload.backgroundwifi"
+    @objc public let sessionIdentifierExtension: String = "com.nextcloud.session.upload.extension"
+    @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
+    @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
+
     private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
-    private let k_encodeCharacterSetE2EE = " #;?@&=$+{}<>,!'*|\n\"\\/"
+    private let k_encodeCharacterSetForCryptography = " #;?@&=$+{}<>,!'*|\n\"\\/"
     
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -112,6 +116,10 @@ import MobileCoreServices
     
     @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
         
+        if self.account != account {
+            NotificationCenter.default.post(name: Notification.Name.init(rawValue: "changeUser"), object: nil)
+        }
+        
         if account == nil { self.account = "" } else { self.account = account! }
         self.user = user
         self.userId = userId
@@ -151,6 +159,11 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
+    //MARK: -
+    @objc public func remove(account: String) {
+        cookies[account] = nil
+    }
+        
     //MARK: -  Common public
     
     @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {
@@ -227,9 +240,7 @@ import MobileCoreServices
     }
     
     //MARK: - Common
-    
-    
-    
+        
     func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
@@ -292,9 +303,9 @@ import MobileCoreServices
         return encodeString
     }
     
-    func encodeStringE2EE(_ string: String) -> String? {
+    func encodeStringForCryptography(_ string: String) -> String? {
         
-        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetE2EE).inverted)
+        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetForCryptography).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
         return encodeString

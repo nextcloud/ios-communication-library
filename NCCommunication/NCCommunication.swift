@@ -31,18 +31,57 @@ import SwiftyJSON
         let instance = NCCommunication()
         return instance
     }()
+            
+    internal lazy var sessionManager: Alamofire.Session = {
+        let configuration = URLSessionConfiguration.af.default
+        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
+    }()
     
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
-        
-    lazy var sessionManager: Alamofire.Session = {
-        let configuration = URLSessionConfiguration.af.default
-        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue:  DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
-    }()
     
     override public init(fileManager: FileManager = .default) {
         super.init(fileManager: fileManager)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(changeUser(_:)), name: NSNotification.Name(rawValue: "changeUser"), object: nil)
+        
         startNetworkReachabilityObserver()
+    }
+    
+    //MARK: - Notification Center
+    
+    @objc func changeUser(_ notification: NSNotification) {
+        sessionDeleteCookies()
+    }
+    
+    //MARK: -  Cookies
+   
+    internal func saveCookiesTEST(response : HTTPURLResponse?) {
+        if let headerFields = response?.allHeaderFields as? [String : String] {
+            if let url = URL(string: NCCommunicationCommon.shared.url) {
+                let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
+                if cookies.count > 0 {
+                    NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
+                } else {
+                    NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = nil
+                }
+            }
+        }
+    }
+    
+    internal func injectsCookiesTEST() {
+        if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
+            if let url = URL(string: NCCommunicationCommon.shared.url) {
+                sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
+            }
+        }
+    }
+    
+    internal func sessionDeleteCookies() {
+        if let cookieStore = sessionManager.session.configuration.httpCookieStorage {
+            for cookie in cookieStore.cookies ?? [] {
+                cookieStore.deleteCookie(cookie)
+            }
+        }
     }
         
     //MARK: - Reachability
@@ -71,7 +110,13 @@ import SwiftyJSON
         })
     }
     
-    //MARK: - monitor
+    //MARK: - Session utility
+        
+    @objc public func getSessionManager() -> URLSession {
+       return sessionManager.session
+    }
+    
+    //MARK: - monitor - Session
     
     private func makeEvents() -> [EventMonitor] {
         
@@ -94,13 +139,23 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        
+        downloadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in }, progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    public func download(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: DownloadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        
+        downloadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: requestHandler, progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    private func downloadFile(serverUrlFileName: String, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: DownloadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return nil
+            return
         }
         
         var destination: Alamofire.DownloadRequest.Destination?
@@ -112,28 +167,35 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination)
-        .downloadProgress { progress in
+        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination).validate(statusCode: 200..<300).downloadProgress { progress in
+            
             progressHandler(progress)
-        }
-        .validate(statusCode: 200..<300)
-        .response { response in
+            
+        } .response { response in
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, 0, error.errorCode, error.description)
+                completionHandler(account, nil, nil, 0, error.errorCode, error.description ?? "")
             case .success( _):
                 var etag: String?
-                let length = response.response?.allHeaderFields["length"] as? Double ?? 0
+                var length: Double = 0
+                
+                if let result = response.response?.allHeaderFields["Content-Length"] as? String {
+                    length = Double(result) ?? 0
+                }
+                
                 if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
+                
                 if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, etag, date, length, 0, nil)
+                        completionHandler(account, etag, date, length, 0, "")
                     } else {
                         completionHandler(account, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                     }
@@ -143,16 +205,29 @@ import SwiftyJSON
             }
         }
         
-        return request.task
+        DispatchQueue.main.async {
+            requestHandler(request)
+        }
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String?) -> Void) -> URLSessionTask? {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        
+        uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in } , progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        
+        uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: requestHandler, progressHandler: progressHandler, completionHandler: completionHandler)
+    }
+    
+    private func uploadFile(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
+        var size: Int64 = 0
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return nil
+            return
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
@@ -166,34 +241,38 @@ import SwiftyJSON
             headers.update(name: "X-OC-Mtime", value: sDate)
         }
         
-        var size: Int64 = 0
-        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default)
-        .uploadProgress { progress in
+        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).uploadProgress { progress in
+            
             progressHandler(progress)
             size = progress.totalUnitCount
         }
-        .validate(statusCode: 200..<300)
+    
         .response { response in
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description)
+                completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description ?? "")
             case .success( _):
                 var ocId: String?, etag: String?
+                
                 if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
                     ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields) != nil {
                     ocId = NCCommunicationCommon.shared.findHeader("fileid", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields)
                 } else if NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields) != nil {
                     etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
+                
                 if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
+                
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, etag, date, size, 0, nil)
+                        completionHandler(account, ocId, etag, date, size, 0, "")
                     } else {
                         completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                     }
@@ -203,7 +282,9 @@ import SwiftyJSON
             }
         }
         
-        return request.task
+        DispatchQueue.main.async {
+            requestHandler(request)
+        }
     }
     
     //MARK: - SessionDelegate

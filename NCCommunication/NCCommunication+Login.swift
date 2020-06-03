@@ -29,7 +29,7 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "/ocs/v2.php/core/getapppassword"
         
@@ -55,10 +55,12 @@ extension NCCommunication {
         }
 
         sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+            debugPrint(response)
+
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, error.errorCode, error.description)
+                completionHandler(nil, error.errorCode, error.description ?? "")
             case .success(let data):
                 if let data = data {
                     let apppassword = NCDataFileXML().convertDataAppPassword(data: data)
@@ -72,7 +74,7 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
@@ -83,11 +85,13 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, nil, nil, error.errorCode, error.description)
+                completionHandler(nil, nil, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                
@@ -100,7 +104,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String?) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
@@ -110,11 +114,13 @@ extension NCCommunication {
 
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, nil, nil, error.errorCode, error.description)
+                completionHandler(nil, nil, nil, error.errorCode, error.description ?? "")
             case .success(let json):
                 let json = JSON(json)
                
