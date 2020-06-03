@@ -29,7 +29,7 @@ extension NCCommunication {
 
     @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
-        guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeString(devicePublicKey) else {
+        guard let devicePublicKeyEncoded = NCCommunicationCommon.shared.encodeStringE2EE(devicePublicKey) else {
             completionHandler(account, nil, nil, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
             return
         }
@@ -101,7 +101,12 @@ extension NCCommunication {
     
     @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        let endpoint = "/devices?format=json&pushToken=" + pushToken + "&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKey
+        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringE2EE(publicKey) else {
+            completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+            return
+        }
+        
+        let endpoint = "/devices?format=json&pushToken=" + pushToken + "&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKeyEncoded
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
             completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -114,6 +119,7 @@ extension NCCommunication {
                 
         sessionManager.request(url, method: method, parameters:nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
+            
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
@@ -126,7 +132,12 @@ extension NCCommunication {
     
     @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        let endpoint = "/devices?format=json&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKey
+        guard let publicKeyEncoded = NCCommunicationCommon.shared.encodeStringE2EE(publicKey) else {
+            completionHandler(NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+            return
+        }
+        
+        let endpoint = "/devices?format=json&deviceIdentifier=" + deviceIdentifier + "&deviceIdentifierSignature=" + signature + "&userPublicKey=" + publicKeyEncoded
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
             completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
