@@ -212,21 +212,24 @@ import SwiftyJSON
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in } , progressHandler: progressHandler, completionHandler: completionHandler)
+        upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, requestHandler: { (_) in }, progressHandler: progressHandler) { (account, ocId, etag, date, size, response, errorCode, errorDescription) in
+            
+            completionHandler(account, ocId, etag, date, size, errorCode, errorDescription)
+        }
     }
     
-    public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         uploadFile(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: requestHandler, progressHandler: progressHandler, completionHandler: completionHandler)
     }
     
-    private func uploadFile(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    private func uploadFile(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var size: Int64 = 0
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, nil, 0, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, 0, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
@@ -251,8 +254,8 @@ import SwiftyJSON
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, nil, 0, error.errorCode, error.description ?? "")
+                let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, nil, nil, 0, error, resultError.errorCode, resultError.description ?? "")
             case .success( _):
                 var ocId: String?, etag: String?
                 
@@ -272,12 +275,12 @@ import SwiftyJSON
                 
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, etag, date, size, 0, "")
+                        completionHandler(account, ocId, etag, date, size, nil, 0, "")
                     } else {
-                        completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                        completionHandler(account, nil, nil, nil, 0, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                     }
                 } else {
-                    completionHandler(account, nil, nil, nil, 0, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    completionHandler(account, nil, nil, nil, 0, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                 }
             }
         }
