@@ -40,8 +40,8 @@ import Foundation
         return session
     }()
     
-    @objc public lazy var sessionManagerTransferWiFi: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundwifi)
+    @objc public lazy var sessionManagerTransferWWan: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundWWan)
         configuration.allowsCellularAccess = false
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
