@@ -181,8 +181,26 @@ import Foundation
             serverUrl = url!.replacingOccurrences(of: "/"+fileName, with: "")
         }
         
-        let statusCode = (task.response as? HTTPURLResponse)?.statusCode ?? 0
-
+        var errorCode = 0, errorDescription = ""
+        
+        if let httpResponse = (task.response as? HTTPURLResponse) {
+            if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
+                if error != nil {
+                    errorCode = (error! as NSError).code
+                    errorDescription = (error! as NSError).localizedDescription
+                }
+            } else {
+                let error = NCCommunicationError().getError(error: nil, httResponse: httpResponse)
+                errorCode = error.errorCode
+                errorDescription = error.description ?? ""
+            }
+        } else {
+            if error != nil {
+                errorCode = (error! as NSError).code
+                errorDescription = (error! as NSError).localizedDescription
+            }
+        }
+        
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
             if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header) != nil {
                 ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header)
@@ -211,11 +229,11 @@ import Foundation
                 if parameter?.count == 2 {
                     description = parameter![1]
                 }
-                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
         }
     }
