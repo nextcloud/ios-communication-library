@@ -80,6 +80,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_server_error_retry_", value: "The server is temporarily unavailable", comment: ""))
             case 507:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_user_over_quota_", value: "Storage quota is reached", comment: ""))
+            case 200:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_transfer_stopped_", value: "Transfer stopped", comment: ""))
             case 207:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_error_multi_status_", value: "WebDAV multistatus", comment: ""))
             default:

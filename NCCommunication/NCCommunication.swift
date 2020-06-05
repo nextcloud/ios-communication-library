@@ -171,11 +171,25 @@ import SwiftyJSON
             
         } .response { response in
             
+            var isSuccess = false
+            var error: AFError?
+            
             switch response.result {
-            case .failure(let error):
-                let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, 0, error ,resultError.errorCode, resultError.description ?? "")
+            case .failure(let isError):
+                error = isError
+                if response.response?.statusCode == 200 {
+                    if response.resumeData != nil {
+                        isSuccess = false
+                    } else {
+                        isSuccess = true
+                    }
+                }
             case .success( _):
+                isSuccess = true
+            }
+            
+            if isSuccess {
+                
                 var etag: String?
                 var length: Double = 0
                 
@@ -200,7 +214,11 @@ import SwiftyJSON
                 } else {
                     completionHandler(account, nil, nil, 0, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
                 }
+            } else {
+                let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, nil, 0, error ,resultError.errorCode, resultError.description ?? "")
             }
+            
         }
         
         DispatchQueue.main.async {
