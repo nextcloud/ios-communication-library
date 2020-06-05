@@ -138,7 +138,7 @@ import Foundation
         let progress = Double(Double(totalBytesWritten)/Double(totalBytesExpectedToWrite))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
+            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
         }
     }
     
@@ -168,7 +168,7 @@ import Foundation
         let progress = Double(Double(totalBytesSent)/Double(totalBytesExpectedToSend))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
+            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
         }
     }
     
