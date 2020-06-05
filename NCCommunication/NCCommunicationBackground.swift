@@ -181,7 +181,7 @@ import Foundation
             serverUrl = url!.replacingOccurrences(of: "/"+fileName, with: "")
         }
         
-        let statusCode = (task.response as! HTTPURLResponse).statusCode
+        let statusCode = (task.response as? HTTPURLResponse)?.statusCode ?? 0
 
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
             if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header) != nil {
