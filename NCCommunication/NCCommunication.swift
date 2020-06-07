@@ -248,11 +248,11 @@ import SwiftyJSON
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
-            headers.update(name: "X-OC-Ctime", value: sDate)
+            headers.update(name: "X-OC-CTime", value: sDate)
         }
         if dateModificationFile != nil {
             let sDate = "\(dateModificationFile?.timeIntervalSince1970 ?? 0)"
-            headers.update(name: "X-OC-Mtime", value: sDate)
+            headers.update(name: "X-OC-MTime", value: sDate)
         }
         
         let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).uploadProgress { progress in

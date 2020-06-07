@@ -111,11 +111,11 @@ import Foundation
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
-            request.setValue(sDate, forHTTPHeaderField: "X-OC-Ctime")
+            request.setValue(sDate, forHTTPHeaderField: "X-OC-CTime")
         }
         if dateModificationFile != nil {
             let sDate = "\(dateModificationFile?.timeIntervalSince1970 ?? 0)"
-            request.setValue(sDate, forHTTPHeaderField: "X-OC-Mtime")
+            request.setValue(sDate, forHTTPHeaderField: "X-OC-MTime")
         }
         
         let task = session.uploadTask(with: request, fromFile: URL.init(fileURLWithPath: fileNameLocalPath))

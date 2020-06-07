@@ -105,8 +105,9 @@ import SwiftyJSON
     
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
-    @objc public var creationDate = NSDate()
     @objc public var date = NSDate()
+    @objc public var creationDate: NSDate?
+    @objc public var uploadDate: NSDate?
     @objc public var directory: Bool = false
     @objc public var e2eEncrypted: Bool = false
     @objc public var etag = ""
@@ -264,7 +265,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
-            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -276,6 +276,8 @@ class NCDataFileXML: NSObject {
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
 
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
@@ -307,7 +309,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
-            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -319,6 +320,8 @@ class NCDataFileXML: NSObject {
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
 
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
@@ -342,7 +345,6 @@ class NCDataFileXML: NSObject {
                 <d:resourcetype/>
                 <d:getcontentlength/>
                 <d:getlastmodified/>
-                <d:creationdate/>
                 <d:getetag/>
                 <d:quota-used-bytes/>
                 <d:quota-available-bytes/>
@@ -351,6 +353,8 @@ class NCDataFileXML: NSObject {
                 <fileid xmlns=\"http://owncloud.org/ns\"/>
                 <size xmlns=\"http://owncloud.org/ns\"/>
                 <favorite xmlns=\"http://owncloud.org/ns\"/>
+                <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+                <upload_time xmlns=\"http://nextcloud.org/ns\"/>
                 <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
                 <mount-type xmlns=\"http://nextcloud.org/ns\"/>
                 <owner-id xmlns=\"http://owncloud.org/ns\"/>
@@ -392,7 +396,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype/>
             <d:getcontentlength/>
             <d:getlastmodified/>
-            <d:creationdate/>
             <d:getetag/>
             <d:quota-used-bytes/>
             <d:quota-available-bytes/>
@@ -401,6 +404,8 @@ class NCDataFileXML: NSObject {
             <fileid xmlns=\"http://owncloud.org/ns\"/>
             <size xmlns=\"http://owncloud.org/ns\"/>
             <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <owner-id xmlns=\"http://owncloud.org/ns\"/>
@@ -480,7 +485,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:getcontentlength />
             <d:getlastmodified />
-            <d:creationdate />
             <d:getetag />
             <d:quota-used-bytes />
             <d:quota-available-bytes />
@@ -562,9 +566,15 @@ class NCDataFileXML: NSObject {
                 }
             }
             
-            if let creationdate = propstat["d:prop", "d:creationdate"].text {
-                if let date = NCCommunicationCommon.shared.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                    file.creationDate = date
+            if let creationtime = propstat["d:prop", "nc:creation_time"].double {
+                if creationtime > 0 {
+                    file.creationDate = NSDate(timeIntervalSince1970: creationtime)
+                }
+            }
+            
+            if let uploadtime = propstat["d:prop", "nc:upload_time"].double {
+                if uploadtime > 0 {
+                    file.uploadDate = NSDate(timeIntervalSince1970: uploadtime)
                 }
             }
             
