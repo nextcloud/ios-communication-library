@@ -426,7 +426,7 @@ class NCDataFileXML: NSObject {
         <d:orderby>
           <d:order>
             <d:prop>
-              <d:getlastmodified/>
+              <%@>
             </d:prop>
             <d:descending/>
           </d:order>
@@ -457,13 +457,13 @@ class NCDataFileXML: NSObject {
               <d:and>
                 <d:lte>
                   <d:prop>
-                    <d:getlastmodified/>
+                    <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
                 </d:lte>
                 <d:gte>
                   <d:prop>
-                    <d:getlastmodified/>
+                    <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
                 </d:gte>

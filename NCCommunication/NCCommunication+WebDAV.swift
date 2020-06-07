@@ -219,7 +219,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lteDateLastModified: Date, gteDateLastModified: Date, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(lteDate: Date, gteDate: Date, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         
@@ -227,16 +227,16 @@ extension NCCommunication {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
-        guard let lteDateLastModifiedString = NCCommunicationCommon.shared.convertDate(lteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+        guard let lteDateString = NCCommunicationCommon.shared.convertDate(lteDate, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
             return
         }
-        guard let gteDateLastModifiedString = NCCommunicationCommon.shared.convertDate(gteDateLastModified, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+        guard let gteDateString = NCCommunicationCommon.shared.convertDate(gteDate, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
             return
         }
          
-        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, lteDateLastModifiedString, gteDateLastModifiedString)
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lteDateString, elementDate, gteDateString)
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.url, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
