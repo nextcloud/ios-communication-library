@@ -132,6 +132,7 @@ import SwiftyJSON
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
     @objc public var typeFile = ""
+    @objc public var urlBase = ""
 }
 
 @objc public class NCCommunicationNotifications: NSObject {
@@ -657,6 +658,8 @@ class NCDataFileXML: NSObject {
             file.contentType = results.contentType
             file.typeFile = results.typeFile
             file.iconName = results.iconName
+            
+            file.urlBase = NCCommunicationCommon.shared.url
             
             files.append(file)
         }
