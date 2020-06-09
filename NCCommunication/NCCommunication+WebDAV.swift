@@ -152,7 +152,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, requestBody: Data? = nil, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         var serverUrlFileName = String(serverUrlFileName)
@@ -161,7 +161,7 @@ extension NCCommunication {
         if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
          
@@ -174,9 +174,13 @@ extension NCCommunication {
         var urlRequest: URLRequest
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
-            urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
+            if requestBody != nil {
+                urlRequest.httpBody = requestBody!
+            } else {
+                urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
+            }
         } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
+            completionHandler(account, nil, nil, error._code, error.localizedDescription)
             return
         }
         
@@ -186,13 +190,17 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, "")
+                    if requestBody != nil {
+                        completionHandler(account, nil, data, 0, "")
+                    } else {
+                        let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
+                        completionHandler(account, files, data, 0, "")
+                    }
                 } else {
-                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
             }
         }
