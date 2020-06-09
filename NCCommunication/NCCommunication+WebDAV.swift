@@ -227,24 +227,34 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lteDate: Date, gteDate: Date, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(lteDate: Any, gteDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
+        var gteDateString: String?, lteDateString: String?
         
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
-        guard let lteDateString = NCCommunicationCommon.shared.convertDate(lteDate, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
+        
+        if lteDate is Date {
+            lteDateString = NCCommunicationCommon.shared.convertDate(lteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+        } else if lteDate is TimeInterval {
+            lteDateString = String(lteDate as! TimeInterval)
+        }
+        
+        if gteDate is Date {
+            gteDateString = NCCommunicationCommon.shared.convertDate(gteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+        } else if gteDate is TimeInterval {
+            gteDateString = String(gteDate as! TimeInterval)
+        }
+        
+        if lteDateString == nil || gteDateString == nil {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
             return
         }
-        guard let gteDateString = NCCommunicationCommon.shared.convertDate(gteDate, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
-            return
-        }
-         
-        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lteDateString, elementDate, gteDateString)
+        
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lteDateString!, elementDate, gteDateString!)
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.url, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
