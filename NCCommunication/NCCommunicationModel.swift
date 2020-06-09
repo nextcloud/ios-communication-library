@@ -125,7 +125,7 @@ import SwiftyJSON
     @objc public var quotaUsedBytes: Double = 0
     @objc public var quotaAvailableBytes: Double = 0
     @objc public var resourceType = ""
-    @objc public var richWorkspace = ""
+    @objc public var richWorkspace: String?
     @objc public var size: Double = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
