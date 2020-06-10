@@ -89,7 +89,7 @@ extension NCCommunication {
                 let data = json["ocs"]["data"].arrayValue
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
-                    var templates = [NCCommunicationRichdocumentsTemplate]()
+                    var templates: [NCCommunicationRichdocumentsTemplate] = []
                     for templateJSON in data {
                         let template = NCCommunicationRichdocumentsTemplate()
                         

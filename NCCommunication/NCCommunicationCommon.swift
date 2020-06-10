@@ -54,7 +54,7 @@ import MobileCoreServices
     var webDavRoot: String = "remote.php/webdav"
     var davRoot: String = "remote.php/dav"
     
-    var cookies = [String:[HTTPCookie]]()
+    var cookies: [String:[HTTPCookie]] = [:]
 
     var delegate: NCCommunicationCommonDelegate?
     

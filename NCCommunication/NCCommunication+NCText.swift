@@ -30,8 +30,8 @@ extension NCCommunication {
     @objc public func NCTextObtainEditorDetails(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        var editors = [NCCommunicationEditorDetailsEditors]()
-        var creators = [NCCommunicationEditorDetailsCreators]()
+        var editors: [NCCommunicationEditorDetailsEditors] = []
+        var creators: [NCCommunicationEditorDetailsCreators] = []
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing?format=json"
         
@@ -129,7 +129,7 @@ extension NCCommunication {
     @objc public func NCTextGetListOfTemplates(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
-        var templates = [NCCommunicationEditorTemplates]()
+        var templates: [NCCommunicationEditorTemplates] = []
 
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing/templates/text/textdocumenttemplate?format=json"
         

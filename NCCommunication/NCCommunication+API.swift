@@ -82,7 +82,7 @@ extension NCCommunication {
     @objc public func getExternalSite(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ externalFiles: [NCCommunicationExternalSite], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        var externalSites = [NCCommunicationExternalSite]()
+        var externalSites: [NCCommunicationExternalSite] = []
 
         let endpoint = "ocs/v2.php/apps/external/api/v1?format=json"
         
@@ -487,7 +487,7 @@ extension NCCommunication {
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, error.errorCode, error.description ?? "")
             case .success(let json):
-                var files = [NCCommunicationFile]()
+                var files: [NCCommunicationFile] = []
                 let json = JSON(json)
                 for (_, subJson):(String, JSON) in json {
                     let file = NCCommunicationFile()
@@ -519,10 +519,10 @@ extension NCCommunication {
     @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        var activities = [NCCommunicationActivity]()
+        var activities: [NCCommunicationActivity] = []
         
         let endpoint = "ocs/v2.php/apps/activity/api/v2/activity/all?format=json"
-        var parameters = [String: Any]()
+        var parameters: [String: Any] = [:]
         
         if objectId == nil {
             parameters = ["since": String(since), "limit": String(limit)]
@@ -600,7 +600,7 @@ extension NCCommunication {
     @objc public func getNotifications(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ notifications: [NCCommunicationNotifications]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
-        var notifications = [NCCommunicationNotifications]()
+        var notifications: [NCCommunicationNotifications] = []
         let endpoint = "ocs/v2.php/apps/notifications/api/v2/notifications?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {

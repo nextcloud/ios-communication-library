@@ -75,9 +75,9 @@ import SwiftyJSON
 
 @objc public class NCCommunicationEditorDetailsEditors: NSObject {
     
-    @objc public var mimetypes = [String]()
+    @objc public var mimetypes: [String] = []
     @objc public var name = ""
-    @objc public var optionalMimetypes = [String]()
+    @objc public var optionalMimetypes: [String] = []
     @objc public var secure: Int = 0
 }
 
@@ -191,7 +191,7 @@ import SwiftyJSON
     @objc public var displayName = ""
     @objc public var email = ""
     @objc public var enabled: Bool = false
-    @objc public var groups = [String]()
+    @objc public var groups: [String] = []
     @objc public var language = ""
     @objc public var lastLogin: Double = 0
     @objc public var locale = ""
@@ -202,7 +202,7 @@ import SwiftyJSON
     @objc public var quotaTotal: Double = 0
     @objc public var quotaUsed: Double = 0
     @objc public var storageLocation = ""
-    @objc public var subadmin = [String]()
+    @objc public var subadmin: [String] = []
     @objc public var twitter = ""
     @objc public var userId = ""
     @objc public var webpage = ""
@@ -516,7 +516,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
-        var files = [NCCommunicationFile]()
+        var files: [NCCommunicationFile] = []
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -669,7 +669,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataTrash(data: Data, showHiddenFiles: Bool) -> [NCCommunicationTrash] {
         
-        var files = [NCCommunicationTrash]()
+        var files: [NCCommunicationTrash] = []
         var first: Bool = true
     
         let xml = XML.parse(data)
@@ -754,7 +754,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataComments(data: Data) -> [NCCommunicationComments] {
         
-        var items = [NCCommunicationComments]()
+        var items: [NCCommunicationComments] = []
     
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
