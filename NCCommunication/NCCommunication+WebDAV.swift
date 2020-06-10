@@ -237,13 +237,13 @@ extension NCCommunication {
             return
         }
         
-        if lteDate is Date {
+        if lteDate is Date || lteDate is NSDate {
             lteDateString = NCCommunicationCommon.shared.convertDate(lteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
         } else if lteDate is Int {
             lteDateString = String(lteDate as! Int)
         }
         
-        if gteDate is Date {
+        if gteDate is Date || lteDate is NSDate {
             gteDateString = NCCommunicationCommon.shared.convertDate(gteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
         } else if gteDate is Int {
             gteDateString = String(gteDate as! Int)
