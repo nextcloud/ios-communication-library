@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func NCTextObtainEditorDetails(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextObtainEditorDetails(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var editors = [NCCommunicationEditorDetailsEditors]()
@@ -91,7 +91,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func NCTextOpenFile(fileNamePath: String, editor: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextOpenFile(fileNamePath: String, editor: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
@@ -126,7 +126,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextGetListOfTemplates(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
         var templates = [NCCommunicationEditorTemplates]()
@@ -169,7 +169,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 

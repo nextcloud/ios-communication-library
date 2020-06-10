@@ -166,7 +166,7 @@ import MobileCoreServices
         
     //MARK: -  Common public
     
-    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {
+    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String: String] {
                 
         let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
         
@@ -241,12 +241,12 @@ import MobileCoreServices
     
     //MARK: - Common
         
-    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
-    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {

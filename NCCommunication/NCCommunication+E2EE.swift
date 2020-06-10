@@ -26,7 +26,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func markE2EEFolder(fileId: String, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func markE2EEFolder(fileId: String, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/encrypted/" + fileId + "?format=json"
@@ -66,11 +66,11 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/lock/" + fileId + "?format=json"
-        var parameters: [String:Any]?
+        var parameters: [String: Any]?
 
         if e2eToken != nil {
             parameters = ["e2e-token": e2eToken!]
@@ -112,7 +112,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ e2eMetadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EEMetadata(fileId: String, e2eToken: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eMetadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
@@ -147,7 +147,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, e2eMetadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func putE2EEMetadata(fileId: String, e2eToken: String, e2eMetadata: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ metadata: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
@@ -201,7 +201,7 @@ extension NCCommunication {
     
     //MARK: -
 
-    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -237,7 +237,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
@@ -272,7 +272,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/server-key?format=json"
@@ -307,7 +307,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -356,7 +356,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func storeE2EEPrivateKey(privateKey: String, customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func storeE2EEPrivateKey(privateKey: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ privateKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
@@ -404,7 +404,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -431,7 +431,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func deleteE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String:String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func deleteE2EEPrivateKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/private-key?format=json"
