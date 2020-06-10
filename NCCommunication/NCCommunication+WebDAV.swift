@@ -239,14 +239,14 @@ extension NCCommunication {
         
         if lteDate is Date {
             lteDateString = NCCommunicationCommon.shared.convertDate(lteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-        } else if lteDate is TimeInterval {
-            lteDateString = String(lteDate as! TimeInterval)
+        } else if lteDate is Int {
+            lteDateString = String(lteDate as! Int)
         }
         
         if gteDate is Date {
             gteDateString = NCCommunicationCommon.shared.convertDate(gteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-        } else if gteDate is TimeInterval {
-            gteDateString = String(gteDate as! TimeInterval)
+        } else if gteDate is Int {
+            gteDateString = String(gteDate as! Int)
         }
         
         if lteDateString == nil || gteDateString == nil {
