@@ -75,9 +75,9 @@ import SwiftyJSON
 
 @objc public class NCCommunicationEditorDetailsEditors: NSObject {
     
-    @objc public var mimetypes = [String]()
+    @objc public var mimetypes: [String] = []
     @objc public var name = ""
-    @objc public var optionalMimetypes = [String]()
+    @objc public var optionalMimetypes: [String] = []
     @objc public var secure: Int = 0
 }
 
@@ -105,8 +105,9 @@ import SwiftyJSON
     
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
-    @objc public var creationDate = NSDate()
     @objc public var date = NSDate()
+    @objc public var creationDate: NSDate?
+    @objc public var uploadDate: NSDate?
     @objc public var directory: Bool = false
     @objc public var e2eEncrypted: Bool = false
     @objc public var etag = ""
@@ -124,13 +125,14 @@ import SwiftyJSON
     @objc public var quotaUsedBytes: Double = 0
     @objc public var quotaAvailableBytes: Double = 0
     @objc public var resourceType = ""
-    @objc public var richWorkspace = ""
+    @objc public var richWorkspace: String?
     @objc public var size: Double = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
     @objc public var typeFile = ""
+    @objc public var urlBase = ""
 }
 
 @objc public class NCCommunicationNotifications: NSObject {
@@ -189,7 +191,7 @@ import SwiftyJSON
     @objc public var displayName = ""
     @objc public var email = ""
     @objc public var enabled: Bool = false
-    @objc public var groups = [String]()
+    @objc public var groups: [String] = []
     @objc public var language = ""
     @objc public var lastLogin: Double = 0
     @objc public var locale = ""
@@ -200,7 +202,7 @@ import SwiftyJSON
     @objc public var quotaTotal: Double = 0
     @objc public var quotaUsed: Double = 0
     @objc public var storageLocation = ""
-    @objc public var subadmin = [String]()
+    @objc public var subadmin: [String] = []
     @objc public var twitter = ""
     @objc public var userId = ""
     @objc public var webpage = ""
@@ -264,7 +266,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
-            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -276,6 +277,8 @@ class NCDataFileXML: NSObject {
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
 
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
@@ -307,7 +310,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:quota-available-bytes />
             <d:quota-used-bytes />
-            <d:creationdate />
 
             <permissions xmlns=\"http://owncloud.org/ns\"/>
             <id xmlns=\"http://owncloud.org/ns\"/>
@@ -319,6 +321,8 @@ class NCDataFileXML: NSObject {
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
 
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
@@ -342,7 +346,6 @@ class NCDataFileXML: NSObject {
                 <d:resourcetype/>
                 <d:getcontentlength/>
                 <d:getlastmodified/>
-                <d:creationdate/>
                 <d:getetag/>
                 <d:quota-used-bytes/>
                 <d:quota-available-bytes/>
@@ -351,6 +354,8 @@ class NCDataFileXML: NSObject {
                 <fileid xmlns=\"http://owncloud.org/ns\"/>
                 <size xmlns=\"http://owncloud.org/ns\"/>
                 <favorite xmlns=\"http://owncloud.org/ns\"/>
+                <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+                <upload_time xmlns=\"http://nextcloud.org/ns\"/>
                 <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
                 <mount-type xmlns=\"http://nextcloud.org/ns\"/>
                 <owner-id xmlns=\"http://owncloud.org/ns\"/>
@@ -392,7 +397,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype/>
             <d:getcontentlength/>
             <d:getlastmodified/>
-            <d:creationdate/>
             <d:getetag/>
             <d:quota-used-bytes/>
             <d:quota-available-bytes/>
@@ -401,6 +405,8 @@ class NCDataFileXML: NSObject {
             <fileid xmlns=\"http://owncloud.org/ns\"/>
             <size xmlns=\"http://owncloud.org/ns\"/>
             <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
             <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <owner-id xmlns=\"http://owncloud.org/ns\"/>
@@ -421,7 +427,7 @@ class NCDataFileXML: NSObject {
         <d:orderby>
           <d:order>
             <d:prop>
-              <d:getlastmodified/>
+              <%@>
             </d:prop>
             <d:descending/>
           </d:order>
@@ -452,13 +458,13 @@ class NCDataFileXML: NSObject {
               <d:and>
                 <d:lte>
                   <d:prop>
-                    <d:getlastmodified/>
+                    <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
                 </d:lte>
                 <d:gte>
                   <d:prop>
-                    <d:getlastmodified/>
+                    <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
                 </d:gte>
@@ -480,7 +486,6 @@ class NCDataFileXML: NSObject {
             <d:resourcetype />
             <d:getcontentlength />
             <d:getlastmodified />
-            <d:creationdate />
             <d:getetag />
             <d:quota-used-bytes />
             <d:quota-available-bytes />
@@ -511,7 +516,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
-        var files = [NCCommunicationFile]()
+        var files: [NCCommunicationFile] = []
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -562,9 +567,15 @@ class NCDataFileXML: NSObject {
                 }
             }
             
-            if let creationdate = propstat["d:prop", "d:creationdate"].text {
-                if let date = NCCommunicationCommon.shared.convertDate(creationdate, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                    file.creationDate = date
+            if let creationtime = propstat["d:prop", "nc:creation_time"].double {
+                if creationtime > 0 {
+                    file.creationDate = NSDate(timeIntervalSince1970: creationtime)
+                }
+            }
+            
+            if let uploadtime = propstat["d:prop", "nc:upload_time"].double {
+                if uploadtime > 0 {
+                    file.uploadDate = NSDate(timeIntervalSince1970: uploadtime)
                 }
             }
             
@@ -648,6 +659,8 @@ class NCDataFileXML: NSObject {
             file.typeFile = results.typeFile
             file.iconName = results.iconName
             
+            file.urlBase = NCCommunicationCommon.shared.url
+            
             files.append(file)
         }
         
@@ -656,7 +669,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataTrash(data: Data, showHiddenFiles: Bool) -> [NCCommunicationTrash] {
         
-        var files = [NCCommunicationTrash]()
+        var files: [NCCommunicationTrash] = []
         var first: Bool = true
     
         let xml = XML.parse(data)
@@ -741,7 +754,7 @@ class NCDataFileXML: NSObject {
     
     func convertDataComments(data: Data) -> [NCCommunicationComments] {
         
-        var items = [NCCommunicationComments]()
+        var items: [NCCommunicationComments] = []
     
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]

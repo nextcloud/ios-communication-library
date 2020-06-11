@@ -40,8 +40,8 @@ import Foundation
         return session
     }()
     
-    @objc public lazy var sessionManagerTransferWiFi: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundwifi)
+    @objc public lazy var sessionManagerTransferWWan: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundWWan)
         configuration.allowsCellularAccess = false
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
@@ -111,11 +111,11 @@ import Foundation
         request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
         if dateCreationFile != nil {
             let sDate = "\(dateCreationFile?.timeIntervalSince1970 ?? 0)"
-            request.setValue(sDate, forHTTPHeaderField: "X-OC-Ctime")
+            request.setValue(sDate, forHTTPHeaderField: "X-OC-CTime")
         }
         if dateModificationFile != nil {
             let sDate = "\(dateModificationFile?.timeIntervalSince1970 ?? 0)"
-            request.setValue(sDate, forHTTPHeaderField: "X-OC-Mtime")
+            request.setValue(sDate, forHTTPHeaderField: "X-OC-MTime")
         }
         
         let task = session.uploadTask(with: request, fromFile: URL.init(fileURLWithPath: fileNameLocalPath))
@@ -138,7 +138,7 @@ import Foundation
         let progress = Double(Double(totalBytesWritten)/Double(totalBytesExpectedToWrite))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: downloadTask)
+            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
         }
     }
     
@@ -168,7 +168,7 @@ import Foundation
         let progress = Double(Double(totalBytesSent)/Double(totalBytesExpectedToSend))
 
         DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, fileName: fileName, ServerUrl: serverUrl, session: session, task: task)
+            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
         }
     }
     
@@ -181,8 +181,26 @@ import Foundation
             serverUrl = url!.replacingOccurrences(of: "/"+fileName, with: "")
         }
         
-        let statusCode = (task.response as! HTTPURLResponse).statusCode
-
+        var errorCode = 0, errorDescription = ""
+        
+        if let httpResponse = (task.response as? HTTPURLResponse) {
+            if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
+                if error != nil {
+                    errorCode = (error! as NSError).code
+                    errorDescription = (error! as NSError).localizedDescription
+                }
+            } else {
+                let error = NCCommunicationError().getError(error: nil, httResponse: httpResponse)
+                errorCode = error.errorCode
+                errorDescription = error.description ?? ""
+            }
+        } else {
+            if error != nil {
+                errorCode = (error! as NSError).code
+                errorDescription = (error! as NSError).localizedDescription
+            }
+        }
+        
         if let header = (task.response as? HTTPURLResponse)?.allHeaderFields {
             if NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header) != nil {
                 ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: header)
@@ -211,11 +229,11 @@ import Foundation
                 if parameter?.count == 2 {
                     description = parameter![1]
                 }
-                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, error: error, statusCode: statusCode)
+                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
         }
     }

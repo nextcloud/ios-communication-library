@@ -31,10 +31,10 @@ import MobileCoreServices
     
     @objc optional func networkReachabilityObserver(_ typeReachability: NCCommunicationCommon.typeReachability)
     
-    @objc optional func downloadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask)
-    @objc optional func uploadProgress(_ progress: Double, fileName: String, ServerUrl: String, session: URLSession, task: URLSessionTask)
-    @objc optional func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: NSDate?, dateLastModified: NSDate?, length: Double, description: String?, error: Error?, statusCode: Int)
-    @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, error: Error?, statusCode: Int)
+    @objc optional func downloadProgress(_ progress: Double, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask)
+    @objc optional func uploadProgress(_ progress: Double, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask)
+    @objc optional func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: NSDate?, dateLastModified: NSDate?, length: Double, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
+    @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
 }
 
 @objc public class NCCommunicationCommon: NSObject {
@@ -54,13 +54,13 @@ import MobileCoreServices
     var webDavRoot: String = "remote.php/webdav"
     var davRoot: String = "remote.php/dav"
     
-    var cookies = [String:[HTTPCookie]]()
+    var cookies: [String:[HTTPCookie]] = [:]
 
     var delegate: NCCommunicationCommonDelegate?
     
     @objc public let sessionMaximumConnectionsPerHost = 5
     @objc public let sessionIdentifierBackground: String = "com.nextcloud.session.upload.background"
-    @objc public let sessionIdentifierBackgroundwifi: String = "com.nextcloud.session.upload.backgroundwifi"
+    @objc public let sessionIdentifierBackgroundWWan: String = "com.nextcloud.session.upload.backgroundWWan"
     @objc public let sessionIdentifierExtension: String = "com.nextcloud.session.upload.extension"
     @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
     @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
@@ -166,7 +166,7 @@ import MobileCoreServices
         
     //MARK: -  Common public
     
-    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String:String] {
+    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String: String] {
                 
         let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
         
@@ -241,12 +241,12 @@ import MobileCoreServices
     
     //MARK: - Common
         
-    func getStandardHeaders(_ appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
-    func getStandardHeaders(user: String, password: String, appendHeaders: [String:String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    func getStandardHeaders(user: String, password: String, appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {
