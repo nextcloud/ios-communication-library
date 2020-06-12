@@ -456,18 +456,18 @@ class NCDataFileXML: NSObject {
             </d:or>
             <d:or>
               <d:and>
-                <d:lte>
+                <d:lt>
                   <d:prop>
                     <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
-                </d:lte>
-                <d:gte>
+                </d:lt>
+                <d:gt>
                   <d:prop>
                     <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
-                </d:gte>
+                </d:gt>
               </d:and>
             </d:or>
           </d:and>
