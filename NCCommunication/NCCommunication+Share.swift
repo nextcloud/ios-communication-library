@@ -170,7 +170,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func createShare(path: String, shareType: Int, shareWith: String, publicUpload: Bool, password: String, hidedownload: Bool, permissions: Int, expireDate: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func createShare(path: String, shareType: Int, shareWith: String?, publicUpload: Bool, password: String? = nil, hidedownload: Bool, permissions: Int, expireDate: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
@@ -184,17 +184,23 @@ extension NCCommunication {
              
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        let parameters = [
+        var parameters = [
             "path": path,
             "shareType": String(shareType),
-            "shareWith": String(shareWith),
             "publicUpload": publicUpload == true ? "1" : "0",
-            "password": password,
             "hidedownload": hidedownload == true ? "1" : "0",
-            "permissions": String(permissions),
-            "expireDate": expireDate
+            "permissions": String(permissions)
         ]
-    
+        if shareWith != nil {
+            parameters["shareWith"] = shareWith!
+        }
+        if password != nil {
+            parameters["password"] = password!
+        }
+        if expireDate != nil {
+            parameters["expireDate"] = expireDate!
+        }
+        
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
               debugPrint(response)
 
@@ -243,11 +249,12 @@ extension NCCommunication {
         }
     }
     
-    @objc public func updateShare(idShare: Int, publicUpload: Bool, password: String, hidedownload: Bool, permissions: Int, expireDate: String, note: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func updateShare(idShare: Int, publicUpload: String? = nil, password: String? = nil, hidedownload: String? = nil, permissions: String? = nil, expireDate: String? = nil, note: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
-                
+        var parameters: [String: Any] = [:]
+
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
@@ -257,14 +264,24 @@ extension NCCommunication {
              
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        let parameters = [
-            "publicUpload": publicUpload == true ? "1" : "0",
-            "password": password,
-            "hidedownload": hidedownload == true ? "1" : "0",
-            "permissions": String(permissions),
-            "expireDate": expireDate,
-            "note": note
-        ]
+        if publicUpload != nil {
+            parameters["publicUpload"] = publicUpload!
+        }
+        if password != nil {
+            parameters["password"] = password!
+        }
+        if hidedownload != nil {
+            parameters["hidedownload"] = hidedownload!
+        }
+        if permissions != nil {
+            parameters["permissions"] = permissions!
+        }
+        if expireDate != nil {
+            parameters["expireDate"] = expireDate!
+        }
+        if note != nil {
+            parameters["note"] = note!
+        }
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
               debugPrint(response)
