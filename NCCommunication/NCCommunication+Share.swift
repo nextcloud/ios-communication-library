@@ -169,4 +169,113 @@ extension NCCommunication {
             }
         }
     }
+    
+    @objc public func createShare(path: String, shareType: Int, shareWith: String, publicUpload: Bool, password: String, hidedownload: Bool, permissions: Int, expireDate: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
+                
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+             
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+
+        let parameters = [
+            "path": path,
+            "shareType": String(shareType),
+            "shareWith": String(shareWith),
+            "publicUpload": publicUpload == true ? "1" : "0",
+            "password": password,
+            "hidedownload": hidedownload == true ? "1" : "0",
+            "permissions": String(permissions),
+            "expireDate": expireDate
+        ]
+    
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+              debugPrint(response)
+
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
+            case .success(let json):
+                let json = JSON(json)
+               
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if statusCode == 200 {
+                    completionHandler(account, nil, 0, "")
+                }  else {
+                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
+                }
+            }
+        }
+    }
+    
+    @objc public func deleteShare(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+                
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "DELETE")
+             
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+    
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+              debugPrint(response)
+
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description ?? "")
+            case .success( _):
+                completionHandler(account, 0, "")
+            }
+        }
+    }
+    
+    @objc public func updateShare(idShare: Int, publicUpload: Bool, password: String, hidedownload: Bool, permissions: Int, expireDate: String, note: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+                
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "PUT")
+             
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+
+        let parameters = [
+            "publicUpload": publicUpload == true ? "1" : "0",
+            "password": password,
+            "hidedownload": hidedownload == true ? "1" : "0",
+            "permissions": String(permissions),
+            "expireDate": expireDate,
+            "note": note
+        ]
+    
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+              debugPrint(response)
+
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, error.errorCode, error.description ?? "")
+            case .success( _):
+                completionHandler(account, 0, "")
+            }
+        }
+    }
 }
