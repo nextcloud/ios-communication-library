@@ -27,7 +27,7 @@ import Alamofire
 
 extension NCCommunication {
 
-    @objc public func readShare(path: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func readShares(path: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares"
@@ -59,6 +59,43 @@ extension NCCommunication {
                     let shares = NCDataFileXML().convertDataShare(data: data)
                     if shares.statusCode == 200 {
                         completionHandler(account, shares.shares, 0, "")
+                    } else {
+                        completionHandler(account, nil, shares.statusCode, shares.message)
+                    }
+                } else {
+                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                }
+            }
+        }
+    }
+    
+    @objc public func readShares(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+                
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+             
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        headers.update(.contentType("application/xml"))
+            
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData { (response) in
+              debugPrint(response)
+
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
+            case .success( _):
+                if let data = response.data {
+                    let shares = NCDataFileXML().convertDataShare(data: data)
+                    if shares.statusCode == 200 {                        
+                        completionHandler(account, shares.shares[0], 0, "")
                     } else {
                         completionHandler(account, nil, shares.statusCode, shares.message)
                     }

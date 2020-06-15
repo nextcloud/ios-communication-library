@@ -872,7 +872,7 @@ class NCDataFileXML: NSObject {
             }
             
             if let value = element["share_type"].int {
-                item.idShare = value
+                item.shareType = value
             }
             
             if let value = element["uid_owner"].text {
