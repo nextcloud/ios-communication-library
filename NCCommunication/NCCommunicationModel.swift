@@ -197,6 +197,12 @@ import SwiftyJSON
     @objc public var hideDownload: Bool = false
 }
 
+@objc public class NCCommunicationSharee: NSObject {
+    
+    @objc public var label = ""
+    @objc public var shareType: Int = 0
+    @objc public var shareWith = ""
+}
 
 @objc public class NCCommunicationTrash: NSObject {
 

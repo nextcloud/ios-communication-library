@@ -24,6 +24,7 @@
 
 import Foundation
 import Alamofire
+import SwiftyJSON
 
 extension NCCommunication {
 
@@ -101,6 +102,69 @@ extension NCCommunication {
                     }
                 } else {
                     completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                }
+            }
+        }
+    }
+    
+    @objc public func searchSharees(search: String, page: Int, perPage: Int, itemType: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+           
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/sharees?format=json"
+                
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "GET")
+             
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+
+        let parameters = [
+            "search": search,
+            "page": String(page),
+            "perPage": String(perPage),
+            "itemType": itemType
+        ]
+    
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+              debugPrint(response)
+
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
+            case .success(let json):
+                let json = JSON(json)
+               
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                if statusCode == 200 {
+                    var sharees: [NCCommunicationSharee] = []
+                    for shareType in ["users", "groups", "remotes", "remote_groups", "emails", "circles", "rooms", "lookup"] {
+                        for (_, subJson):(String, JSON) in json["ocs"]["data"]["exact"][shareType] {
+                            let sharee = NCCommunicationSharee()
+                            
+                            sharee.label = subJson["label"].stringValue
+                            sharee.shareType = subJson["value"]["shareType"].intValue
+                            sharee.shareWith = subJson["value"]["shareWith"].stringValue
+                            
+                            sharees.append(sharee)
+                        }
+                        for (_, subJson):(String, JSON) in json["ocs"]["data"][shareType] {
+                            let sharee = NCCommunicationSharee()
+                            
+                            sharee.label = subJson["label"].stringValue
+                            sharee.shareType = subJson["value"]["shareType"].intValue
+                            sharee.shareWith = subJson["value"]["shareWith"].stringValue
+                            
+                            sharees.append(sharee)
+                        }
+                    }
+                    completionHandler(account, sharees, 0, "")
+                }  else {
+                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                    completionHandler(account, nil, statusCode, errorDescription)
                 }
             }
         }
