@@ -155,6 +155,7 @@ extension NCCommunication {
     * @param shareType      0 = user, 1 = group, 3 = Public link. Mandatory argument
     * @param shareWith      User/group ID with who the file should be shared.  This is mandatory for shareType of 0 or 1
     * @param publicUpload   If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
+    * @param hidedownload   Permission if file can be downloaded via share link (only for single file)
     * @param password       Password to protect a public link share. Only available for public link shares
     * @param permissions    1 - Read only Default for public shares
     *                       2 - Update
@@ -167,7 +168,17 @@ extension NCCommunication {
     *                       For instance, for Re-Share, delete, read, update, add 16+8+2+1 = 27.
     */
     
-    @objc public func createShare(path: String, shareType: Int, shareWith: String?, publicUpload: Bool = false, password: String? = nil, permissions: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func createShareLink(path: String, hidedownload: Bool = false, publicUpload: Bool = false, password: String? = nil, permissions: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+     
+        createShare(path: path, shareType: 3, shareWith: nil, publicUpload: publicUpload, hidedownload: hidedownload, password: password, permissions: permissions, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
+    }
+    
+    @objc public func createShare(path: String, shareType: Int, shareWith: String, password: String? = nil, permissions: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+     
+        createShare(path: path, shareType: shareType, shareWith: shareWith, publicUpload: false, hidedownload: false, password: password, permissions: permissions, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
+    }
+    
+    private func createShare(path: String, shareType: Int, shareWith: String?, publicUpload: Bool? = nil, hidedownload: Bool? = nil, password: String? = nil, permissions: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
@@ -184,11 +195,16 @@ extension NCCommunication {
         var parameters = [
             "path": path,
             "shareType": String(shareType),
-            "publicUpload": publicUpload == true ? "1" : "0",
             "permissions": String(permissions)
         ]
         if shareWith != nil {
             parameters["shareWith"] = shareWith!
+        }
+        if publicUpload != nil {
+            parameters["publicUpload"] = publicUpload == true ? "1" : "0"
+        }
+        if hidedownload != nil {
+            parameters["hidedownload"] = hidedownload == true ? "1" : "0"
         }
         if password != nil {
             parameters["password"] = password!
@@ -211,33 +227,6 @@ extension NCCommunication {
                     let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
                 }
-            }
-        }
-    }
-    
-    @objc public func deleteShare(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
-           
-        let account = NCCommunicationCommon.shared.account
-        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
-                
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "DELETE")
-             
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-    
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
-              debugPrint(response)
-
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
-            case .success( _):
-                completionHandler(account, 0, "")
             }
         }
     }
@@ -288,4 +277,31 @@ extension NCCommunication {
             }
         }
     }
+    
+    @objc public func deleteShare(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+              
+           let account = NCCommunicationCommon.shared.account
+           let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+                   
+           guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+               completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+               return
+           }
+           
+           let method = HTTPMethod(rawValue: "DELETE")
+                
+           let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+       
+           sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+                 debugPrint(response)
+
+               switch response.result {
+               case .failure(let error):
+                   let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                   completionHandler(account, error.errorCode, error.description ?? "")
+               case .success( _):
+                   completionHandler(account, 0, "")
+               }
+           }
+       }
 }
