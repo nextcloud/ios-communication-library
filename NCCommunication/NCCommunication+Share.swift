@@ -56,7 +56,6 @@ extension NCCommunication {
         if idShare > 0 {
             endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
         }
-        var parameters: [String: Any]? = nil
                 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -68,13 +67,11 @@ extension NCCommunication {
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/xml"))
         
-        if path != nil {
-            parameters = [
-                "path": path!,
-                "reshares": reshares == true ? "1" : "0",
-                "subfiles": subfiles == true ? "1" : "0"
-            ]
-        }
+        var parameters = [
+            "reshares": reshares == true ? "1" : "0",
+            "subfiles": subfiles == true ? "1" : "0"
+        ]
+        parameters["path"] = path
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData { (response) in
               debugPrint(response)
