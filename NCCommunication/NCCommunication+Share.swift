@@ -268,7 +268,7 @@ extension NCCommunication {
     * @param hidedownload   Permission if file can be downloaded via share link (only for single file)
     */
     
-    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: String? = nil, permissions: Int = 0, publicUpload: String? = nil, note: String? = nil, hidedownload: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: Int = 0, permissions: Int = 0, publicUpload: Bool, note: String? = nil, hidedownload: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
@@ -286,21 +286,11 @@ extension NCCommunication {
             "permissions": String(permissions)
         ]
         
-        if password != nil {
-            parameters["password"] = password!
-        }
-        if expireDate != nil {
-            parameters["expireDate"] = expireDate!
-        }
-        if publicUpload != nil {
-            parameters["publicUpload"] = publicUpload!
-        }
-        if note != nil {
-            parameters["note"] = note!
-        }
-        if hidedownload != nil {
-            parameters["hidedownload"] = hidedownload!
-        }
+        parameters["password"] = password
+        parameters["expireDate"] = String(expireDate)
+        parameters["publicUpload"] = publicUpload == true ? "1" : "0"
+        parameters["hidedownload"] = hidedownload == true ? "1" : "0"
+        parameters["note"] = note
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
               debugPrint(response)
