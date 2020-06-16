@@ -167,34 +167,34 @@ import SwiftyJSON
 
 @objc public class NCCommunicationShare: NSObject {
     
-    @objc public var idShare: Int = 0
-    @objc public var shareType: Int = 0
-    @objc public var uidOwner = ""
-    @objc public var displaynameOwner = ""
-    @objc public var permissions: Int = 0
     @objc public var canEdit: Bool = false
     @objc public var canDelete: Bool = false
     @objc public var date: NSDate?
-    @objc public var parent: Int = 0
-    @objc public var expirationDate: NSDate?
-    @objc public var token = ""
-    @objc public var uidFileOwner = ""
-    @objc public var note = ""
-    @objc public var label = ""
     @objc public var displaynameFileOwner = ""
-    @objc public var path = ""
-    @objc public var itemType = ""
-    @objc public var mimeType = ""
-    @objc public var storageId = ""
-    @objc public var storage: Int = 0
-    @objc public var itemSource: Int = 0
-    @objc public var fileSource: Int = 0
+    @objc public var displaynameOwner = ""
+    @objc public var expirationDate: NSDate?
     @objc public var fileParent: Int = 0
+    @objc public var fileSource: Int = 0
     @objc public var fileTarget = ""
+    @objc public var hideDownload: Bool = false
+    @objc public var idShare: Int = 0
+    @objc public var itemSource: Int = 0
+    @objc public var itemType = ""
+    @objc public var label = ""
+    @objc public var mailSend: Bool = false
+    @objc public var mimeType = ""
+    @objc public var note = ""
+    @objc public var parent: Int = 0
+    @objc public var path = ""
+    @objc public var permissions: Int = 0
+    @objc public var shareType: Int = 0
     @objc public var shareWith = ""
     @objc public var shareWithDisplayname = ""
-    @objc public var mailSend: Bool = false
-    @objc public var hideDownload: Bool = false
+    @objc public var storage: Int = 0
+    @objc public var storageId = ""
+    @objc public var token = ""
+    @objc public var uidFileOwner = ""
+    @objc public var uidOwner = ""
 }
 
 @objc public class NCCommunicationSharee: NSObject {
