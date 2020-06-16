@@ -28,19 +28,27 @@ import SwiftyJSON
 
 extension NCCommunication {
     
-    @objc public func readShares(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: nil, idShare: 0, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
+    /*
+    * @param path           Path to file or folder
+    * @param reshares       If set to false (default), only shares owned by the current user are returned.
+    *                       If set to true, shares owned by any user from the given file are returned.
+    * @param subfiles       If set to false (default), lists only the folder being shared
+    *                       If set to true, all shared files within the folder are returned.
+    */
+    
+    @objc public func readShares(reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        readShares(path: nil, idShare: 0, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
     }
     
-    @objc public func readShares(path: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: path, idShare: 0, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
+    @objc public func readShares(path: String, reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        readShares(path: path, idShare: 0, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
     }
     
-    @objc public func readShares(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: nil, idShare: idShare, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
+    @objc public func readShares(idShare: Int, reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        readShares(path: nil, idShare: idShare, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, completionHandler: completionHandler)
     }
     
-    private func readShares(path: String? = nil, idShare: Int = 0, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    private func readShares(path: String? = nil, idShare: Int = 0, reshares: Bool, subfiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         var endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares"
@@ -60,7 +68,11 @@ extension NCCommunication {
         headers.update(.contentType("application/xml"))
         
         if path != nil {
-            parameters = ["path": path!, "reshares": "true"]
+            parameters = [
+                "path": path!,
+                "reshares": reshares == true ? "1" : "0",
+                "subfiles": subfiles == true ? "1" : "0"
+            ]
         }
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData { (response) in
@@ -84,9 +96,15 @@ extension NCCommunication {
             }
         }
     }
+        
+    /*
+    * @param search         The search string
+    * @param itemType       The type which is shared (e.g. file or folder)
+    * @param shareType      Any of the shareTypes (0 = user; 1 = group; 3 = public link; 6 = federated cloud share)
+    * @param page           The page number to be returned (default 1)
+    * @param perPage        The number of items per page (default 200)
+    */
     
-    // shareType - (int) 0 = user; 1 = group; 3 = public link; 6 = federated cloud share ?
-    // itemType - String the type which is shared (e.g. file or folder)
     @objc public func searchSharees(search: String = "", page: Int = 1, perPage: Int = 200, itemType: String = "file", customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
@@ -231,11 +249,29 @@ extension NCCommunication {
         }
     }
     
-    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: String? = nil, permissions: String? = nil, publicUpload: String? = nil, note: String? = nil, hidedownload: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    /*
+    * @param idShare        Identifier of the share to update
+    * @param password       Password to protect a public link share. Only available for public link shares, Empty string clears the current password, Null results in no update applied to the password
+    * @param expireDate     Expiration date to set for the public link, a negative value clears the current expiration date, zero value (start-of-epoch) results in no update done on the expiration date.
+    * @param permissions    1 - Read only Default for public shares
+    *                       2 - Update
+    *                       4 - Create
+    *                       8 - Delete
+    *                       16- Re-share
+    *                       31- All above Default for private shares
+    *                       For user or group shares.
+    *                       To obtain combinations, add the desired values together.
+    *                       For instance, for Re-Share, delete, read, update, add 16+8+2+1 = 27.
+    *                       Values <= 0 result in no update applied to the permissions
+    * @param publicUpload   If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
+    * @param note           Note
+    * @param hidedownload   Permission if file can be downloaded via share link (only for single file)
+    */
+    
+    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: String? = nil, permissions: Int = 0, publicUpload: String? = nil, note: String? = nil, hidedownload: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
-        var parameters: [String: Any] = [:]
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -246,14 +282,15 @@ extension NCCommunication {
              
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
+        var parameters = [
+            "permissions": String(permissions)
+        ]
+        
         if password != nil {
             parameters["password"] = password!
         }
         if expireDate != nil {
             parameters["expireDate"] = expireDate!
-        }
-        if permissions != nil {
-            parameters["permissions"] = permissions!
         }
         if publicUpload != nil {
             parameters["publicUpload"] = publicUpload!
