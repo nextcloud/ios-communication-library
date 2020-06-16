@@ -30,6 +30,7 @@ extension NCCommunication {
     
     /*
     * @param path           Path to file or folder
+    * @param idShare        Identifier of the share to update
     * @param reshares       If set to false (default), only shares owned by the current user are returned.
     *                       If set to true, shares owned by any user from the given file are returned.
     * @param subfiles       If set to false (default), lists only the folder being shared
@@ -304,6 +305,10 @@ extension NCCommunication {
             }
         }
     }
+    
+    /*
+    * @param idShare        Identifier of the share to update
+    */
     
     @objc public func deleteShare(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
               
