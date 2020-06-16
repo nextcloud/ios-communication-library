@@ -152,7 +152,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool, requestBody: Data? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool = true, requestBody: Data? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         var serverUrlFileName = String(serverUrlFileName)
@@ -227,34 +227,34 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lteDate: Any, gteDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
-        var gteDateString: String?, lteDateString: String?
+        var greaterDateString: String?, lessDateString: String?
         
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
-        if lteDate is Date || lteDate is NSDate {
-            lteDateString = NCCommunicationCommon.shared.convertDate(lteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-        } else if lteDate is Int {
-            lteDateString = String(lteDate as! Int)
+        if lessDate is Date || lessDate is NSDate {
+            lessDateString = NCCommunicationCommon.shared.convertDate(lessDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+        } else if lessDate is Int {
+            lessDateString = String(lessDate as! Int)
         }
         
-        if gteDate is Date || lteDate is NSDate {
-            gteDateString = NCCommunicationCommon.shared.convertDate(gteDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-        } else if gteDate is Int {
-            gteDateString = String(gteDate as! Int)
+        if greaterDate is Date || greaterDate is NSDate {
+            greaterDateString = NCCommunicationCommon.shared.convertDate(greaterDate as! Date, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+        } else if greaterDate is Int {
+            greaterDateString = String(greaterDate as! Int)
         }
         
-        if lteDateString == nil || gteDateString == nil {
+        if lessDateString == nil || greaterDateString == nil {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
             return
         }
         
-        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lteDateString!, elementDate, gteDateString!)
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!)
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.url, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in

@@ -165,6 +165,45 @@ import SwiftyJSON
     @objc public var type = ""
 }
 
+@objc public class NCCommunicationShare: NSObject {
+    
+    @objc public var idShare: Int = 0
+    @objc public var shareType: Int = 0
+    @objc public var uidOwner = ""
+    @objc public var displaynameOwner = ""
+    @objc public var permissions: Int = 0
+    @objc public var canEdit: Bool = false
+    @objc public var canDelete: Bool = false
+    @objc public var date: NSDate?
+    @objc public var parent: Int = 0
+    @objc public var expirationDate: NSDate?
+    @objc public var token = ""
+    @objc public var uidFileOwner = ""
+    @objc public var note = ""
+    @objc public var label = ""
+    @objc public var displaynameFileOwner = ""
+    @objc public var path = ""
+    @objc public var itemType = ""
+    @objc public var mimeType = ""
+    @objc public var storageId = ""
+    @objc public var storage: Int = 0
+    @objc public var itemSource: Int = 0
+    @objc public var fileSource: Int = 0
+    @objc public var fileParent: Int = 0
+    @objc public var fileTarget = ""
+    @objc public var shareWith = ""
+    @objc public var shareWithDisplayname = ""
+    @objc public var mailSend: Bool = false
+    @objc public var hideDownload: Bool = false
+}
+
+@objc public class NCCommunicationSharee: NSObject {
+    
+    @objc public var label = ""
+    @objc public var shareType: Int = 0
+    @objc public var shareWith = ""
+}
+
 @objc public class NCCommunicationTrash: NSObject {
 
     @objc public var contentType = ""
@@ -456,18 +495,18 @@ class NCDataFileXML: NSObject {
             </d:or>
             <d:or>
               <d:and>
-                <d:lte>
+                <d:lt>
                   <d:prop>
                     <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
-                </d:lte>
-                <d:gte>
+                </d:lt>
+                <d:gt>
                   <d:prop>
                     <%@>
                   </d:prop>
                   <d:literal>%@</d:literal>
-                </d:gte>
+                </d:gt>
               </d:and>
             </d:or>
           </d:and>
@@ -815,6 +854,145 @@ class NCDataFileXML: NSObject {
         }
         
         return items
+    }
+    
+    func convertDataShare(data: Data) -> (shares: [NCCommunicationShare], statusCode: Int, message: String) {
+        
+        var items: [NCCommunicationShare] = []
+        var statusCode: Int = 0
+        var message = ""
+        
+        let xml = XML.parse(data)
+        if let value = xml["ocs", "meta", "statuscode"].int {
+            statusCode = value
+        }
+        if let value = xml["ocs", "meta", "message"].text {
+            message = value
+        }
+        let elements = xml["ocs", "data", "element"]
+        for element in elements {
+            let item = NCCommunicationShare()
+
+            if let value = element["id"].int {
+                item.idShare = value
+            }
+            
+            if let value = element["share_type"].int {
+                item.shareType = value
+            }
+            
+            if let value = element["uid_owner"].text {
+                item.uidOwner = value
+            }
+            
+            if let value = element["displayname_owner"].text {
+                item.displaynameOwner = value
+            }
+            
+            if let value = element["permissions"].int {
+                item.permissions = value
+            }
+            
+            if let value = element["can_edit"].int {
+                item.canEdit = (value as NSNumber).boolValue
+            }
+            
+            if let value = element["can_delete"].int {
+                item.canDelete = (value as NSNumber).boolValue
+            }
+            
+            if let date = element["stime"].double {
+                if date > 0 {
+                    item.date = NSDate(timeIntervalSince1970: date)
+                }
+            }
+            
+            if let value = element["parent"].int {
+                item.parent = value
+            }
+            
+            if let date = element["expiration"].double {
+                if date > 0 {
+                    item.expirationDate = NSDate(timeIntervalSince1970: date)
+                }
+            }
+            
+            if let value = element["token"].text {
+                item.token = value
+            }
+            
+            if let value = element["uid_file_owner"].text {
+                item.uidFileOwner = value
+            }
+            
+            if let value = element["note"].text {
+                item.note = value
+            }
+            
+            if let value = element["label"].text {
+                item.label = value
+            }
+            
+            if let value = element["displayname_file_owner"].text {
+                item.displaynameFileOwner = value
+            }
+            
+            if let value = element["path"].text {
+                item.path = value
+            }
+            
+            if let value = element["item_type"].text {
+                item.itemType = value
+            }
+            
+            if let value = element["mimetype"].text {
+                item.mimeType = value
+            }
+            
+            if let value = element["storage_id"].text {
+                item.storageId = value
+            }
+            
+            if let value = element["storage"].int {
+                item.storage = value
+            }
+            
+            if let value = element["item_source"].int {
+                item.itemSource = value
+            }
+            
+            if let value = element["file_source"].int {
+                item.fileSource = value
+            }
+            
+            if let value = element["file_parent"].int {
+                item.fileParent = value
+            }
+            
+            if let value = element["file_target"].text {
+                item.fileTarget = value
+            }
+            
+            if let value = element["share_with"].text {
+                item.shareWith = value
+            }
+            
+            if let value = element["share_with_displayname"].text {
+                item.shareWithDisplayname = value
+            }
+            
+            if let value = element["mail_send"].int {
+                item.mailSend = (value as NSNumber).boolValue
+            }
+            
+            if let value = element["hide_download"].int {
+                item.hideDownload = (value as NSNumber).boolValue
+            }
+            
+            items.append(item)
+        }
+        
+        return(items, statusCode, message)
     }
 }
 
