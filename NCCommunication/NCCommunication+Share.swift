@@ -346,7 +346,8 @@ extension NCCommunication {
         }
     }
     
-    
+    //MARK: -
+
     private func convertResponseShare(json: JSON) -> NCCommunicationShare {
         let share = NCCommunicationShare()
                            
