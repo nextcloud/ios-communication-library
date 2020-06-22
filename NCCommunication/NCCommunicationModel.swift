@@ -172,7 +172,7 @@ import SwiftyJSON
     @objc public var date: NSDate?
     @objc public var displaynameFileOwner = ""
     @objc public var displaynameOwner = ""
-    @objc public var expirationDate: NSDate?
+    @objc public var expiration = ""
     @objc public var fileParent: Int = 0
     @objc public var fileSource: Int = 0
     @objc public var fileTarget = ""
@@ -893,10 +893,8 @@ class NCDataFileXML: NSObject {
                 item.displaynameOwner = value
             }
             
-            if let date = element["expiration"].double {
-                if date > 0 {
-                    item.expirationDate = NSDate(timeIntervalSince1970: date)
-                }
+            if let value = element["expiration"].text {
+               item.expiration = value                
             }
             
             if let value = element["file_parent"].int {

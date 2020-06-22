@@ -355,10 +355,7 @@ extension NCCommunication {
         share.canEdit = json["ocs"]["data"]["can_edit"].boolValue
         share.displaynameFileOwner = json["ocs"]["data"]["displayname_file_owner"].stringValue
         share.displaynameOwner = json["ocs"]["data"]["displayname_owner"].stringValue
-        if let expiration = json["ocs"]["data"]["expiration"].double {
-            let date = Date(timeIntervalSince1970: expiration) as NSDate
-            share.expirationDate = date
-        }
+        share.expiration = json["ocs"]["data"]["expiration"].stringValue
         share.fileParent = json["ocs"]["data"]["file_parent"].intValue
         share.fileSource = json["ocs"]["data"]["file_source"].intValue
         share.fileTarget = json["ocs"]["data"]["file_target"].stringValue
