@@ -74,7 +74,7 @@ extension NCCommunication {
         parameters["path"] = path
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData { (response) in
-              debugPrint(response)
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -125,7 +125,7 @@ extension NCCommunication {
         ]
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-              debugPrint(response)
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -227,7 +227,7 @@ extension NCCommunication {
         }
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-              debugPrint(response)
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -295,7 +295,7 @@ extension NCCommunication {
         parameters["hidedownload"] = hidedownload == true ? "1" : "0"
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-              debugPrint(response)
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
