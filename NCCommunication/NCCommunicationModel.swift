@@ -204,8 +204,10 @@ import SwiftyJSON
 @objc public class NCCommunicationSharee: NSObject {
     
     @objc public var label = ""
+    @objc public var name = ""
     @objc public var shareType: Int = 0
     @objc public var shareWith = ""
+    @objc public var uuid = ""
 }
 
 @objc public class NCCommunicationTrash: NSObject {
