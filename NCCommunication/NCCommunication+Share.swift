@@ -141,6 +141,8 @@ extension NCCommunication {
                         for (_, subJson):(String, JSON) in json["ocs"]["data"]["exact"][shareType] {
                             let sharee = NCCommunicationSharee()
                             
+                            sharee.circleInfo = subJson["circleInfo"].stringValue
+                            sharee.circleOwner = subJson["circleOwner"].stringValue
                             sharee.label = subJson["label"].stringValue
                             sharee.name = subJson["name"].stringValue
                             sharee.uuid = subJson["uuid"].stringValue
@@ -152,6 +154,8 @@ extension NCCommunication {
                         for (_, subJson):(String, JSON) in json["ocs"]["data"][shareType] {
                             let sharee = NCCommunicationSharee()
                             
+                            sharee.circleInfo = subJson["circleInfo"].stringValue
+                            sharee.circleOwner = subJson["circleOwner"].stringValue
                             sharee.label = subJson["label"].stringValue
                             sharee.name = subJson["name"].stringValue
                             sharee.uuid = subJson["uuid"].stringValue
