@@ -144,8 +144,12 @@ extension NCCommunication {
                             sharee.label = subJson["label"].stringValue
                             sharee.name = subJson["name"].stringValue
                             sharee.uuid = subJson["uuid"].stringValue
+                            
                             sharee.shareType = subJson["value"]["shareType"].intValue
                             sharee.shareWith = subJson["value"]["shareWith"].stringValue
+                            
+                            sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
+                            sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
                             sharees.append(sharee)
                         }
@@ -155,8 +159,12 @@ extension NCCommunication {
                             sharee.label = subJson["label"].stringValue
                             sharee.name = subJson["name"].stringValue
                             sharee.uuid = subJson["uuid"].stringValue
+                            
                             sharee.shareType = subJson["value"]["shareType"].intValue
                             sharee.shareWith = subJson["value"]["shareWith"].stringValue
+                            
+                            sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
+                            sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
                             sharees.append(sharee)
                         }

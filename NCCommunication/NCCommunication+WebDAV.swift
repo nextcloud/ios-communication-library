@@ -227,12 +227,12 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         var greaterDateString: String?, lessDateString: String?
         
-        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
+        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user + path) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }

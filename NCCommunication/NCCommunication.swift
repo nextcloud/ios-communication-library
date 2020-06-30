@@ -171,25 +171,13 @@ import SwiftyJSON
             
         } .response { response in
             
-            var isSuccess = false
-            var error: AFError?
-            
             switch response.result {
-            case .failure(let isError):
-                error = isError
-                if response.response?.statusCode == 200 {
-                    if response.resumeData != nil {
-                        isSuccess = false
-                    } else {
-                        isSuccess = true
-                    }
-                }
+            case .failure(let error):
+                let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, nil, 0, error, resultError.errorCode, resultError.description ?? "")
             case .success( _):
-                isSuccess = true
-            }
-            
-            if isSuccess {
-                
+
+                var date: NSDate?
                 var etag: String?
                 var length: Double = 0
                 
@@ -203,22 +191,16 @@ import SwiftyJSON
                     etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields: response.response?.allHeaderFields)
                 }
                 
-                if etag != nil { etag = etag!.replacingOccurrences(of: "\"", with: "") }
+                if etag != nil {
+                    etag = etag!.replacingOccurrences(of: "\"", with: "")
+                }
                 
                 if let dateString = NCCommunicationCommon.shared.findHeader("Date", allHeaderFields: response.response?.allHeaderFields) {
-                    if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, etag, date, length, nil , 0, "")
-                    } else {
-                        completionHandler(account, nil, nil, 0, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
-                    }
-                } else {
-                    completionHandler(account, nil, nil, 0, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
                 }
-            } else {
-                let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, 0, error ,resultError.errorCode, resultError.description ?? "")
+                
+                completionHandler(account, etag, date, length, nil , 0, "")
             }
-            
         }
         
         DispatchQueue.main.async {

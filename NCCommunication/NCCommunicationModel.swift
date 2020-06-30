@@ -203,6 +203,8 @@ import SwiftyJSON
 
 @objc public class NCCommunicationSharee: NSObject {
     
+    @objc public var circleInfo = ""
+    @objc public var circleOwner = ""
     @objc public var label = ""
     @objc public var name = ""
     @objc public var shareType: Int = 0
