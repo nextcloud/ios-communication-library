@@ -526,6 +526,12 @@ extension NCCommunication {
                     file.permissions = subJson["permissions"].stringValue
                     file.size = subJson["size"].doubleValue
                     
+                    let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+                    
+                    file.contentType = results.contentType
+                    file.typeFile = results.typeFile
+                    file.iconName = results.iconName
+                    
                     files.append(file)
                 }
                 completionHandler(account, files, 0, "")
