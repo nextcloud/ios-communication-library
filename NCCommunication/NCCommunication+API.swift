@@ -478,7 +478,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func iosHelper(fileNamePath: String, serverUrl: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
@@ -524,7 +524,9 @@ extension NCCommunication {
                     }
                     file.ocId = subJson["ocId"].stringValue
                     file.permissions = subJson["permissions"].stringValue
+                    file.serverUrl = serverUrl
                     file.size = subJson["size"].doubleValue
+                    file.urlBase = NCCommunicationCommon.shared.url
                     
                     let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
                     
