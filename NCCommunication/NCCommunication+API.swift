@@ -213,16 +213,17 @@ extension NCCommunication {
             case .success( _):
                 if let data = response.data {
                     do {
-                        var imageIcon = UIImage()
                         try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
                         if let imagePreview = UIImage(data: data) {
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
+                                let imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
                                 if let data = imageIcon.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                 }
+                                completionHandler(account, imagePreview, imageIcon, 0, "")
+                            } else {
+                                completionHandler(account, imagePreview, nil, 0, "")
                             }
-                            completionHandler(account, imagePreview, imageIcon, 0, "")
                         } else {
                             completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                         }
