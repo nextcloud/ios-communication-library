@@ -221,19 +221,6 @@ extension NCCommunication {
                                 if let data = imageIcon.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                 }
-                                /*
-                                let scale = CGFloat(sizeIcon) / imagePreview.size.width
-                                let heightIcon = imagePreview.size.height * scale
-                                UIGraphicsBeginImageContext(CGSize(width: CGFloat(sizeIcon), height: heightIcon))
-                                imagePreview.draw(in: (CGRect(x: 0, y: 0, width: CGFloat(sizeIcon), height: heightIcon)))
-                                imageIcon = UIGraphicsGetImageFromCurrentImageContext()
-                                UIGraphicsEndImageContext()
-                                if imageIcon != nil {
-                                    if let data = imageIcon!.jpegData(compressionQuality: 0.5) {
-                                        try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
-                                    }
-                                }
-                                */
                             }
                             completionHandler(account, imagePreview, imageIcon, 0, "")
                         } else {
