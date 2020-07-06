@@ -213,14 +213,16 @@ extension NCCommunication {
             case .success( _):
                 if let data = response.data {
                     do {
-                        if let imagePreview = UIImage(data: data) {
+                        if var imagePreview = UIImage(data: data) {
                             if let data = imagePreview.jpegData(compressionQuality: 0.5) {
                                 try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
+                                imagePreview = UIImage.init(data: data)!
                             }
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                let imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
+                                var imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
                                 if let data = imageIcon.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                                    imageIcon = UIImage.init(data: data)!
                                 }
                                 completionHandler(account, imagePreview, imageIcon, 0, "")
                             } else {
