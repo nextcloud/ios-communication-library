@@ -22,6 +22,7 @@
 //
 
 import Foundation
+import UIKit
 import Alamofire
 import MobileCoreServices
 
@@ -363,5 +364,36 @@ import MobileCoreServices
             return components.joined(separator: "")
         }
         return nil
+    }
+    
+    func resizeImage(image: UIImage, toHeight: CGFloat) -> UIImage {
+        return autoreleasepool { () -> UIImage in
+            let toWidth = image.size.width * (toHeight/image.size.height)
+            let targetSize = CGSize(width: toWidth, height: toHeight)
+            let size = image.size
+           
+            let widthRatio  = targetSize.width  / size.width
+            let heightRatio = targetSize.height / size.height
+           
+            // Orientation detection
+            var newSize: CGSize
+            if(widthRatio > heightRatio) {
+                newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+            } else {
+                newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
+            }
+           
+            // Calculated rect
+            let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+           
+            // Resize
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+            image.draw(in: rect)
+           
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+           
+            return newImage!
+        }
     }
  }
