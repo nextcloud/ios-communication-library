@@ -215,7 +215,7 @@ extension NCCommunication {
                     do {
                         if let imagePreview = UIImage(data: data) {
                             if let data = imagePreview.jpegData(compressionQuality: 0.5) {
-                                try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                                try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
                             }
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
                                 let imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
