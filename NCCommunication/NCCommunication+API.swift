@@ -170,6 +170,42 @@ extension NCCommunication {
     
     //MARK: -
     
+    @objc public func getPreview(fileNamePath: String, widthPreview: Int, heightPreview: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+               
+        let account = NCCommunicationCommon.shared.account
+        
+        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(widthPreview)&y=\(heightPreview)&a=1&mode=cover"
+        
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+           
+        let method = HTTPMethod(rawValue: "GET")
+        
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+                
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+            
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
+            case .success( _):
+                if let data = response.data {
+                    completionHandler(account, data, 0, "")
+                } else {
+                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                }
+            }
+        }
+    }
+    
     @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
@@ -213,25 +249,21 @@ extension NCCommunication {
             case .success( _):
                 if let data = response.data {
                     do {
-                        var imageIcon: UIImage?
-                        try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
-                        if let imagePreview = UIImage(data: data) {
-                            if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                let scale = CGFloat(sizeIcon) / imagePreview.size.width
-                                let heightIcon = imagePreview.size.height * scale
-                                UIGraphicsBeginImageContext(CGSize(width: CGFloat(sizeIcon), height: heightIcon))
-                                imagePreview.draw(in: (CGRect(x: 0, y: 0, width: CGFloat(sizeIcon), height: heightIcon)))
-                                imageIcon = UIGraphicsGetImageFromCurrentImageContext()
-                                UIGraphicsEndImageContext()
-                                
-                                if imageIcon != nil {
-                                    if let data = imageIcon!.jpegData(compressionQuality: 0.5) {
-                                        try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
-                                    }
-                                }
+                        if var imagePreview = UIImage(data: data) {
+                            if let data = imagePreview.jpegData(compressionQuality: 0.5) {
+                                try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
+                                imagePreview = UIImage.init(data: data)!
                             }
-                            
-                            completionHandler(account, imagePreview, imageIcon, 0, "")
+                            if fileNameIconLocalPath != nil && sizeIcon > 0 {
+                                var imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
+                                if let data = imageIcon.jpegData(compressionQuality: 0.5) {
+                                    try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                                    imageIcon = UIImage.init(data: data)!
+                                }
+                                completionHandler(account, imagePreview, imageIcon, 0, "")
+                            } else {
+                                completionHandler(account, imagePreview, nil, 0, "")
+                            }
                         } else {
                             completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                         }
@@ -478,7 +510,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func iosHelper(fileNamePath: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func iosHelper(fileNamePath: String, serverUrl: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
 
@@ -524,7 +556,15 @@ extension NCCommunication {
                     }
                     file.ocId = subJson["ocId"].stringValue
                     file.permissions = subJson["permissions"].stringValue
+                    file.serverUrl = serverUrl
                     file.size = subJson["size"].doubleValue
+                    file.urlBase = NCCommunicationCommon.shared.url
+                    
+                    let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+                    
+                    file.contentType = results.contentType
+                    file.typeFile = results.typeFile
+                    file.iconName = results.iconName
                     
                     files.append(file)
                 }

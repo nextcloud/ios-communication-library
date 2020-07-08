@@ -193,12 +193,8 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    if requestBody != nil {
-                        completionHandler(account, nil, data, 0, "")
-                    } else {
-                        let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
-                        completionHandler(account, files, data, 0, "")
-                    }
+                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
+                    completionHandler(account, files, data, 0, "")
                 } else {
                     completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
