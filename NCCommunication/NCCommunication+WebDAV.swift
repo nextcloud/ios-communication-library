@@ -203,16 +203,17 @@ extension NCCommunication {
         }
     }
      
-    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
+        let files: [NCCommunicationFile] = []
 
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         guard let literal = NCCommunicationCommon.shared.encodeString(literal) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_literal_", value: "Invalid search string", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_literal_", value: "Invalid search string", comment: ""))
             return
         }
         
@@ -224,13 +225,14 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
+        let files: [NCCommunicationFile] = []
         var greaterDateString: String?, lessDateString: String?
         
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user + path) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -247,7 +249,7 @@ extension NCCommunication {
         }
         
         if lessDateString == nil || greaterDateString == nil {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
             return
         }
         
@@ -259,10 +261,12 @@ extension NCCommunication {
         }
     }
      
-    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String: String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String: String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
+        var files: [NCCommunicationFile] = []
+        
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.davRoot) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
          
@@ -276,7 +280,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = httpBody
         } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
+            completionHandler(account, files, error._code, error.localizedDescription)
             return
         }
          
@@ -286,13 +290,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, files, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
+                    files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, "")
                 } else {
-                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
             }
         }
