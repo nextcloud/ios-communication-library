@@ -339,13 +339,14 @@ extension NCCommunication {
         }
     }
      
-    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/files/" + NCCommunicationCommon.shared.userId
-        
+        var files: [NCCommunicationFile] = []
+
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
          
@@ -358,7 +359,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFileListingFavorites.data(using: .utf8)
         } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
+            completionHandler(account, files, error._code, error.localizedDescription)
             return
         }
          
@@ -368,13 +369,13 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, files, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    let files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
+                    files = NCDataFileXML().convertDataFile(data: data, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, "")
                 } else {
-                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
                 }
             }
         }
