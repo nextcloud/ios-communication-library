@@ -51,8 +51,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -94,8 +101,15 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -129,8 +143,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -181,8 +202,15 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -218,8 +246,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -254,8 +289,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+               if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -289,8 +331,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -337,8 +386,15 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -386,8 +442,15 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
