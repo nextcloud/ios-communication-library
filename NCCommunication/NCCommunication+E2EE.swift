@@ -73,7 +73,7 @@ extension NCCommunication {
         var parameters: [String: Any]?
 
         if e2eToken != nil {
-            parameters = ["e2e-token": e2eToken!]
+            parameters = ["token": e2eToken!] // e2e-token
         }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
@@ -102,7 +102,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let e2eToken = json["ocs"]["data"]["e2e-token"].string
+                    let e2eToken = json["ocs"]["data"]["token"].string // e2e-token
                     completionHandler(account, e2eToken, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -164,7 +164,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
                 if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(e2eMetadata!) {
-                    let parameters = "metaData=" + metadataEncoded + "&e2e-token=" + e2eToken
+                    let parameters = "metaData=" + metadataEncoded + "&token=" + e2eToken // e2e-token
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
                     completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
