@@ -212,10 +212,6 @@ extension NCCommunication {
             completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
-        guard let literal = NCCommunicationCommon.shared.encodeString(literal) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_literal_", value: "Invalid search string", comment: ""))
-            return
-        }
         
         let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
         let httpBody = requestBody.data(using: .utf8)!
