@@ -93,7 +93,7 @@ extension NCCommunication {
         
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
         if e2eToken != nil {
-            headers.update(name: "token", value: e2eToken!) // e2e-token
+            headers.update(name: "e2e-token", value: e2eToken!)
         }
         
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
@@ -114,7 +114,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if 200..<300 ~= statusCode  {
-                    let e2eToken = json["ocs"]["data"]["token"].string // e2e-token
+                    let e2eToken = json["ocs"]["data"]["e2e-token"].string
                     completionHandler(account, e2eToken, 0, "")
                 } else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
@@ -183,7 +183,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
                 if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(e2eMetadata!) {
-                    let parameters = "metaData=" + metadataEncoded + "&token=" + e2eToken // e2e-token
+                    let parameters = "metaData=" + metadataEncoded + "&e2e-token=" + e2eToken
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
                     completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
