@@ -718,6 +718,9 @@ class NCDataFileXML: NSObject {
         
         var files: [NCCommunicationTrash] = []
         var first: Bool = true
+        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
+            return files
+        }
     
         let xml = XML.parse(data)
         let elements = xml["d:multistatus", "d:response"]
@@ -737,6 +740,7 @@ class NCDataFileXML: NSObject {
                 // path
                 file.filePath = (fileNamePath as NSString).deletingLastPathComponent + "/"
                 file.filePath = file.filePath.removingPercentEncoding ?? ""
+                file.filePath = baseUrl + file.filePath
                 
                 // fileName
                 file.fileName = (fileNamePath as NSString).lastPathComponent
