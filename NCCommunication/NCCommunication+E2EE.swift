@@ -73,7 +73,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/lock/" + fileId + "?format=json"
@@ -83,20 +83,21 @@ extension NCCommunication {
             return
         }
         
-        var typeMethod = ""
-        if delete {
-            typeMethod = "DELETE"
-        } else {
-            typeMethod = "POST"
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
+            if e2eToken != nil {
+                let parameters = "e2e-token=" + e2eToken!
+                urlRequest.httpBody = parameters.data(using: .utf8)
+            }
+        } catch {
+            completionHandler(account, nil, error._code, error.localizedDescription)
+            return
         }
-        let method = HTTPMethod(rawValue: typeMethod)
-        
-        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
-        if e2eToken != nil {
-            headers.update(name: "e2e-token", value: e2eToken!)
-        }
-        
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -183,7 +184,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
             if e2eMetadata != nil {
                 if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(e2eMetadata!) {
-                    let parameters = "metaData=" + metadataEncoded + "&e2e-token=" + e2eToken
+                    let parameters = "metaData=" + metadataEncoded
                     urlRequest.httpBody = parameters.data(using: .utf8)
                 } else {
                     completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
