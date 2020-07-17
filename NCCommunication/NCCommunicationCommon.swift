@@ -66,9 +66,6 @@ import MobileCoreServices
     @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
     @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
 
-    private let k_encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
-    private let k_encodeCharacterSetForCryptography = " #;?@&=$+{}<>,!'*|\n\"\\/"
-    
     @objc public enum typeReachability: Int {
         case unknown = 0
         case notReachable = 1
@@ -298,15 +295,8 @@ import MobileCoreServices
     
     func encodeString(_ string: String) -> String? {
         
-        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSet).inverted)
-        let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
-        
-        return encodeString
-    }
-    
-    func encodeStringForCryptography(_ string: String) -> String? {
-        
-        let allowedCharacterSet = (CharacterSet(charactersIn: k_encodeCharacterSetForCryptography).inverted)
+        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+        let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
         return encodeString

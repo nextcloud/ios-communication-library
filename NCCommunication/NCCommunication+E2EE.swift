@@ -51,8 +51,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -66,38 +73,38 @@ extension NCCommunication {
         }
     }
     
-    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, delete: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func lockE2EEFolder(fileId: String, e2eToken: String?, method: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ e2eToken: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/lock/" + fileId + "?format=json"
-        var parameters: [String: Any]?
-
-        if e2eToken != nil {
-            parameters = ["e2e-token": e2eToken!]
-        }
+        var parameters: [String: Any] = [:]
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
-        var typeMethod = ""
-        if delete {
-            typeMethod = "DELETE"
-        } else {
-            typeMethod = "POST"
-        }
-        let method = HTTPMethod(rawValue: typeMethod)
+        let method = HTTPMethod(rawValue: method)
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
+        if e2eToken != nil {
+            parameters = ["e2e-token": e2eToken!]
+        }
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -131,8 +138,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -151,7 +165,8 @@ extension NCCommunication {
                             
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/meta-data/" + fileId + "?format=json"
-        
+        var parameters: [String: Any] = [:]
+
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.url, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
@@ -159,32 +174,26 @@ extension NCCommunication {
 
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
         
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: method.uppercased()), headers: headers)
-            if e2eMetadata != nil {
-                if let metadataEncoded = NCCommunicationCommon.shared.encodeStringForCryptography(e2eMetadata!) {
-                    let parameters = "metaData=" + metadataEncoded + "&e2e-token=" + e2eToken
-                    urlRequest.httpBody = parameters.data(using: .utf8)
-                } else {
-                    completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-                    return
-                }
-            } else {
-                urlRequest.method = HTTPMethod(rawValue: "DELETE")
-            }
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
+        let method = HTTPMethod(rawValue: method)
+        
+        if e2eMetadata != nil {
+            parameters = ["metaData": e2eMetadata!, "e2e-token":e2eToken]
         }
-
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+       
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -220,8 +229,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -256,8 +272,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+               if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -291,8 +314,15 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -318,29 +348,23 @@ extension NCCommunication {
         }
 
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-           
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            if let key = NCCommunicationCommon.shared.encodeStringForCryptography(publicKey) {
-                let parameters = "csr=" + key
-                urlRequest.httpBody = parameters.data(using: .utf8)
-            } else {
-                completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-                return
-            }
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
-        }
-
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+        
+        let parameters = ["csr": publicKey]
+        
+        sessionManager.request(url, method: .post, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
@@ -368,28 +392,22 @@ extension NCCommunication {
 
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
            
-        var urlRequest: URLRequest
-        do {
-            try urlRequest = URLRequest(url: url, method: .post, headers: headers)
-            if let key = NCCommunicationCommon.shared.encodeStringForCryptography(privateKey) {
-                let parameters = "privateKey=" + key
-                urlRequest.httpBody = parameters.data(using: .utf8)
-            } else {
-                completionHandler(account, nil, NCCommunicationError().getInternalError(), NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-                return
-            }
-        } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
-            return
-        }
-
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON { (response) in
+        let parameters = ["privateKey": privateKey]
+        
+        sessionManager.request(url, method: .post, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
-            
+        
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                if let data = response.data {
+                    let json = JSON(data)
+                    let errorCode = json["ocs"]["meta"]["statuscode"].intValue
+                    let errorDescription = json["ocs"]["meta"]["message"].stringValue
+                    completionHandler(account, nil, errorCode, errorDescription)
+                } else {
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    completionHandler(account, nil, error.errorCode, error.description ?? "")
+                }
             case .success(let json):
                 let json = JSON(json)
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
