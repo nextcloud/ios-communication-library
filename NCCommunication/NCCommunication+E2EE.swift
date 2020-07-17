@@ -177,7 +177,7 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: method)
         
         if e2eMetadata != nil {
-            parameters = ["metaData": e2eMetadata!]
+            parameters = ["metaData": e2eMetadata!, "e2e-token":e2eToken]
         }
        
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
