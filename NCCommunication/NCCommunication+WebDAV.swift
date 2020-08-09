@@ -221,7 +221,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String ,showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String, limit: Int, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         let files: [NCCommunicationFile] = []
@@ -249,7 +249,7 @@ extension NCCommunication {
             return
         }
         
-        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!)
+        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!, String(limit))
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.url, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in

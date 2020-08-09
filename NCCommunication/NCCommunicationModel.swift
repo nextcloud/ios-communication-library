@@ -519,6 +519,9 @@ class NCDataFileXML: NSObject {
             </d:or>
           </d:and>
         </d:where>
+        <d:limit>
+            <d:nresults>%@</d:nresults>
+        </d:limit>
       </d:basicsearch>
     </d:searchrequest>
     """
