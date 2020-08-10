@@ -821,11 +821,12 @@ class NCDataFileXML: NSObject {
             for index in dicImage.values {
                 let fileImage = files[index]
                 if dicMOV.keys.contains(fileImage.fileNameWithoutExt) {
-                    let index = dicMOV[fileImage.fileNameWithoutExt]!
-                    let fileMOV = files[index]
-                    fileImage.livePhoto = true
-                    fileMOV.livePhoto = true
-                    dicMOV[fileImage.fileNameWithoutExt] = nil
+                    if let index = dicMOV[fileImage.fileNameWithoutExt] {
+                        let fileMOV = files[index]
+                        fileImage.livePhoto = true
+                        fileMOV.livePhoto = true
+                        dicMOV[fileImage.fileNameWithoutExt] = nil
+                    }
                 }
             }
         }
