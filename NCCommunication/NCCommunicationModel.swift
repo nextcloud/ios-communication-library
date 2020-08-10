@@ -810,7 +810,7 @@ class NCDataFileXML: NSObject {
             
             files.append(file)
             
-            if file.ext.uppercased() == "MOV" {
+            if file.ext == "mov" {
                 filenameMOV.append(results.fileNameWithoutExt)
             } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
                 if filenameMOV.contains(file.fileNameWithoutExt) {
