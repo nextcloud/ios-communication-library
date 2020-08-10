@@ -249,7 +249,13 @@ extension NCCommunication {
             return
         }
         
-        let requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!, String(limit))
+        var requestBody = ""
+        if limit > 0 {
+            requestBody = String(format: NCDataFileXML().requestBodySearchMediaWithLimit, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!, String(limit))
+        } else {
+            requestBody = String(format: NCDataFileXML().requestBodySearchMedia, href, elementDate, elementDate, lessDateString!, elementDate, greaterDateString!)
+        }
+        
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.url, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
