@@ -813,8 +813,11 @@ class NCDataFileXML: NSObject {
             if file.ext.uppercased() == "MOV" {
                 filenameMOV.append(results.fileNameWithoutExt)
             } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
-                let index = files.count - 1
-                indexFilesTypeFileImage.append(index)
+                if filenameMOV.contains(file.fileNameWithoutExt) {
+                    file.hasMOVlinked = true
+                } else {
+                    indexFilesTypeFileImage.append(files.count - 1)
+                }
             }
         }
         
