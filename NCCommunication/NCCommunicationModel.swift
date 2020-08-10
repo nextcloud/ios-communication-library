@@ -118,7 +118,7 @@ import SwiftyJSON
     @objc public var fileNameWithoutExt = ""
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
-    @objc public var livePhoto = ""
+    @objc public var livePhoto: String?
     @objc public var mountType = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
