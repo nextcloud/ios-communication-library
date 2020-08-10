@@ -118,7 +118,7 @@ import SwiftyJSON
     @objc public var fileNameWithoutExt = ""
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
-    @objc public var livePhoto: String?
+    @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -823,8 +823,8 @@ class NCDataFileXML: NSObject {
                 if dicMOV.keys.contains(fileImage.fileNameWithoutExt) {
                     let index = dicMOV[fileImage.fileNameWithoutExt]!
                     let fileMOV = files[index]
-                    fileImage.livePhoto = fileMOV.fileId
-                    fileMOV.livePhoto = fileImage.fileId
+                    fileImage.livePhoto = true
+                    fileMOV.livePhoto = true
                     dicMOV[fileImage.fileNameWithoutExt] = nil
                 }
             }
