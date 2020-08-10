@@ -116,9 +116,10 @@ import SwiftyJSON
     @objc public var fileId = ""
     @objc public var fileName = ""
     @objc public var fileNameWithoutExt = ""
-    @objc public var hasMOVlinked: Bool = false
+    @objc public var hasLivePhoto: Bool = false
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
+    @objc public var isLivePhoto: Bool = false
     @objc public var mountType = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -661,8 +662,8 @@ class NCDataFileXML: NSObject {
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
-        var filenameMOV: [String] = []
-        var indexFilesTypeFileImage: [Int] = []
+        var dicMOV: [String:Int] = [:]
+        var dicImage: [String:Int] = [:]
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -811,21 +812,21 @@ class NCDataFileXML: NSObject {
             files.append(file)
             
             if file.ext == "mov" {
-                filenameMOV.append(results.fileNameWithoutExt)
+                dicMOV[file.fileNameWithoutExt] = files.count - 1
             } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
-                if filenameMOV.contains(file.fileNameWithoutExt) {
-                    file.hasMOVlinked = true
-                } else {
-                    indexFilesTypeFileImage.append(files.count - 1)
-                }
+                dicImage[file.fileNameWithoutExt] = files.count - 1
             }
         }
         
-        if filenameMOV.count > 0 {
-            for index in indexFilesTypeFileImage {
-                let file = files[index]
-                if filenameMOV.contains(file.fileNameWithoutExt) {
-                    file.hasMOVlinked = true
+        if dicMOV.count > 0 {
+            for index in dicImage.values {
+                let fileImage = files[index]
+                if dicMOV.keys.contains(fileImage.fileNameWithoutExt) {
+                    let index = dicMOV[fileImage.fileNameWithoutExt]!
+                    let fileMOV = files[index]
+                    fileImage.hasLivePhoto = true
+                    fileMOV.isLivePhoto = true
+                    dicMOV[fileImage.fileNameWithoutExt] = nil
                 }
             }
         }
