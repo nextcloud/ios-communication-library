@@ -111,9 +111,12 @@ import SwiftyJSON
     @objc public var directory: Bool = false
     @objc public var e2eEncrypted: Bool = false
     @objc public var etag = ""
+    @objc public var ext = ""
     @objc public var favorite: Bool = false
     @objc public var fileId = ""
     @objc public var fileName = ""
+    @objc public var fileNameWithoutExt = ""
+    @objc public var hasMOVlinked: Bool = false
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
     @objc public var mountType = ""
@@ -658,6 +661,8 @@ class NCDataFileXML: NSObject {
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
+        var filenameMOV: [String] = []
+        var indexFilesTypeFileImage: [Int] = []
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -797,12 +802,29 @@ class NCDataFileXML: NSObject {
             let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
             
             file.contentType = results.contentType
-            file.typeFile = results.typeFile
+            file.ext = results.ext
+            file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
-            
+            file.typeFile = results.typeFile
             file.urlBase = NCCommunicationCommon.shared.url
             
             files.append(file)
+            
+            if file.ext.uppercased() == "MOV" {
+                filenameMOV.append(results.fileNameWithoutExt)
+            } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
+                let index = files.count - 1
+                indexFilesTypeFileImage.append(index)
+            }
+        }
+        
+        if filenameMOV.count > 0 {
+            for index in indexFilesTypeFileImage {
+                let file = files[index]
+                if filenameMOV.contains(file.fileNameWithoutExt) {
+                    file.hasMOVlinked = true
+                }
+            }
         }
         
         return files
