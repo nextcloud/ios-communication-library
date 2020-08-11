@@ -810,6 +810,7 @@ class NCDataFileXML: NSObject {
             
             files.append(file)
             
+            // Detect Live Photo
             if file.ext == "mov" {
                 dicMOV[file.fileNameWithoutExt] = files.count - 1
             } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
@@ -817,6 +818,7 @@ class NCDataFileXML: NSObject {
             }
         }
         
+        // Detect Live Photo
         if dicMOV.count > 0 {
             for index in dicImage.values {
                 let fileImage = files[index]
