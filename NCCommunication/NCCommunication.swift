@@ -57,7 +57,7 @@ import SwiftyJSON
    
     internal func saveCookiesTEST(response : HTTPURLResponse?) {
         if let headerFields = response?.allHeaderFields as? [String : String] {
-            if let url = URL(string: NCCommunicationCommon.shared.url) {
+            if let url = URL(string: NCCommunicationCommon.shared.urlBase) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
                 if cookies.count > 0 {
                     NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
@@ -70,7 +70,7 @@ import SwiftyJSON
     
     internal func injectsCookiesTEST() {
         if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
-            if let url = URL(string: NCCommunicationCommon.shared.url) {
+            if let url = URL(string: NCCommunicationCommon.shared.urlBase) {
                 sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
             }
         }

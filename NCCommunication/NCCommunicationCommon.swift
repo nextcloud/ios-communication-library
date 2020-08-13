@@ -48,7 +48,7 @@ import MobileCoreServices
     var userId = ""
     var password = ""
     var account = ""
-    var url = ""
+    var urlBase = ""
     var userAgent: String?
     var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
@@ -102,9 +102,9 @@ import MobileCoreServices
 
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
-        self.setup(account:account, user: user, userId: userId, password: password, url: url)
+        self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
         self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
         if (webDavRoot != nil) { self.setup(webDavRoot: webDavRoot!) }
         if (davRoot != nil) { self.setup(davRoot: davRoot!) }
@@ -112,7 +112,7 @@ import MobileCoreServices
         self.setup(delegate: delegate)
     }
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String) {
         
         if self.account != account {
             NotificationCenter.default.post(name: Notification.Name.init(rawValue: "changeUser"), object: nil)
@@ -122,7 +122,7 @@ import MobileCoreServices
         self.user = user
         self.userId = userId
         self.password = password
-        self.url = url
+        self.urlBase = urlBase
     }
     
     @objc public func setup(delegate: NCCommunicationCommonDelegate?) {
