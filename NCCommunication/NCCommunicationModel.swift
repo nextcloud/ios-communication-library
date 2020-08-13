@@ -111,11 +111,14 @@ import SwiftyJSON
     @objc public var directory: Bool = false
     @objc public var e2eEncrypted: Bool = false
     @objc public var etag = ""
+    @objc public var ext = ""
     @objc public var favorite: Bool = false
     @objc public var fileId = ""
     @objc public var fileName = ""
+    @objc public var fileNameWithoutExt = ""
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
+    @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -523,6 +526,100 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
+    let requestBodySearchMediaWithLimit =
+    """
+    <?xml version=\"1.0\"?>
+    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+      <d:basicsearch>
+        <d:select>
+          <d:prop>
+            <d:displayname/>
+            <d:getcontenttype/>
+            <d:resourcetype/>
+            <d:getcontentlength/>
+            <d:getlastmodified/>
+            <d:getetag/>
+            <d:quota-used-bytes/>
+            <d:quota-available-bytes/>
+            <permissions xmlns=\"http://owncloud.org/ns\"/>
+            <id xmlns=\"http://owncloud.org/ns\"/>
+            <fileid xmlns=\"http://owncloud.org/ns\"/>
+            <size xmlns=\"http://owncloud.org/ns\"/>
+            <favorite xmlns=\"http://owncloud.org/ns\"/>
+            <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+            <upload_time xmlns=\"http://nextcloud.org/ns\"/>
+            <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+            <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+            <owner-id xmlns=\"http://owncloud.org/ns\"/>
+            <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+            <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
+            <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
+          </d:prop>
+        </d:select>
+        <d:from>
+          <d:scope>
+            <d:href>%@</d:href>
+            <d:depth>infinity</d:depth>
+          </d:scope>
+        </d:from>
+        <d:orderby>
+          <d:order>
+            <d:prop>
+              <%@>
+            </d:prop>
+            <d:descending/>
+          </d:order>
+          <d:order>
+            <d:prop>
+              <d:displayname/>
+            </d:prop>
+            <d:descending/>
+          </d:order>
+        </d:orderby>
+        <d:where>
+          <d:and>
+            <d:or>
+              <d:like>
+                <d:prop>
+                  <d:getcontenttype/>
+                </d:prop>
+                <d:literal>image/%%</d:literal>
+              </d:like>
+              <d:like>
+                <d:prop>
+                  <d:getcontenttype/>
+                </d:prop>
+                <d:literal>video/%%</d:literal>
+              </d:like>
+            </d:or>
+            <d:or>
+              <d:and>
+                <d:lt>
+                  <d:prop>
+                    <%@>
+                  </d:prop>
+                  <d:literal>%@</d:literal>
+                </d:lt>
+                <d:gt>
+                  <d:prop>
+                    <%@>
+                  </d:prop>
+                  <d:literal>%@</d:literal>
+                </d:gt>
+              </d:and>
+            </d:or>
+          </d:and>
+        </d:where>
+        <d:limit>
+            <d:nresults>%@</d:nresults>
+        </d:limit>
+      </d:basicsearch>
+    </d:searchrequest>
+    """
+    
     let requestBodyTrash =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -564,6 +661,8 @@ class NCDataFileXML: NSObject {
     func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
+        var dicMOV: [String:Int] = [:]
+        var dicImage: [String:Int] = [:]
         let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
@@ -703,12 +802,35 @@ class NCDataFileXML: NSObject {
             let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
             
             file.contentType = results.contentType
-            file.typeFile = results.typeFile
+            file.ext = results.ext
+            file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
-            
+            file.typeFile = results.typeFile
             file.urlBase = NCCommunicationCommon.shared.url
             
             files.append(file)
+            
+            // Detect Live Photo
+            if file.ext == "mov" {
+                dicMOV[file.fileNameWithoutExt] = files.count - 1
+            } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
+                dicImage[file.fileNameWithoutExt] = files.count - 1
+            }
+        }
+        
+        // Detect Live Photo
+        if dicMOV.count > 0 {
+            for index in dicImage.values {
+                let fileImage = files[index]
+                if dicMOV.keys.contains(fileImage.fileNameWithoutExt) {
+                    if let index = dicMOV[fileImage.fileNameWithoutExt] {
+                        let fileMOV = files[index]
+                        fileImage.livePhoto = true
+                        fileMOV.livePhoto = true
+                        dicMOV[fileImage.fileNameWithoutExt] = nil
+                    }
+                }
+            }
         }
         
         return files

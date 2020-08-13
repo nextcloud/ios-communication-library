@@ -73,7 +73,7 @@ import MobileCoreServices
         case reachableCellular = 3
     }
     
-    private enum typeFile: String {
+    public enum typeFile: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
@@ -168,18 +168,19 @@ import MobileCoreServices
                 
         let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
         
-        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier]
+        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String, typeIdentifier: String) {
+    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
         var resultContentType = contentType
-        var resultTypeFile = "", resultIconName = "", resultTypeIdentifier = ""
+        var resultTypeFile = "", resultIconName = "", resultTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
             let fileUTI = unmanagedFileUTI.takeRetainedValue()
-            let ext = (fileName as NSString).pathExtension.lowercased()
+            ext = (fileName as NSString).pathExtension.lowercased()
+            fileNameWithoutExt = (fileName as NSString).deletingPathExtension
             
             // contentType detect
             if contentType == "" {
@@ -234,7 +235,7 @@ import MobileCoreServices
             }
         }
         
-        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier)
+        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
     //MARK: - Common
