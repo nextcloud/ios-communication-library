@@ -34,7 +34,7 @@ import SwiftyJSON
             
     internal lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
-        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
+        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: [AlamofireLogger()])
     }()
     
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
@@ -116,7 +116,8 @@ import SwiftyJSON
        return sessionManager.session
     }
     
-    //MARK: - monitor - Session
+    /*
+    //MARK: -
     
     private func makeEvents() -> [EventMonitor] {
         
@@ -136,6 +137,7 @@ import SwiftyJSON
         }
         return [events]
     }
+    */
     
     //MARK: - download / upload
     
@@ -297,3 +299,28 @@ import SwiftyJSON
     }
 }
 
+final class AlamofireLogger: EventMonitor {
+
+    func requestDidResume(_ request: Request) {
+        
+        print("[LOG] \(Date())", to: &NCCommunicationCommon.shared)
+        
+        let allHeaders = request.request.flatMap { $0.allHTTPHeaderFields.map { $0.description } } ?? "None"
+        let body = request.request.flatMap { $0.httpBody.map { String(decoding: $0, as: UTF8.self) } } ?? "None"
+        
+        print("Request Started: \(request)", to: &NCCommunicationCommon.shared)
+        if NCCommunicationCommon.shared.levelLog > 1 {
+            print("Headers: \(allHeaders)", to: &NCCommunicationCommon.shared)
+            print("Body Data: \(body)", to: &NCCommunicationCommon.shared)
+        }
+    }
+    
+    func request<Value>(_ request: DataRequest, didParseResponse response: AFDataResponse<Value>) {
+        
+        print("[LOG] \(Date())", to: &NCCommunicationCommon.shared)
+        print("Request Received: \(Date()) \(response.debugDescription)", to: &NCCommunicationCommon.shared)
+        if NCCommunicationCommon.shared.levelLog > 1 {
+            print("Response All Headers: \(Date()) \(String(describing: response.response?.allHeaderFields))", to: &NCCommunicationCommon.shared)
+        }
+    }
+}

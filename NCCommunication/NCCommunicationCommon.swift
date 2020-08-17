@@ -38,8 +38,8 @@ import MobileCoreServices
     @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
 }
 
-@objc public class NCCommunicationCommon: NSObject {
-    @objc public static let shared: NCCommunicationCommon = {
+@objc public class NCCommunicationCommon: NSObject, TextOutputStream {
+    @objc public static var shared: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
     }()
@@ -99,7 +99,15 @@ import MobileCoreServices
         case unknow = "file"
         case xls = "file_xls"
     }
+    
+    private let filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
+    var levelLog: Int
 
+    //MARK: - Init
+    override init() {
+        levelLog = 0
+    }
+    
     //MARK: - Setup
     
     @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
@@ -155,6 +163,16 @@ import MobileCoreServices
     @objc public func setup(nextcloudVersion: Int) {
         
         self.nextcloudVersion = nextcloudVersion
+    }
+    
+    @objc public func setFileLog(_ level: Int) {
+        
+        self.levelLog = level
+    }
+    
+    @objc public func clearFileLog(_ enable: Bool) {
+
+        FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
     }
     
     //MARK: -
@@ -386,5 +404,24 @@ import MobileCoreServices
            
             return newImage!
         }
+    }
+    
+    public func write(_ string: String) {
+        if self.levelLog > 0 {
+            if !FileManager.default.fileExists(atPath: filenameLog) {
+                FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+            }
+            if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
+                defer {
+                    fileHandle.closeFile()
+                }
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
+            }
+        }
+    }
+    
+    @objc public func writeLog(_ string: String) {
+        print(string, to: &NCCommunicationCommon.shared)
     }
  }
