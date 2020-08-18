@@ -100,7 +100,7 @@ import MobileCoreServices
         case xls = "file_xls"
     }
     
-    private let filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
+    private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     var levelLog: Int = 0
 
     //MARK: - Init
@@ -400,9 +400,19 @@ import MobileCoreServices
     
     //MARK: - Log
 
-    @objc public func setFileLog(_ level: Int) {
+    @objc public func setFileLog(level: Int) {
         
         self.levelLog = level
+    }
+    
+    @objc public func getFileNameLog() -> String {
+        
+        return self.filenameLog
+    }
+    
+    @objc public func setFileNameLog(_ filenameLog: String) {
+        
+        self.filenameLog = filenameLog
     }
     
     @objc public func clearFileLog() {
