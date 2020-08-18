@@ -411,6 +411,7 @@ import MobileCoreServices
     }
     
     @objc public func writeLog(_ string: String) {
+        
         print(string, to: &NCCommunicationCommon.shared)
     }
     
