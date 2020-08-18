@@ -165,18 +165,10 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
-    @objc public func setFileLog(_ level: Int) {
-        
-        self.levelLog = level
-    }
-    
-    @objc public func clearFileLog(_ enable: Bool) {
-
-        FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
-    }
-    
     //MARK: -
+    
     @objc public func remove(account: String) {
+        
         cookies[account] = nil
     }
         
@@ -408,6 +400,20 @@ import MobileCoreServices
     
     //MARK: - Log
 
+    @objc public func setFileLog(_ level: Int) {
+        
+        self.levelLog = level
+    }
+    
+    @objc public func clearFileLog() {
+
+        FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+    }
+    
+    @objc public func writeLog(_ string: String) {
+        print(string, to: &NCCommunicationCommon.shared)
+    }
+    
     public func write(_ string: String) {
         if self.levelLog > 0 {
             if !FileManager.default.fileExists(atPath: filenameLog) {
@@ -423,7 +429,5 @@ import MobileCoreServices
         }
     }
     
-    @objc public func writeLog(_ string: String) {
-        print(string, to: &NCCommunicationCommon.shared)
-    }
+    
  }
