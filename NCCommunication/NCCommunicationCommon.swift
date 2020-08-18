@@ -406,6 +406,8 @@ import MobileCoreServices
         }
     }
     
+    //MARK: - Log
+
     public func write(_ string: String) {
         if self.levelLog > 0 {
             if !FileManager.default.fileExists(atPath: filenameLog) {
