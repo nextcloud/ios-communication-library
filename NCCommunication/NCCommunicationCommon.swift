@@ -101,11 +101,11 @@ import MobileCoreServices
     }
     
     private let filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
-    var levelLog: Int
+    var levelLog: Int = 0
 
     //MARK: - Init
+    
     override init() {
-        levelLog = 0
     }
     
     //MARK: - Setup
@@ -428,6 +428,4 @@ import MobileCoreServices
             }
         }
     }
-    
-    
  }
