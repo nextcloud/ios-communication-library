@@ -426,17 +426,16 @@ import MobileCoreServices
     }
     
     public func write(_ string: String) {
-        if self.levelLog > 0 {
-            if !FileManager.default.fileExists(atPath: filenameLog) {
-                FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+        
+        if !FileManager.default.fileExists(atPath: filenameLog) {
+            FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+        }
+        if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
+            defer {
+                fileHandle.closeFile()
             }
-            if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
-                defer {
-                    fileHandle.closeFile()
-                }
-                fileHandle.seekToEndOfFile()
-                fileHandle.write(data)
-            }
+            fileHandle.seekToEndOfFile()
+            fileHandle.write(data)
         }
     }
  }

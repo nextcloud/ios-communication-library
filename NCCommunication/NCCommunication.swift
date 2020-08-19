@@ -303,24 +303,41 @@ final class AlamofireLogger: EventMonitor {
 
     func requestDidResume(_ request: Request) {
         
-        print("[LOG] \(Date())", to: &NCCommunicationCommon.shared)
+        if NCCommunicationCommon.shared.levelLog > 0 {
         
-        let allHeaders = request.request.flatMap { $0.allHTTPHeaderFields.map { $0.description } } ?? "None"
-        let body = request.request.flatMap { $0.httpBody.map { String(decoding: $0, as: UTF8.self) } } ?? "None"
-        
-        print("Request Started: \(request)", to: &NCCommunicationCommon.shared)
-        if NCCommunicationCommon.shared.levelLog > 1 {
-            print("Headers: \(allHeaders)", to: &NCCommunicationCommon.shared)
-            print("Body Data: \(body)", to: &NCCommunicationCommon.shared)
+            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+            
+            print("[LOG] Request started: \(date) \(request)", to: &NCCommunicationCommon.shared)
+            
+            if NCCommunicationCommon.shared.levelLog > 1 {
+                
+                let allHeaders = request.request.flatMap { $0.allHTTPHeaderFields.map { $0.description } } ?? "None"
+                let body = request.request.flatMap { $0.httpBody.map { String(decoding: $0, as: UTF8.self) } } ?? "None"
+                print("[LOG] Request headers: \(date) \(allHeaders)", to: &NCCommunicationCommon.shared)
+                print("[LOG] Request body: \(date) \(body)", to: &NCCommunicationCommon.shared)
+            }
         }
     }
     
     func request<Value>(_ request: DataRequest, didParseResponse response: AFDataResponse<Value>) {
         
-        print("[LOG] \(Date())", to: &NCCommunicationCommon.shared)
-        print("Request Received: \(Date()) \(response.debugDescription)", to: &NCCommunicationCommon.shared)
-        if NCCommunicationCommon.shared.levelLog > 1 {
-            print("Response All Headers: \(Date()) \(String(describing: response.response?.allHeaderFields))", to: &NCCommunicationCommon.shared)
+        guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+
+        if NCCommunicationCommon.shared.levelLog > 0 {
+            
+            if NCCommunicationCommon.shared.levelLog == 1 {
+                
+                if let request = response.request {
+                    print("[LOG] Response request: \(date) \(request), result: \(response.result)", to: &NCCommunicationCommon.shared)
+                } else {
+                    print("[LOG] Response result: \(date) \(response.result)", to: &NCCommunicationCommon.shared)
+                }
+                
+            } else {
+                
+                print("[LOG] Response result: \(date) \(response.debugDescription)", to: &NCCommunicationCommon.shared)
+                print("[LOG] Response all headers: \(date) \(String(describing: response.response?.allHeaderFields))", to: &NCCommunicationCommon.shared)
+            }
         }
     }
 }
