@@ -663,9 +663,9 @@ class NCDataFileXML: NSObject {
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
         var dicImage: [String:Int] = [:]
-        let webDavRoot = "/" + NCCommunicationCommon.shared.webDavRoot + "/"
-        let davRootFiles = "/" + NCCommunicationCommon.shared.davRoot + "/files/"
-        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
+        let webDavRoot = "/" + NCCommunicationCommon.shared.webDav + "/"
+        let davRootFiles = "/" + NCCommunicationCommon.shared.dav + "/files/"
+        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files
         }
         
@@ -806,7 +806,7 @@ class NCDataFileXML: NSObject {
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
             file.typeFile = results.typeFile
-            file.urlBase = NCCommunicationCommon.shared.url
+            file.urlBase = NCCommunicationCommon.shared.urlBase
             
             files.append(file)
             
@@ -840,7 +840,7 @@ class NCDataFileXML: NSObject {
         
         var files: [NCCommunicationTrash] = []
         var first: Bool = true
-        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.url) else {
+        guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files
         }
     

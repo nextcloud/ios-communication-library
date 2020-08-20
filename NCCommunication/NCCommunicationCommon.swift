@@ -38,8 +38,8 @@ import MobileCoreServices
     @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
 }
 
-@objc public class NCCommunicationCommon: NSObject {
-    @objc public static let shared: NCCommunicationCommon = {
+@objc public class NCCommunicationCommon: NSObject, TextOutputStream {
+    @objc public static var shared: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
     }()
@@ -48,12 +48,12 @@ import MobileCoreServices
     var userId = ""
     var password = ""
     var account = ""
-    var url = ""
+    var urlBase = ""
     var userAgent: String?
     var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
-    var webDavRoot: String = "remote.php/webdav"
-    var davRoot: String = "remote.php/dav"
+    var webDav: String = "remote.php/webdav"
+    var dav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
 
@@ -99,20 +99,28 @@ import MobileCoreServices
         case unknow = "file"
         case xls = "file_xls"
     }
+    
+    private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
+    var levelLog: Int = 0
 
+    //MARK: - Init
+    
+    override init() {
+    }
+    
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String, userAgent: String, capabilitiesGroup: String, webDavRoot: String?, davRoot: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
-        self.setup(account:account, user: user, userId: userId, password: password, url: url)
+        self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
         self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
-        if (webDavRoot != nil) { self.setup(webDavRoot: webDavRoot!) }
-        if (davRoot != nil) { self.setup(davRoot: davRoot!) }
+        if (webDav != nil) { self.setup(webDav: webDav!) }
+        if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
         self.setup(delegate: delegate)
     }
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, url: String) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String) {
         
         if self.account != account {
             NotificationCenter.default.post(name: Notification.Name.init(rawValue: "changeUser"), object: nil)
@@ -122,7 +130,7 @@ import MobileCoreServices
         self.user = user
         self.userId = userId
         self.password = password
-        self.url = url
+        self.urlBase = urlBase
     }
     
     @objc public func setup(delegate: NCCommunicationCommonDelegate?) {
@@ -136,20 +144,20 @@ import MobileCoreServices
         self.capabilitiesGroup = capabilitiesGroup
     }
     
-    @objc public func setup(webDavRoot: String) {
+    @objc public func setup(webDav: String) {
         
-        self.webDavRoot = webDavRoot
+        self.webDav = webDav
         
-        if webDavRoot.first == "/" { self.webDavRoot = String(self.webDavRoot.dropFirst()) }
-        if webDavRoot.last == "/" { self.webDavRoot = String(self.webDavRoot.dropLast()) }
+        if webDav.first == "/" { self.webDav = String(self.webDav.dropFirst()) }
+        if webDav.last == "/" { self.webDav = String(self.webDav.dropLast()) }
     }
     
-    @objc public func setup(davRoot: String) {
+    @objc public func setup(dav: String) {
         
-        self.davRoot = davRoot
+        self.dav = dav
         
-        if davRoot.first == "/" { self.davRoot = String(self.davRoot.dropFirst()) }
-        if davRoot.last == "/" { self.davRoot = String(self.davRoot.dropLast()) }
+        if dav.first == "/" { self.dav = String(self.dav.dropFirst()) }
+        if dav.last == "/" { self.dav = String(self.dav.dropLast()) }
     }
     
     @objc public func setup(nextcloudVersion: Int) {
@@ -158,7 +166,9 @@ import MobileCoreServices
     }
     
     //MARK: -
+    
     @objc public func remove(account: String) {
+        
         cookies[account] = nil
     }
         
@@ -385,6 +395,47 @@ import MobileCoreServices
             UIGraphicsEndImageContext()
            
             return newImage!
+        }
+    }
+    
+    //MARK: - Log
+
+    @objc public func setFileLog(level: Int) {
+        
+        self.levelLog = level
+    }
+    
+    @objc public func getFileNameLog() -> String {
+        
+        return self.filenameLog
+    }
+    
+    @objc public func setFileNameLog(_ filenameLog: String) {
+        
+        self.filenameLog = filenameLog
+    }
+    
+    @objc public func clearFileLog() {
+
+        FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+    }
+    
+    @objc public func writeLog(_ string: String) {
+        
+        print(string, to: &NCCommunicationCommon.shared)
+    }
+    
+    public func write(_ string: String) {
+        
+        if !FileManager.default.fileExists(atPath: filenameLog) {
+            FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+        }
+        if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
+            defer {
+                fileHandle.closeFile()
+            }
+            fileHandle.seekToEndOfFile()
+            fileHandle.write(data)
         }
     }
  }

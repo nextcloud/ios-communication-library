@@ -29,7 +29,7 @@ extension NCCommunication {
     @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
-        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/comments/files/" + fileId
             
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -71,7 +71,7 @@ extension NCCommunication {
     @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -109,7 +109,7 @@ extension NCCommunication {
     @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -147,7 +147,7 @@ extension NCCommunication {
     @objc public func deleteComments(fileId: String, messageId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId + "/" + messageId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -174,7 +174,7 @@ extension NCCommunication {
     @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let serverUrlEndpoint = NCCommunicationCommon.shared.url + "/" + NCCommunicationCommon.shared.davRoot + "/comments/files/" + fileId
+        let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))

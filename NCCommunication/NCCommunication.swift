@@ -34,7 +34,7 @@ import SwiftyJSON
             
     internal lazy var sessionManager: Alamofire.Session = {
         let configuration = URLSessionConfiguration.af.default
-        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: self.makeEvents())
+        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: [AlamofireLogger()])
     }()
     
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
@@ -57,7 +57,7 @@ import SwiftyJSON
    
     internal func saveCookiesTEST(response : HTTPURLResponse?) {
         if let headerFields = response?.allHeaderFields as? [String : String] {
-            if let url = URL(string: NCCommunicationCommon.shared.url) {
+            if let url = URL(string: NCCommunicationCommon.shared.urlBase) {
                 let cookies = HTTPCookie.cookies(withResponseHeaderFields: headerFields, for: url)
                 if cookies.count > 0 {
                     NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] = cookies
@@ -70,7 +70,7 @@ import SwiftyJSON
     
     internal func injectsCookiesTEST() {
         if let cookies = NCCommunicationCommon.shared.cookies[NCCommunicationCommon.shared.account] {
-            if let url = URL(string: NCCommunicationCommon.shared.url) {
+            if let url = URL(string: NCCommunicationCommon.shared.urlBase) {
                 sessionManager.session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
             }
         }
@@ -116,7 +116,8 @@ import SwiftyJSON
        return sessionManager.session
     }
     
-    //MARK: - monitor - Session
+    /*
+    //MARK: -
     
     private func makeEvents() -> [EventMonitor] {
         
@@ -136,6 +137,7 @@ import SwiftyJSON
         }
         return [events]
     }
+    */
     
     //MARK: - download / upload
     
@@ -297,3 +299,45 @@ import SwiftyJSON
     }
 }
 
+final class AlamofireLogger: EventMonitor {
+
+    func requestDidResume(_ request: Request) {
+        
+        if NCCommunicationCommon.shared.levelLog > 0 {
+        
+            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+            
+            print("[LOG] Request started: \(date) \(request)", to: &NCCommunicationCommon.shared)
+            
+            if NCCommunicationCommon.shared.levelLog > 1 {
+                
+                let allHeaders = request.request.flatMap { $0.allHTTPHeaderFields.map { $0.description } } ?? "None"
+                let body = request.request.flatMap { $0.httpBody.map { String(decoding: $0, as: UTF8.self) } } ?? "None"
+                print("[LOG] Request headers: \(date) \(allHeaders)", to: &NCCommunicationCommon.shared)
+                print("[LOG] Request body: \(date) \(body)", to: &NCCommunicationCommon.shared)
+            }
+        }
+    }
+    
+    func request<Value>(_ request: DataRequest, didParseResponse response: AFDataResponse<Value>) {
+        
+        guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+
+        if NCCommunicationCommon.shared.levelLog > 0 {
+            
+            if NCCommunicationCommon.shared.levelLog == 1 {
+                
+                if let request = response.request {
+                    print("[LOG] Response request: \(date) \(request), result: \(response.result)", to: &NCCommunicationCommon.shared)
+                } else {
+                    print("[LOG] Response result: \(date) \(response.result)", to: &NCCommunicationCommon.shared)
+                }
+                
+            } else {
+                
+                print("[LOG] Response result: \(date) \(response.debugDescription)", to: &NCCommunicationCommon.shared)
+                print("[LOG] Response all headers: \(date) \(String(describing: response.response?.allHeaderFields))", to: &NCCommunicationCommon.shared)
+            }
+        }
+    }
+}
