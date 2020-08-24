@@ -102,6 +102,7 @@ import MobileCoreServices
     
     private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     var levelLog: Int = 0
+    var echoLog: Bool = false
 
     //MARK: - Init
     
@@ -400,7 +401,7 @@ import MobileCoreServices
     
     //MARK: - Log
 
-    @objc public func setFileLog(level: Int) {
+    @objc public func setFileLog(level: Int, echo: Bool) {
         
         self.levelLog = level
     }
@@ -422,7 +423,9 @@ import MobileCoreServices
     
     @objc public func writeLog(_ string: String) {
         
-        print(string, to: &NCCommunicationCommon.shared)
+        if levelLog > 0 {
+            print(string, to: &NCCommunicationCommon.shared)
+        }
     }
     
     public func write(_ string: String) {
@@ -436,6 +439,9 @@ import MobileCoreServices
             }
             fileHandle.seekToEndOfFile()
             fileHandle.write(data)
+        }
+        if echoLog {
+            debugPrint(string)
         }
     }
  }

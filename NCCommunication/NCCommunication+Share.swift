@@ -74,7 +74,6 @@ extension NCCommunication {
         parameters["path"] = path
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData { (response) in
-            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -125,7 +124,6 @@ extension NCCommunication {
         ]
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -239,7 +237,6 @@ extension NCCommunication {
         }
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -307,7 +304,6 @@ extension NCCommunication {
         parameters["hideDownload"] = hideDownload == true ? "true" : "false"
         
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -346,7 +342,6 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
        
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
-            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
