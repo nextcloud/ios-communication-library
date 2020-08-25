@@ -217,6 +217,9 @@ import MobileCoreServices
             } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
                 resultTypeFile = typeFile.audio.rawValue
                 resultIconName = iconName.audio.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
+                resultTypeFile = typeFile.document.rawValue
+                resultIconName = iconName.pdf.rawValue
             } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
                 resultTypeFile = typeFile.document.rawValue
                 if fileUTI as String == "com.adobe.pdf" {
