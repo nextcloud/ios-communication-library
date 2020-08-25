@@ -307,7 +307,7 @@ import MobileCoreServices
     
     func encodeString(_ string: String) -> String? {
         
-        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|%"
         let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
