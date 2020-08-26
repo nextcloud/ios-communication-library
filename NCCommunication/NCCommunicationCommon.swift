@@ -427,7 +427,8 @@ import MobileCoreServices
     @objc public func writeLog(_ string: String) {
         
         if levelLog > 0 {
-            print(string, to: &NCCommunicationCommon.shared)
+            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+            print(string + ": \(date)", to: &NCCommunicationCommon.shared)
         }
     }
     
