@@ -102,6 +102,7 @@ import MobileCoreServices
     
     private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     var levelLog: Int = 0
+    var echoLog: Bool = false
 
     //MARK: - Init
     
@@ -216,6 +217,9 @@ import MobileCoreServices
             } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
                 resultTypeFile = typeFile.audio.rawValue
                 resultIconName = iconName.audio.rawValue
+            } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
+                resultTypeFile = typeFile.document.rawValue
+                resultIconName = iconName.pdf.rawValue
             } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
                 resultTypeFile = typeFile.document.rawValue
                 if fileUTI as String == "com.adobe.pdf" {
@@ -306,7 +310,7 @@ import MobileCoreServices
     
     func encodeString(_ string: String) -> String? {
         
-        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|"
+        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|%"
         let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
         let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
         
@@ -400,7 +404,7 @@ import MobileCoreServices
     
     //MARK: - Log
 
-    @objc public func setFileLog(level: Int) {
+    @objc public func setFileLog(level: Int, echo: Bool) {
         
         self.levelLog = level
     }
@@ -422,7 +426,9 @@ import MobileCoreServices
     
     @objc public func writeLog(_ string: String) {
         
-        print(string, to: &NCCommunicationCommon.shared)
+        if levelLog > 0 {
+            print(string, to: &NCCommunicationCommon.shared)
+        }
     }
     
     public func write(_ string: String) {
@@ -436,6 +442,9 @@ import MobileCoreServices
             }
             fileHandle.seekToEndOfFile()
             fileHandle.write(data)
+        }
+        if echoLog {
+            debugPrint(string)
         }
     }
  }
