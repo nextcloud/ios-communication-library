@@ -122,6 +122,9 @@ import Foundation
         
         task.taskDescription = description
         task.resume()
+        
+        NCCommunicationCommon.shared.writeLog("[LOG] Network start upload file: " + serverUrlFileName)
+        
         return task
     }
     
@@ -234,6 +237,12 @@ import Foundation
             if task is URLSessionUploadTask {
                 
                 NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
+            }
+            
+            if errorCode == 0 {
+                NCCommunicationCommon.shared.writeLog("[LOG] Network completed upload file: " + serverUrl + "/" + fileName)
+            } else {
+                NCCommunicationCommon.shared.writeLog("[LOG] Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
             }
         }
     }
