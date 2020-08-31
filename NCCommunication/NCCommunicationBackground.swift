@@ -23,66 +23,45 @@
 
 import Foundation
 
-@objc public protocol NCCommunicationBackgroundDelegate {
-    
-    @objc optional func authenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
-        
-    @objc optional func downloadProgress(_ progress: Double, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask)
-    @objc optional func uploadProgress(_ progress: Double, totalBytes: Int64, totalBytesExpected: Int64, fileName: String, serverUrl: String, session: URLSession, task: URLSessionTask)
-    @objc optional func downloadComplete(fileName: String, serverUrl: String, etag: String?, date: NSDate?, dateLastModified: NSDate?, length: Double, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
-    @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
-}
-
 @objc public class NCCommunicationBackground: NSObject, URLSessionTaskDelegate, URLSessionDelegate, URLSessionDownloadDelegate {
     @objc public static let shared: NCCommunicationBackground = {
         let instance = NCCommunicationBackground()
         return instance
     }()
         
-    @objc public static var sessionManagerBackground: URLSession?
-    @objc public static var sessionManagerBackgroundWWan: URLSession?
-    @objc public static var sessionManagerBackgroundExtension: URLSession?
-        
-    @objc public let sessionMaximumConnectionsPerHost = 5
-    @objc public let sessionIdentifierBackground: String = "com.nextcloud.session.upload.background"
-    @objc public let sessionIdentifierBackgroundWWan: String = "com.nextcloud.session.upload.backgroundWWan"
-    @objc public let sessionIdentifierBackgroundExtension: String = "com.nextcloud.session.upload.backgroundExtension"
-
-    @objc public var delegate: NCCommunicationBackgroundDelegate?
-
-    override init() {
-        super.init()
-        
-        let configuration = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackground)
+    @objc public lazy var sessionManagerTransfer: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackground)
         configuration.allowsCellularAccess = true
         configuration.sessionSendsLaunchEvents = true
         configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
         configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        NCCommunicationBackground.sessionManagerBackground = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-
-        let configurationWWan = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackgroundWWan)
-        configurationWWan.allowsCellularAccess = false
-        configurationWWan.sessionSendsLaunchEvents = true
-        configurationWWan.isDiscretionary = false
-        configurationWWan.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
-        configurationWWan.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        NCCommunicationBackground.sessionManagerBackgroundWWan = URLSession(configuration: configurationWWan, delegate: self, delegateQueue: OperationQueue.main)
-        
-        let configurationExtension = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackgroundExtension)
-        configurationExtension.allowsCellularAccess = true
-        configurationExtension.sessionSendsLaunchEvents = true
-        configurationExtension.isDiscretionary = false
-        configurationExtension.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
-        configurationExtension.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        configurationExtension.sharedContainerIdentifier = NCCommunicationCommon.shared.capabilitiesGroup
-        NCCommunicationBackground.sessionManagerBackgroundExtension = URLSession(configuration: configurationExtension, delegate: self, delegateQueue: OperationQueue.main)
-    }
-        
-    @objc public func setup(delegate:  NCCommunicationBackgroundDelegate?) {
-           
-        self.delegate = delegate
-    }
+        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
+        return session
+    }()
+    
+    @objc public lazy var sessionManagerTransferWWan: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundWWan)
+        configuration.allowsCellularAccess = false
+        configuration.sessionSendsLaunchEvents = true
+        configuration.isDiscretionary = false
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
+        configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
+        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
+        return session
+    }()
+    
+    @objc public lazy var sessionManagerTransferExtension: URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierExtension)
+        configuration.allowsCellularAccess = true
+        configuration.sessionSendsLaunchEvents = true
+        configuration.isDiscretionary = false
+        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
+        configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
+        configuration.sharedContainerIdentifier = NCCommunicationCommon.shared.capabilitiesGroup
+        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
+        return session
+    }()
     
     //MARK: - Download
     
@@ -162,7 +141,7 @@ import Foundation
         let progress = Double(Double(totalBytesWritten)/Double(totalBytesExpectedToWrite))
 
         DispatchQueue.main.async {
-            NCCommunicationBackground.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
+            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
         }
     }
     
@@ -192,7 +171,7 @@ import Foundation
         let progress = Double(Double(totalBytesSent)/Double(totalBytesExpectedToSend))
 
         DispatchQueue.main.async {
-            NCCommunicationBackground.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
+            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
         }
     }
     
@@ -253,11 +232,11 @@ import Foundation
                 if parameter?.count == 2 {
                     description = parameter![1]
                 }
-                NCCommunicationBackground.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
+                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
             if task is URLSessionUploadTask {
                 
-                NCCommunicationBackground.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
+                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
             }
             
             if errorCode == 0 {
@@ -270,10 +249,10 @@ import Foundation
     
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
-        if NCCommunicationBackground.shared.delegate == nil {
+        if NCCommunicationCommon.shared.delegate == nil {
             completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
         } else {
-            NCCommunicationBackground.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
+            NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
                 completionHandler(authChallengeDisposition, credential)
             })
         }
