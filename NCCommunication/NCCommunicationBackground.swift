@@ -72,7 +72,7 @@ import Foundation
     
     @objc public func setupExtensionSession(capabilitiesGroup: String, allowsCellularAccess: Bool) {
         
-        if NCCommunicationBackground.sessionManagerBackgroundExtension != nil {
+        if NCCommunicationBackground.sessionManagerBackgroundExtension == nil {
             let configurationExtension = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackgroundExtension)
             configurationExtension.allowsCellularAccess = allowsCellularAccess
             configurationExtension.sessionSendsLaunchEvents = true
