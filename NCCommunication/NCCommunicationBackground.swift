@@ -68,22 +68,17 @@ import Foundation
         configurationWWan.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
         configurationWWan.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         NCCommunicationBackground.sessionManagerBackgroundWWan = URLSession(configuration: configurationWWan, delegate: self, delegateQueue: OperationQueue.main)
-    }
-    
-    @objc public func setupExtensionSession(capabilitiesGroup: String, allowsCellularAccess: Bool) {
         
-        if NCCommunicationBackground.sessionManagerBackgroundExtension == nil {
-            let configurationExtension = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackgroundExtension)
-            configurationExtension.allowsCellularAccess = allowsCellularAccess
-            configurationExtension.sessionSendsLaunchEvents = true
-            configurationExtension.isDiscretionary = false
-            configurationExtension.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
-            configurationExtension.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-            configurationExtension.sharedContainerIdentifier = capabilitiesGroup
-            NCCommunicationBackground.sessionManagerBackgroundExtension = URLSession(configuration: configurationExtension, delegate: self, delegateQueue: OperationQueue.main)
-        }
+        let configurationExtension = URLSessionConfiguration.background(withIdentifier: sessionIdentifierBackgroundExtension)
+        configurationExtension.allowsCellularAccess = true
+        configurationExtension.sessionSendsLaunchEvents = true
+        configurationExtension.isDiscretionary = false
+        configurationExtension.httpMaximumConnectionsPerHost = sessionMaximumConnectionsPerHost
+        configurationExtension.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
+        configurationExtension.sharedContainerIdentifier = NCCommunicationCommon.shared.capabilitiesGroup
+        NCCommunicationBackground.sessionManagerBackgroundExtension = URLSession(configuration: configurationExtension, delegate: self, delegateQueue: OperationQueue.main)
     }
-    
+        
     @objc public func setup(delegate:  NCCommunicationBackgroundDelegate?) {
            
         self.delegate = delegate

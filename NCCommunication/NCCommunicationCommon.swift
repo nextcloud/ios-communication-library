@@ -50,6 +50,7 @@ import MobileCoreServices
     var account = ""
     var urlBase = ""
     var userAgent: String?
+    var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
     var webDav: String = "remote.php/webdav"
     var dav: String = "remote.php/dav"
@@ -106,14 +107,14 @@ import MobileCoreServices
     
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
-        self.setup(userAgent: userAgent)
+        self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
         if (webDav != nil) { self.setup(webDav: webDav!) }
         if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
-        self.delegate = delegate
+        self.setup(delegate: delegate)
     }
     
     @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String) {
@@ -129,14 +130,15 @@ import MobileCoreServices
         self.urlBase = urlBase
     }
     
-    @objc public func setup(delegate:  NCCommunicationCommonDelegate?) {
-           
+    @objc public func setup(delegate: NCCommunicationCommonDelegate?) {
+        
         self.delegate = delegate
     }
     
-    @objc public func setup(userAgent: String) {
+    @objc public func setup(userAgent: String, capabilitiesGroup: String) {
         
         self.userAgent = userAgent
+        self.capabilitiesGroup = capabilitiesGroup
     }
     
     @objc public func setup(webDav: String) {
