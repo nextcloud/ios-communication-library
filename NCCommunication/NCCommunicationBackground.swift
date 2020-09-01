@@ -216,9 +216,11 @@ import Foundation
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
         if NCCommunicationCommon.shared.delegate == nil {
+            NCCommunicationCommon.shared.writeLog("[LOG] Network authentication challenge background no delegate")
             completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
         } else {
             NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
+                NCCommunicationCommon.shared.writeLog("[LOG] Network authentication challenge backgound: \(String(describing: authChallengeDisposition.rawValue)) (0 = use credential)")
                 completionHandler(authChallengeDisposition, credential)
             })
         }
