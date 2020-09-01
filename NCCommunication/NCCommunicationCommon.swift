@@ -401,6 +401,7 @@ import MobileCoreServices
     @objc public func setFileLog(level: Int, echo: Bool) {
         
         self.levelLog = level
+        self.echoLog = echo
     }
     
     @objc public func getFileNameLog() -> String {
