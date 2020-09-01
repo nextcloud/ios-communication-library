@@ -59,10 +59,6 @@ import MobileCoreServices
 
     var delegate: NCCommunicationCommonDelegate?
     
-    @objc public let sessionMaximumConnectionsPerHost = 5
-    @objc public let sessionIdentifierBackground: String = "com.nextcloud.session.upload.background"
-    @objc public let sessionIdentifierBackgroundWWan: String = "com.nextcloud.session.upload.backgroundWWan"
-    @objc public let sessionIdentifierExtension: String = "com.nextcloud.session.upload.extension"
     @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
     @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
 
