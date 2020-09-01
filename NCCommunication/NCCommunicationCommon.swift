@@ -440,7 +440,7 @@ import MobileCoreServices
             fileHandle.write(data)
         }
         if echoLog {
-            debugPrint(string)
+            NSLog(string)
         }
     }
  }
