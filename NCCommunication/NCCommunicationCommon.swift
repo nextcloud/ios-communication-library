@@ -50,7 +50,6 @@ import MobileCoreServices
     var account = ""
     var urlBase = ""
     var userAgent: String?
-    var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
     var webDav: String = "remote.php/webdav"
     var dav: String = "remote.php/dav"
@@ -107,10 +106,10 @@ import MobileCoreServices
     
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
-        self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
+        self.setup(userAgent: userAgent)
         if (webDav != nil) { self.setup(webDav: webDav!) }
         if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
@@ -135,10 +134,9 @@ import MobileCoreServices
         self.delegate = delegate
     }
     
-    @objc public func setup(userAgent: String, capabilitiesGroup: String) {
+    @objc public func setup(userAgent: String) {
         
         self.userAgent = userAgent
-        self.capabilitiesGroup = capabilitiesGroup
     }
     
     @objc public func setup(webDav: String) {
