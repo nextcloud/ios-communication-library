@@ -89,7 +89,7 @@ import Foundation
         task.taskDescription = description
         task.resume()
         
-        NCCommunicationCommon.shared.writeLog("[LOG] Network start upload file: " + serverUrlFileName)
+        NCCommunicationCommon.shared.writeLog("Network start upload file: " + serverUrlFileName)
         
         return task
     }
@@ -206,9 +206,9 @@ import Foundation
             }
             
             if errorCode == 0 {
-                NCCommunicationCommon.shared.writeLog("[LOG] Network completed upload file: " + serverUrl + "/" + fileName)
+                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName)
             } else {
-                NCCommunicationCommon.shared.writeLog("[LOG] Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
+                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
             }
         }
     }
@@ -216,11 +216,9 @@ import Foundation
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
         if NCCommunicationCommon.shared.delegate == nil {
-            NCCommunicationCommon.shared.writeLog("[LOG] Network authentication challenge background no delegate")
             completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
         } else {
             NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
-                NCCommunicationCommon.shared.writeLog("[LOG] Network authentication challenge backgound: \(String(describing: authChallengeDisposition.rawValue)) (0 = use credential)")
                 completionHandler(authChallengeDisposition, credential)
             })
         }

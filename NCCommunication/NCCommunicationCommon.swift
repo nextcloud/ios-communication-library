@@ -421,9 +421,13 @@ import MobileCoreServices
     
     @objc public func writeLog(_ string: String) {
         
+        if echoLog {
+            NSLog("[LOG] " + string)
+        }
+        
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            print(string + ": \(date)", to: &NCCommunicationCommon.shared)
+            print("\(date) [LOG] " + string, to: &NCCommunicationCommon.shared)
         }
     }
     
@@ -438,9 +442,6 @@ import MobileCoreServices
             }
             fileHandle.seekToEndOfFile()
             fileHandle.write(data)
-        }
-        if echoLog {
-            NSLog(string)
         }
     }
  }
