@@ -427,7 +427,7 @@ import MobileCoreServices
         
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            print("\(date) [LOG] " + string, to: &NCCommunicationCommon.shared)
+            print("\(date) " + string, to: &NCCommunicationCommon.shared)
         }
     }
     
