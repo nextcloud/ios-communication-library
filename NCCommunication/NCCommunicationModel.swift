@@ -260,9 +260,9 @@ import SwiftyJSON
 
 //MARK: - Data File
 
-class NCDataFileXML: NSObject {
+@objc public class NCDataFileXML: NSObject {
 
-    let requestBodyComments =
+    @objc public let requestBodyComments =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -281,7 +281,7 @@ class NCDataFileXML: NSObject {
     </d:propfind>
     """
     
-    let requestBodyCommentsMarkAsRead =
+    @objc public let requestBodyCommentsMarkAsRead =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -293,7 +293,7 @@ class NCDataFileXML: NSObject {
     </d:propertyupdate>
     """
     
-    let requestBodyCommentsUpdate =
+    @objc public let requestBodyCommentsUpdate =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -305,7 +305,7 @@ class NCDataFileXML: NSObject {
     </d:propertyupdate>
     """
     
-    let requestBodyFile =
+    @objc public let requestBodyFile =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -337,7 +337,7 @@ class NCDataFileXML: NSObject {
     </d:propfind>
     """
     
-    let requestBodyFileSetFavorite =
+    @objc public let requestBodyFileSetFavorite =
     """
     <?xml version=\"1.0\"?>
     <d:propertyupdate xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\">
@@ -349,7 +349,7 @@ class NCDataFileXML: NSObject {
     </d:propertyupdate>
     """
     
-    let requestBodyFileListingFavorites =
+    @objc public let requestBodyFileListingFavorites =
     """
     <?xml version=\"1.0\"?>
     <oc:filter-files xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -384,7 +384,7 @@ class NCDataFileXML: NSObject {
     </oc:filter-files>
     """
     
-    let requestBodySearchFileName =
+    @objc public let requestBodySearchFileName =
     """
     <?xml version=\"1.0\"?>
     <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -435,7 +435,64 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    let requestBodySearchMedia =
+    @objc public let requestBodySearchFileNameFavorite =
+    """
+    <?xml version=\"1.0\"?>
+    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
+    <d:basicsearch>
+        <d:select>
+            <d:prop>
+                <d:displayname/>
+                <d:getcontenttype/>
+                <d:resourcetype/>
+                <d:getcontentlength/>
+                <d:getlastmodified/>
+                <d:getetag/>
+                <d:quota-used-bytes/>
+                <d:quota-available-bytes/>
+                <permissions xmlns=\"http://owncloud.org/ns\"/>
+                <id xmlns=\"http://owncloud.org/ns\"/>
+                <fileid xmlns=\"http://owncloud.org/ns\"/>
+                <size xmlns=\"http://owncloud.org/ns\"/>
+                <favorite xmlns=\"http://owncloud.org/ns\"/>
+                <creation_time xmlns=\"http://nextcloud.org/ns\"/>
+                <upload_time xmlns=\"http://nextcloud.org/ns\"/>
+                <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
+                <mount-type xmlns=\"http://nextcloud.org/ns\"/>
+                <owner-id xmlns=\"http://owncloud.org/ns\"/>
+                <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
+                <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+                <has-preview xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
+                <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
+            </d:prop>
+        </d:select>
+    <d:from>
+        <d:scope>
+            <d:href>%@</d:href>
+            <d:depth>%@</d:depth>
+        </d:scope>
+    </d:from>
+    <d:where>
+        <d:like>
+            <d:prop>
+                <d:displayname/>
+            </d:prop>
+            <d:literal>%@</d:literal>
+        </d:like>
+        <d:like>
+            <d:prop>
+                <favorite xmlns=\"http://owncloud.org/ns\"/>
+            </d:prop>
+            <d:literal>1/d:literal>
+        </d:like>
+    </d:where>
+    </d:basicsearch>
+    </d:searchrequest>
+    """
+    
+    @objc public let requestBodySearchMedia =
     """
     <?xml version=\"1.0\"?>
     <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -526,7 +583,7 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    let requestBodySearchMediaWithLimit =
+    @objc public let requestBodySearchMediaWithLimit =
     """
     <?xml version=\"1.0\"?>
     <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
@@ -620,7 +677,7 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    let requestBodyTrash =
+    @objc public let requestBodyTrash =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
