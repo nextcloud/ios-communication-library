@@ -198,7 +198,17 @@ extension NCCommunication {
         }
     }
      
-    @objc public func searchLiteral(serverUrl: String, depth: String, dataFileXML: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchBodyRequest(serverUrl: String, requestBody: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+         
+        let account = NCCommunicationCommon.shared.account
+        let httpBody = requestBody.data(using: .utf8)!
+     
+        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
+    
+    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let files: [NCCommunicationFile] = []
@@ -208,8 +218,7 @@ extension NCCommunication {
             return
         }
         
-        let requestBody = String(format: dataFileXML, href, depth, "%"+literal+"%")
-        //let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
+        let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
         let httpBody = requestBody.data(using: .utf8)!
      
         search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout) { (account, files, erroCode, errorDescription) in
