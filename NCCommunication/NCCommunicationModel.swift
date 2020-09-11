@@ -483,9 +483,9 @@ import SwiftyJSON
         </d:like>
         <d:like>
             <d:prop>
-                <favorite xmlns=\"http://owncloud.org/ns\"/>
+                <oc:favorite/>
             </d:prop>
-            <d:literal>1/d:literal>
+            <d:literal>true</d:literal>
         </d:like>
     </d:where>
     </d:basicsearch>
