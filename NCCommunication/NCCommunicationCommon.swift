@@ -419,15 +419,16 @@ import MobileCoreServices
         FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
     }
     
-    @objc public func writeLog(_ string: String) {
+    @objc public func writeLog(_ text: String?) {
+        guard let text = text else { return }
         
         if echoLog {
-            NSLog("[LOG] " + string)
+            NSLog("[LOG] " + text)
         }
         
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            print("\(date) " + string, to: &NCCommunicationCommon.shared)
+            print("\(date) " + text, to: &NCCommunicationCommon.shared)
         }
     }
     
