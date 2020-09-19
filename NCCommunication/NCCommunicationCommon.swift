@@ -38,7 +38,7 @@ import MobileCoreServices
     @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
 }
 
-@objc public class NCCommunicationCommon: NSObject, TextOutputStream {
+@objc public class NCCommunicationCommon: NSObject {
     @objc public static var shared: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
@@ -428,21 +428,17 @@ import MobileCoreServices
         
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            print("\(date) " + text, to: &NCCommunicationCommon.shared)
-        }
-    }
-    
-    public func write(_ string: String) {
-        
-        if !FileManager.default.fileExists(atPath: filenameLog) {
-            FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
-        }
-        if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
-            defer {
+            let textToWrite = "\(date) " + text
+            
+            guard let data = textToWrite.data(using: .utf8) else { return }
+            if !FileManager.default.fileExists(atPath: filenameLog) {
+                FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+            }            
+            if let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
                 fileHandle.closeFile()
             }
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(data)
         }
     }
  }
