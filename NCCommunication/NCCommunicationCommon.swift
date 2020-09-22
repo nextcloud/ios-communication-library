@@ -488,7 +488,7 @@ import MobileCoreServices
         
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            let textToWrite = "\(date) " + text
+            let textToWrite = "\(date) " + text + "\n"
             
             guard let data = textToWrite.data(using: .utf8) else { return }
             if !FileManager.default.fileExists(atPath: filenameLog) {
