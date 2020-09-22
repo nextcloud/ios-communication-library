@@ -202,48 +202,102 @@ import MobileCoreServices
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
                 resultTypeIdentifier = kUTTypeFolder as String
-            } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
-                resultTypeFile = typeFile.image.rawValue
-                resultIconName = iconName.image.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
-                resultTypeFile = typeFile.video.rawValue
-                resultIconName = iconName.movie.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
-                resultTypeFile = typeFile.audio.rawValue
-                resultIconName = iconName.audio.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
-                resultTypeFile = typeFile.document.rawValue
-                resultIconName = iconName.pdf.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
-                resultTypeFile = typeFile.document.rawValue
-                if fileUTI as String == "com.adobe.pdf" {
-                    resultIconName = iconName.pdf.rawValue
-                } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
-                    resultIconName = iconName.document.rawValue
-                } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
-                    resultIconName = iconName.xls.rawValue
-                } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
-                    resultIconName = iconName.ppt.rawValue
-                } else if fileUTI as String == "public.plain-text" {
-                    resultIconName = iconName.txt.rawValue
-                } else if fileUTI as String == "public.html" {
-                    resultIconName = iconName.code.rawValue
-                } else {
-                    resultIconName = iconName.document.rawValue
-                }
-            } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
-                resultTypeFile = typeFile.compress.rawValue
-                resultIconName = iconName.compress.rawValue
             } else if ext == "imi" {
                 resultTypeFile = typeFile.imagemeter.rawValue
                 resultIconName = iconName.imagemeter.rawValue
             } else {
-                resultTypeFile = typeFile.unknow.rawValue
-                resultIconName = iconName.unknow.rawValue
+                let type = convertUTItoResultType(fileUTI: fileUTI)
+                resultTypeFile = type.resultTypeFile
+                resultIconName = type.resultIconName
             }
         }
         
         return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+    }
+    
+    public func convertUTItoResultType(fileUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
+    
+        var resultTypeFile: String
+        var resultIconName: String
+        var resultFileName: String
+        var resultExtension: String
+        
+        if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+            resultTypeFile = typeFile.image.rawValue
+            resultIconName = iconName.image.rawValue
+            resultFileName = "image"
+            resultExtension = "jpg"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+            resultTypeFile = typeFile.video.rawValue
+            resultIconName = iconName.movie.rawValue
+            resultFileName = "movie"
+            resultExtension = "mov"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+            resultTypeFile = typeFile.audio.rawValue
+            resultIconName = iconName.audio.rawValue
+            resultFileName = "audio"
+            resultExtension = "mp3"
+        } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.pdf.rawValue
+            resultFileName = "document"
+            resultExtension = "pdf"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+            resultTypeFile = typeFile.document.rawValue
+            if fileUTI as String == "com.adobe.pdf" {
+                resultIconName = iconName.pdf.rawValue
+                resultFileName = "document"
+                resultExtension = "pdf"
+            } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = "docx"
+            } else if fileUTI as String == "com.microsoft.word.doc" {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = "doc"
+            } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
+                resultIconName = iconName.xls.rawValue
+                resultFileName = "document"
+                resultExtension = "xlsx"
+            } else if fileUTI as String == "com.microsoft.excel.xls" {
+                resultIconName = iconName.xls.rawValue
+                resultFileName = "document"
+                resultExtension = "xls"
+            } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" {
+                resultIconName = iconName.ppt.rawValue
+                resultFileName = "document"
+                resultExtension = "pptx"
+            } else if fileUTI as String == "com.microsoft.powerpoint.ppt" {
+                resultIconName = iconName.ppt.rawValue
+                resultFileName = "document"
+                resultExtension = "ppt"
+            } else if fileUTI as String == "public.plain-text" {
+                resultIconName = iconName.txt.rawValue
+                resultFileName = "document"
+                resultExtension = "text"
+            } else if fileUTI as String == "public.html" {
+                resultIconName = iconName.code.rawValue
+                resultFileName = "document"
+                resultExtension = "html"
+            } else {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = "???"
+            }
+        } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+            resultTypeFile = typeFile.compress.rawValue
+            resultIconName = iconName.compress.rawValue
+            resultFileName = "archive"
+            resultExtension = "zip"
+        } else {
+            resultTypeFile = typeFile.unknow.rawValue
+            resultIconName = iconName.unknow.rawValue
+            resultFileName = "file"
+            resultExtension = "???"
+        }
+        
+        return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
     //MARK: - Common
