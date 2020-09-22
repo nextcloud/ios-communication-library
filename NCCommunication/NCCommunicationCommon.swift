@@ -242,13 +242,14 @@ import MobileCoreServices
             resultIconName = iconName.pdf.rawValue
             resultFileName = "document"
             resultExtension = "pdf"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeRTF) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.pdf.rawValue
+            resultFileName = "document"
+            resultExtension = "rtf"
         } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
             resultTypeFile = typeFile.document.rawValue
-            if fileUTI as String == "com.adobe.pdf" {
-                resultIconName = iconName.pdf.rawValue
-                resultFileName = "document"
-                resultExtension = "pdf"
-            } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
+            if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
                 resultExtension = "docx"
@@ -283,7 +284,7 @@ import MobileCoreServices
             } else {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-                resultExtension = "txt"
+                resultExtension = ""
             }
         } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
             resultTypeFile = typeFile.compress.rawValue
@@ -294,7 +295,7 @@ import MobileCoreServices
             resultTypeFile = typeFile.unknow.rawValue
             resultIconName = iconName.unknow.rawValue
             resultFileName = "file"
-            resultExtension = "???"
+            resultExtension = ""
         }
         
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
