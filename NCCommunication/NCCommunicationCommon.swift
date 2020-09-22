@@ -283,7 +283,7 @@ import MobileCoreServices
             } else {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-                resultExtension = "???"
+                resultExtension = "txt"
             }
         } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
             resultTypeFile = typeFile.compress.rawValue
