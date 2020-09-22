@@ -244,9 +244,14 @@ import MobileCoreServices
             resultExtension = "pdf"
         } else if UTTypeConformsTo(fileUTI, kUTTypeRTF) {
             resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.pdf.rawValue
+            resultIconName = iconName.txt.rawValue
             resultFileName = "document"
             resultExtension = "rtf"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeText) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.txt.rawValue
+            resultFileName = "document"
+            resultExtension = "txt"
         } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
             resultTypeFile = typeFile.document.rawValue
             if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
