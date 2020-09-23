@@ -198,12 +198,22 @@ extension NCCommunication {
         }
     }
      
-    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchBodyRequest(serverUrl: String, requestBody: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+         
+        let account = NCCommunicationCommon.shared.account
+        let httpBody = requestBody.data(using: .utf8)!
+     
+        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout) { (account, files, erroCode, errorDescription) in
+            completionHandler(account,files,erroCode,errorDescription)
+        }
+    }
+    
+    @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let files: [NCCommunicationFile] = []
 
-        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user ) else {
+        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId) else {
             completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
@@ -211,18 +221,18 @@ extension NCCommunication {
         let requestBody = String(format: NCDataFileXML().requestBodySearchFileName, href, depth, "%"+literal+"%")
         let httpBody = requestBody.data(using: .utf8)!
      
-        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
+        search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout) { (account, files, erroCode, errorDescription) in
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
     
-    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String, limit: Int, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, user: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchMedia(path: String = "", lessDate: Any, greaterDate: Any, elementDate: String, limit: Int, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
             
         let account = NCCommunicationCommon.shared.account
         let files: [NCCommunicationFile] = []
         var greaterDateString: String?, lessDateString: String?
         
-        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + user + path) else {
+        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId + path) else {
             completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
@@ -253,12 +263,12 @@ extension NCCommunication {
         
         let httpBody = requestBody.data(using: .utf8)!
         
-        search(serverUrl: NCCommunicationCommon.shared.urlBase, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account) { (account, files, erroCode, errorDescription) in
+        search(serverUrl: NCCommunicationCommon.shared.urlBase, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout) { (account, files, erroCode, errorDescription) in
             completionHandler(account,files,erroCode,errorDescription)
         }
     }
      
-    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String: String]?, account: String, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    private func search(serverUrl: String, httpBody: Data, showHiddenFiles: Bool, customUserAgent: String?, addCustomHeaders: [String: String]?, account: String, timeout: TimeInterval, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         var files: [NCCommunicationFile] = []
         
@@ -276,6 +286,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = httpBody
+            urlRequest.timeoutInterval = timeout
         } catch {
             completionHandler(account, files, error._code, error.localizedDescription)
             return

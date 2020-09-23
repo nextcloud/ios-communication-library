@@ -38,7 +38,7 @@ import MobileCoreServices
     @objc optional func uploadComplete(fileName: String, serverUrl: String, ocId: String?, etag: String?, date: NSDate?, size: Int64, description: String?, task: URLSessionTask, errorCode: Int, errorDescription: String)
 }
 
-@objc public class NCCommunicationCommon: NSObject, TextOutputStream {
+@objc public class NCCommunicationCommon: NSObject {
     @objc public static var shared: NCCommunicationCommon = {
         let instance = NCCommunicationCommon()
         return instance
@@ -50,7 +50,6 @@ import MobileCoreServices
     var account = ""
     var urlBase = ""
     var userAgent: String?
-    var capabilitiesGroup: String?
     var nextcloudVersion: Int = 0
     var webDav: String = "remote.php/webdav"
     var dav: String = "remote.php/dav"
@@ -59,10 +58,6 @@ import MobileCoreServices
 
     var delegate: NCCommunicationCommonDelegate?
     
-    @objc public let sessionMaximumConnectionsPerHost = 5
-    @objc public let sessionIdentifierBackground: String = "com.nextcloud.session.upload.background"
-    @objc public let sessionIdentifierBackgroundWWan: String = "com.nextcloud.session.upload.backgroundWWan"
-    @objc public let sessionIdentifierExtension: String = "com.nextcloud.session.upload.extension"
     @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
     @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
 
@@ -111,10 +106,10 @@ import MobileCoreServices
     
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, capabilitiesGroup: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
-        self.setup(userAgent: userAgent, capabilitiesGroup: capabilitiesGroup)
+        self.setup(userAgent: userAgent)
         if (webDav != nil) { self.setup(webDav: webDav!) }
         if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
@@ -139,10 +134,9 @@ import MobileCoreServices
         self.delegate = delegate
     }
     
-    @objc public func setup(userAgent: String, capabilitiesGroup: String) {
+    @objc public func setup(userAgent: String) {
         
         self.userAgent = userAgent
-        self.capabilitiesGroup = capabilitiesGroup
     }
     
     @objc public func setup(webDav: String) {
@@ -208,48 +202,108 @@ import MobileCoreServices
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
                 resultTypeIdentifier = kUTTypeFolder as String
-            } else if UTTypeConformsTo(fileUTI, kUTTypeImage) {
-                resultTypeFile = typeFile.image.rawValue
-                resultIconName = iconName.image.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
-                resultTypeFile = typeFile.video.rawValue
-                resultIconName = iconName.movie.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
-                resultTypeFile = typeFile.audio.rawValue
-                resultIconName = iconName.audio.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
-                resultTypeFile = typeFile.document.rawValue
-                resultIconName = iconName.pdf.rawValue
-            } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
-                resultTypeFile = typeFile.document.rawValue
-                if fileUTI as String == "com.adobe.pdf" {
-                    resultIconName = iconName.pdf.rawValue
-                } else if fileUTI as String == "org.openxmlformats.wordprocessingml.document" || fileUTI as String == "com.microsoft.word.doc" {
-                    resultIconName = iconName.document.rawValue
-                } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" || fileUTI as String == "com.microsoft.excel.xls" {
-                    resultIconName = iconName.xls.rawValue
-                } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" || fileUTI as String == "com.microsoft.powerpoint.ppt" {
-                    resultIconName = iconName.ppt.rawValue
-                } else if fileUTI as String == "public.plain-text" {
-                    resultIconName = iconName.txt.rawValue
-                } else if fileUTI as String == "public.html" {
-                    resultIconName = iconName.code.rawValue
-                } else {
-                    resultIconName = iconName.document.rawValue
-                }
-            } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
-                resultTypeFile = typeFile.compress.rawValue
-                resultIconName = iconName.compress.rawValue
             } else if ext == "imi" {
                 resultTypeFile = typeFile.imagemeter.rawValue
                 resultIconName = iconName.imagemeter.rawValue
             } else {
-                resultTypeFile = typeFile.unknow.rawValue
-                resultIconName = iconName.unknow.rawValue
+                let type = convertUTItoResultType(fileUTI: fileUTI)
+                resultTypeFile = type.resultTypeFile
+                resultIconName = type.resultIconName
             }
         }
         
         return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+    }
+    
+    public func convertUTItoResultType(fileUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
+    
+        var resultTypeFile: String
+        var resultIconName: String
+        var resultFileName: String
+        var resultExtension: String
+        
+        if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+            resultTypeFile = typeFile.image.rawValue
+            resultIconName = iconName.image.rawValue
+            resultFileName = "image"
+            resultExtension = "jpg"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+            resultTypeFile = typeFile.video.rawValue
+            resultIconName = iconName.movie.rawValue
+            resultFileName = "movie"
+            resultExtension = "mov"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+            resultTypeFile = typeFile.audio.rawValue
+            resultIconName = iconName.audio.rawValue
+            resultFileName = "audio"
+            resultExtension = "mp3"
+        } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.pdf.rawValue
+            resultFileName = "document"
+            resultExtension = "pdf"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeRTF) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.txt.rawValue
+            resultFileName = "document"
+            resultExtension = "rtf"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeText) {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.txt.rawValue
+            resultFileName = "document"
+            resultExtension = "txt"
+        } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+            resultTypeFile = typeFile.document.rawValue
+            if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = "docx"
+            } else if fileUTI as String == "com.microsoft.word.doc" {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = "doc"
+            } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
+                resultIconName = iconName.xls.rawValue
+                resultFileName = "document"
+                resultExtension = "xlsx"
+            } else if fileUTI as String == "com.microsoft.excel.xls" {
+                resultIconName = iconName.xls.rawValue
+                resultFileName = "document"
+                resultExtension = "xls"
+            } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" {
+                resultIconName = iconName.ppt.rawValue
+                resultFileName = "document"
+                resultExtension = "pptx"
+            } else if fileUTI as String == "com.microsoft.powerpoint.ppt" {
+                resultIconName = iconName.ppt.rawValue
+                resultFileName = "document"
+                resultExtension = "ppt"
+            } else if fileUTI as String == "public.plain-text" {
+                resultIconName = iconName.txt.rawValue
+                resultFileName = "document"
+                resultExtension = "text"
+            } else if fileUTI as String == "public.html" {
+                resultIconName = iconName.code.rawValue
+                resultFileName = "document"
+                resultExtension = "html"
+            } else {
+                resultIconName = iconName.document.rawValue
+                resultFileName = "document"
+                resultExtension = ""
+            }
+        } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+            resultTypeFile = typeFile.compress.rawValue
+            resultIconName = iconName.compress.rawValue
+            resultFileName = "archive"
+            resultExtension = "zip"
+        } else {
+            resultTypeFile = typeFile.unknow.rawValue
+            resultIconName = iconName.unknow.rawValue
+            resultFileName = "file"
+            resultExtension = ""
+        }
+        
+        return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
     //MARK: - Common
@@ -407,6 +461,7 @@ import MobileCoreServices
     @objc public func setFileLog(level: Int, echo: Bool) {
         
         self.levelLog = level
+        self.echoLog = echo
     }
     
     @objc public func getFileNameLog() -> String {
@@ -424,27 +479,26 @@ import MobileCoreServices
         FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
     }
     
-    @objc public func writeLog(_ string: String) {
+    @objc public func writeLog(_ text: String?) {
+        guard let text = text else { return }
+        
+        if echoLog {
+            NSLog("[LOG] " + text)
+        }
         
         if levelLog > 0 {
-            print(string, to: &NCCommunicationCommon.shared)
-        }
-    }
-    
-    public func write(_ string: String) {
-        
-        if !FileManager.default.fileExists(atPath: filenameLog) {
-            FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
-        }
-        if let data = string.data(using: .utf8), let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
-            defer {
+            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+            let textToWrite = "\(date) " + text + "\n"
+            
+            guard let data = textToWrite.data(using: .utf8) else { return }
+            if !FileManager.default.fileExists(atPath: filenameLog) {
+                FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+            }            
+            if let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
                 fileHandle.closeFile()
             }
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(data)
-        }
-        if echoLog {
-            debugPrint(string)
         }
     }
  }

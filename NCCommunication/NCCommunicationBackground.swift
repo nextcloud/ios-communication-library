@@ -29,40 +29,6 @@ import Foundation
         return instance
     }()
         
-    @objc public lazy var sessionManagerTransfer: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackground)
-        configuration.allowsCellularAccess = true
-        configuration.sessionSendsLaunchEvents = true
-        configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
-        configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-        return session
-    }()
-    
-    @objc public lazy var sessionManagerTransferWWan: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierBackgroundWWan)
-        configuration.allowsCellularAccess = false
-        configuration.sessionSendsLaunchEvents = true
-        configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
-        configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-        return session
-    }()
-    
-    @objc public lazy var sessionManagerTransferExtension: URLSession = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: NCCommunicationCommon.shared.sessionIdentifierExtension)
-        configuration.allowsCellularAccess = true
-        configuration.sessionSendsLaunchEvents = true
-        configuration.isDiscretionary = false
-        configuration.httpMaximumConnectionsPerHost = NCCommunicationCommon.shared.sessionMaximumConnectionsPerHost
-        configuration.requestCachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        configuration.sharedContainerIdentifier = NCCommunicationCommon.shared.capabilitiesGroup
-        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: OperationQueue.main)
-        return session
-    }()
-    
     //MARK: - Download
     
     @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
@@ -122,6 +88,9 @@ import Foundation
         
         task.taskDescription = description
         task.resume()
+        
+        NCCommunicationCommon.shared.writeLog("Network start upload file: " + serverUrlFileName)
+        
         return task
     }
     
@@ -234,6 +203,12 @@ import Foundation
             if task is URLSessionUploadTask {
                 
                 NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
+            }
+            
+            if errorCode == 0 {
+                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName)
+            } else {
+                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
             }
         }
     }

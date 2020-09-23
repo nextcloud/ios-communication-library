@@ -305,16 +305,15 @@ final class AlamofireLogger: EventMonitor {
         
         if NCCommunicationCommon.shared.levelLog > 0 {
         
-            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            
-            print("[LOG] Network request started: \(date) \(request)", to: &NCCommunicationCommon.shared)
-            
+            NCCommunicationCommon.shared.writeLog("Network request started: \(request)")
+        
             if NCCommunicationCommon.shared.levelLog > 1 {
                 
                 let allHeaders = request.request.flatMap { $0.allHTTPHeaderFields.map { $0.description } } ?? "None"
                 let body = request.request.flatMap { $0.httpBody.map { String(decoding: $0, as: UTF8.self) } } ?? "None"
-                print("[LOG] Network request headers: \(date) \(allHeaders)", to: &NCCommunicationCommon.shared)
-                print("[LOG] Network request body: \(date) \(body)", to: &NCCommunicationCommon.shared)
+                
+                NCCommunicationCommon.shared.writeLog("Network request headers: \(allHeaders)")
+                NCCommunicationCommon.shared.writeLog("Network request body: \(body)")
             }
         }
     }
@@ -328,15 +327,15 @@ final class AlamofireLogger: EventMonitor {
             if NCCommunicationCommon.shared.levelLog == 1 {
                 
                 if let request = response.request {
-                    print("[LOG] Network response request: \(date) \(request), result: \(response.result)", to: &NCCommunicationCommon.shared)
+                    NCCommunicationCommon.shared.writeLog("Network response request: \(request), result: \(response.result)")
                 } else {
-                    print("[LOG] Network response result: \(date) \(response.result)", to: &NCCommunicationCommon.shared)
+                    NCCommunicationCommon.shared.writeLog("Network response result: \(response.result)")
                 }
                 
             } else {
                 
-                print("[LOG] Network response result: \(date) \(response.debugDescription)", to: &NCCommunicationCommon.shared)
-                print("[LOG] Network response all headers: \(date) \(String(describing: response.response?.allHeaderFields))", to: &NCCommunicationCommon.shared)
+                NCCommunicationCommon.shared.writeLog("Network response result: \(date) \(response.debugDescription)")
+                NCCommunicationCommon.shared.writeLog("Network response all headers: \(date) \(String(describing: response.response?.allHeaderFields))")
             }
         }
     }
