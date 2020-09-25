@@ -321,21 +321,25 @@ final class AlamofireLogger: EventMonitor {
     func request<Value>(_ request: DataRequest, didParseResponse response: AFDataResponse<Value>) {
         
         guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-
+        let responseResultString = String.init("\(response.result)")
+        let responseDebugDescription = String.init("\(response.debugDescription)")
+        let responseAllHeaderFields = String.init("\(String(describing: response.response?.allHeaderFields))")
+        
         if NCCommunicationCommon.shared.levelLog > 0 {
             
             if NCCommunicationCommon.shared.levelLog == 1 {
                 
                 if let request = response.request {
-                    NCCommunicationCommon.shared.writeLog("Network response request: \(request), result: \(response.result)")
+                    let requestString = "\(request)"
+                    NCCommunicationCommon.shared.writeLog("Network response request: " + requestString + ", result: " + responseResultString)
                 } else {
-                    NCCommunicationCommon.shared.writeLog("Network response result: \(response.result)")
+                    NCCommunicationCommon.shared.writeLog("Network response result: " + responseResultString)
                 }
                 
             } else {
                 
-                NCCommunicationCommon.shared.writeLog("Network response result: \(date) \(response.debugDescription)")
-                NCCommunicationCommon.shared.writeLog("Network response all headers: \(date) \(String(describing: response.response?.allHeaderFields))")
+                NCCommunicationCommon.shared.writeLog("Network response result: \(date) " + responseDebugDescription)
+                NCCommunicationCommon.shared.writeLog("Network response all headers: \(date) " + responseAllHeaderFields)
             }
         }
     }
