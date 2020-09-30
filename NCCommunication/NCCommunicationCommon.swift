@@ -308,12 +308,12 @@ import MobileCoreServices
     
     //MARK: - Common
         
-    func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    public func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
-    func getStandardHeaders(user: String, password: String, appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
+    public func getStandardHeaders(user: String, password: String, appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
         
         var headers: HTTPHeaders = [.authorization(username: user, password: password)]
         if customUserAgent != nil {
@@ -334,7 +334,7 @@ import MobileCoreServices
         return headers
     }
     
-    func convertDate(_ dateString: String, format: String) -> NSDate? {
+    public func convertDate(_ dateString: String, format: String) -> NSDate? {
         
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale.init(identifier: "en_US_POSIX")
@@ -346,7 +346,7 @@ import MobileCoreServices
         }
     }
     
-    func convertDate(_ date: Date, format: String) -> String? {
+    public func convertDate(_ date: Date, format: String) -> String? {
         
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale.init(identifier: "en_US_POSIX")
@@ -354,7 +354,7 @@ import MobileCoreServices
         return dateFormatter.string(from: date)
     }
         
-    func encodeStringToUrl(_ string: String) -> URLConvertible? {
+    public func encodeStringToUrl(_ string: String) -> URLConvertible? {
         
         if let escapedString = encodeString(string) {
             return StringToUrl(escapedString)
@@ -362,7 +362,7 @@ import MobileCoreServices
         return nil
     }
     
-    func encodeString(_ string: String) -> String? {
+    public func encodeString(_ string: String) -> String? {
         
         let encodeCharacterSet = " #;?@&=$+{}<>,!'*|%"
         let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
@@ -371,7 +371,7 @@ import MobileCoreServices
         return encodeString
     }
     
-    func StringToUrl(_ string: String) -> URLConvertible? {
+    public func StringToUrl(_ string: String) -> URLConvertible? {
         
         var url: URLConvertible
         do {
@@ -382,7 +382,7 @@ import MobileCoreServices
         }
     }
     
-    func createStandardUrl(serverUrl: String, endpoint: String) -> URLConvertible? {
+    public func createStandardUrl(serverUrl: String, endpoint: String) -> URLConvertible? {
         
         guard var serverUrl = encodeString(serverUrl) else { return nil }
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
@@ -392,7 +392,7 @@ import MobileCoreServices
         return StringToUrl(serverUrl)
     }
     
-    func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
+    public func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
        
         guard let allHeaderFields = allHeaderFields else { return nil }
         let keyValues = allHeaderFields.map { (String(describing: $0.key).lowercased(), String(describing: $0.value)) }
@@ -403,7 +403,7 @@ import MobileCoreServices
         return nil
     }
     
-    func getHostName(urlString: String) -> String? {
+    public func getHostName(urlString: String) -> String? {
         
         if let url = URL(string: urlString) {
             guard let hostName = url.host else { return nil }
@@ -416,7 +416,7 @@ import MobileCoreServices
         return nil
     }
     
-    func getHostNameComponent(urlString: String) -> String? {
+    public func getHostNameComponent(urlString: String) -> String? {
         
         if let url = URL(string: urlString) {
             let components = url.pathComponents
@@ -425,7 +425,7 @@ import MobileCoreServices
         return nil
     }
     
-    func resizeImage(image: UIImage, toHeight: CGFloat) -> UIImage {
+    public func resizeImage(image: UIImage, toHeight: CGFloat) -> UIImage {
         return autoreleasepool { () -> UIImage in
             let toWidth = image.size.width * (toHeight/image.size.height)
             let targetSize = CGSize(width: toWidth, height: toHeight)

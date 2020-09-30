@@ -620,60 +620,6 @@ class NCDataFileXML: NSObject {
     </d:searchrequest>
     """
     
-    let requestBodyRecent =
-    """
-    <?xml version=\"1.0\"?>
-    <d:searchrequest xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">
-    <d:basicsearch>
-        <d:select>
-            <d:prop>
-                <d:displayname/>
-                <d:getcontenttype/>
-                <d:resourcetype/>
-                <d:getcontentlength/>
-                <d:getlastmodified/>
-                <d:getetag/>
-                <d:quota-used-bytes/>
-                <d:quota-available-bytes/>
-                <permissions xmlns=\"http://owncloud.org/ns\"/>
-                <id xmlns=\"http://owncloud.org/ns\"/>
-                <fileid xmlns=\"http://owncloud.org/ns\"/>
-                <size xmlns=\"http://owncloud.org/ns\"/>
-                <favorite xmlns=\"http://owncloud.org/ns\"/>
-                <creation_time xmlns=\"http://nextcloud.org/ns\"/>
-                <upload_time xmlns=\"http://nextcloud.org/ns\"/>
-                <is-encrypted xmlns=\"http://nextcloud.org/ns\"/>
-                <mount-type xmlns=\"http://nextcloud.org/ns\"/>
-                <owner-id xmlns=\"http://owncloud.org/ns\"/>
-                <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
-                <comments-unread xmlns=\"http://owncloud.org/ns\"/>
-                <has-preview xmlns=\"http://nextcloud.org/ns\"/>
-                <trashbin-filename xmlns=\"http://nextcloud.org/ns\"/>
-                <trashbin-original-location xmlns=\"http://nextcloud.org/ns\"/>
-                <trashbin-deletion-time xmlns=\"http://nextcloud.org/ns\"/>
-            </d:prop>
-        </d:select>
-    <d:from>
-        <d:scope>
-            <d:href>%@</d:href>
-            <d:depth>infinity</d:depth>
-        </d:scope>
-    </d:from>
-    <d:orderby>
-        <d:order>
-            <d:prop>
-                <d:getlastmodified/>
-            </d:prop>
-            <d:descending/>
-        </d:order>
-    </d:orderby>
-        <d:limit>
-            <d:nresults>%@</d:nresults>
-        </d:limit>
-    </d:basicsearch>
-    </d:searchrequest>
-    """
-    
     let requestBodyTrash =
     """
     <?xml version=\"1.0\" encoding=\"UTF-8\"?>
