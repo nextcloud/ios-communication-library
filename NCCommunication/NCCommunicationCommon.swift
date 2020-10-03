@@ -97,7 +97,6 @@ import MobileCoreServices
     
     private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     var levelLog: Int = 0
-    var echoLog: Bool = false
 
     //MARK: - Init
     
@@ -458,10 +457,9 @@ import MobileCoreServices
     
     //MARK: - Log
 
-    @objc public func setFileLog(level: Int, echo: Bool) {
+    @objc public func setFileLog(level: Int) {
         
         self.levelLog = level
-        self.echoLog = echo
     }
     
     @objc public func getFileNameLog() -> String {
@@ -481,10 +479,6 @@ import MobileCoreServices
     
     @objc public func writeLog(_ text: String?) {
         guard let text = text else { return }
-        
-        if echoLog {
-            NSLog("[LOG] " + text)
-        }
         
         if levelLog > 0 {
             guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
