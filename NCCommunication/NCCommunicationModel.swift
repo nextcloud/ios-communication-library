@@ -675,6 +675,9 @@ class NCDataFileXML: NSObject {
             let file = NCCommunicationFile()
             if let href = element["d:href"].text {
                 var fileNamePath = href
+                if href.last == "/" {
+                    fileNamePath = String(href.dropLast())
+                }
                 
                 // Hidden File/Directory/Sub of directoty
                 if !showHiddenFiles {
@@ -685,10 +688,6 @@ class NCDataFileXML: NSObject {
                     if componentsFiltered.count > 0 { continue }
                 }
                 
-                if href.last == "/" {
-                    fileNamePath = String(href.dropLast())
-                }
-                
                 // path
                 file.path = (fileNamePath as NSString).deletingLastPathComponent + "/"
                 file.path = file.path.removingPercentEncoding ?? ""
@@ -696,7 +695,6 @@ class NCDataFileXML: NSObject {
                 // fileName
                 file.fileName = (fileNamePath as NSString).lastPathComponent
                 file.fileName = file.fileName.removingPercentEncoding ?? ""
-                //if file.fileName.first == "." && !showHiddenFiles { continue }
               
                 // ServerUrl
                 if href.hasSuffix(webDavRoot) {
