@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "ios-communication-library",
+    name: "NCCommunication",
     platforms: [
         .iOS(.v10)
     ],
     products: [
         .library(
-            name: "ios-communication-library",
-            targets: ["ios-communication-library"]),
+            name: "NCCommunication",
+            targets: ["NCCommunication"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
@@ -20,11 +20,11 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ios-communication-library",
+            name: "NCCommunication",
             dependencies: ["Alamofire","SwiftyJSON","SwiftyXMLParser"],
             path: "NCCommunication"),
         .testTarget(
-            name: "ios-communication-libraryTests",
+            name: "NCCommunicationTests",
             dependencies: ["ios-communication-library"],
             path: "NCCommunicationTests"),
     ]
