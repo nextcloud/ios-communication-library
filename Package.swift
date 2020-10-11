@@ -25,7 +25,7 @@ let package = Package(
             path: "NCCommunication"),
         .testTarget(
             name: "NCCommunicationTests",
-            dependencies: ["ios-communication-library"],
+            dependencies: ["NCCommunication"],
             path: "NCCommunicationTests"),
     ]
 )
