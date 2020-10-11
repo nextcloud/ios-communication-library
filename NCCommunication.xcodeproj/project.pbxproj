@@ -49,7 +49,6 @@
 		F74D5C2D235DE83B0006DA38 /* NCCommunication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCCommunication.h; sourceTree = "<group>"; };
 		F74D5C33235DE83B0006DA38 /* NCCommunicationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NCCommunicationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCommunicationTests.swift; sourceTree = "<group>"; };
-		F74D5C3A235DE83B0006DA38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F74D5C44235DE8F80006DA38 /* NCCommunication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunication.swift; sourceTree = "<group>"; };
 		F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationModel.swift; sourceTree = "<group>"; };
 		F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationCommon.swift; sourceTree = "<group>"; };
@@ -131,7 +130,6 @@
 			isa = PBXGroup;
 			children = (
 				F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */,
-				F74D5C3A235DE83B0006DA38 /* Info.plist */,
 			);
 			path = NCCommunicationTests;
 			sourceTree = "<group>";
