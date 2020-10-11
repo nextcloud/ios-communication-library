@@ -435,7 +435,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = NCCommunication/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunication.plist";
 				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -470,7 +470,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = NCCommunication/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunication.plist";
 				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -497,7 +497,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6JLRKY9ZV7;
-				INFOPLIST_FILE = NCCommunicationTests/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunicationTests.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -516,7 +516,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6JLRKY9ZV7;
-				INFOPLIST_FILE = NCCommunicationTests/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunicationTests.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
