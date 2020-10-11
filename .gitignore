@@ -15,4 +15,5 @@ DerivedData/
 build/
 xcuserdata/
 UserInterfaceState.xcuserstate
-
+Package.resolved
+Cartfile.resolved
