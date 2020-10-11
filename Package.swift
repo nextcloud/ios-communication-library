@@ -22,12 +22,10 @@ let package = Package(
         .target(
             name: "NCCommunication",
             dependencies: ["Alamofire","SwiftyJSON","SwiftyXMLParser"],
-            path: "NCCommunication",
-            exclude: ["info.plist"]),
+            path: "NCCommunication"),
         .testTarget(
             name: "NCCommunicationTests",
             dependencies: ["NCCommunication"],
-            path: "NCCommunicationTests",
-            exclude: ["info.plist"])
+            path: "NCCommunicationTests")
     ]
 )
