@@ -6,7 +6,6 @@ import PackageDescription
 let package = Package(
     name: "ios-communication-library",
     platforms: [
-        .macOS(.v10_12),
         .iOS(.v10)
     ],
     products: [
@@ -22,9 +21,11 @@ let package = Package(
     targets: [
         .target(
             name: "ios-communication-library",
-            dependencies: ["Alamofire","SwiftyJSON","SwiftyXMLParser"]),
+            dependencies: ["Alamofire","SwiftyJSON","SwiftyXMLParser"],
+            path: "NCCommunication"),
         .testTarget(
             name: "ios-communication-libraryTests",
-            dependencies: ["ios-communication-library"]),
+            dependencies: ["ios-communication-library"],
+            path: "NCCommunicationTests"),
     ]
 )
