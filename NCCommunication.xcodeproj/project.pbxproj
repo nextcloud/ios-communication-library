@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,11 +18,11 @@
 		F74D5C48235DE8F80006DA38 /* NCCommunication.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C44235DE8F80006DA38 /* NCCommunication.swift */; };
 		F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */; };
 		F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */; };
-		F74D5C53235DE99D0006DA38 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4E235DE99D0006DA38 /* SwiftyJSON.framework */; };
-		F74D5C55235DE99D0006DA38 /* SwiftyXMLParser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C4F235DE99D0006DA38 /* SwiftyXMLParser.framework */; };
-		F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F74D5C50235DE99D0006DA38 /* Alamofire.framework */; };
 		F754C06E24977C8C00051563 /* NCCommunication+Share.swift in Sources */ = {isa = PBXBuildFile; fileRef = F754C06D24977C8C00051563 /* NCCommunication+Share.swift */; };
 		F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */; };
+		F79F7E672533056E0073ADD8 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = F79F7E662533056E0073ADD8 /* Alamofire */; };
+		F79F7E6C253305A60073ADD8 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = F79F7E6B253305A60073ADD8 /* SwiftyJSON */; };
+		F79F7E71253305D90073ADD8 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = F79F7E70253305D90073ADD8 /* SwiftyXMLParser */; };
 		F7BBE0002472F42200C3B0E2 /* NCCommunication+Richdocuments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7BBDFFF2472F42200C3B0E2 /* NCCommunication+Richdocuments.swift */; };
 		F7D0A5382477C37C002F2164 /* NCCommunication+PushNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */; };
 		F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */; };
@@ -49,7 +49,6 @@
 		F74D5C2D235DE83B0006DA38 /* NCCommunication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NCCommunication.h; sourceTree = "<group>"; };
 		F74D5C33235DE83B0006DA38 /* NCCommunicationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NCCommunicationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCCommunicationTests.swift; sourceTree = "<group>"; };
-		F74D5C3A235DE83B0006DA38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F74D5C44235DE8F80006DA38 /* NCCommunication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunication.swift; sourceTree = "<group>"; };
 		F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationModel.swift; sourceTree = "<group>"; };
 		F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCommunicationCommon.swift; sourceTree = "<group>"; };
@@ -69,9 +68,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F74D5C53235DE99D0006DA38 /* SwiftyJSON.framework in Frameworks */,
-				F74D5C55235DE99D0006DA38 /* SwiftyXMLParser.framework in Frameworks */,
-				F74D5C57235DE99D0006DA38 /* Alamofire.framework in Frameworks */,
+				F79F7E6C253305A60073ADD8 /* SwiftyJSON in Frameworks */,
+				F79F7E71253305D90073ADD8 /* SwiftyXMLParser in Frameworks */,
+				F79F7E672533056E0073ADD8 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,7 +130,6 @@
 			isa = PBXGroup;
 			children = (
 				F74D5C38235DE83B0006DA38 /* NCCommunicationTests.swift */,
-				F74D5C3A235DE83B0006DA38 /* Info.plist */,
 			);
 			path = NCCommunicationTests;
 			sourceTree = "<group>";
@@ -174,6 +172,11 @@
 			dependencies = (
 			);
 			name = NCCommunication;
+			packageProductDependencies = (
+				F79F7E662533056E0073ADD8 /* Alamofire */,
+				F79F7E6B253305A60073ADD8 /* SwiftyJSON */,
+				F79F7E70253305D90073ADD8 /* SwiftyXMLParser */,
+			);
 			productName = NCCommunication;
 			productReference = F74D5C2A235DE83B0006DA38 /* NCCommunication.framework */;
 			productType = "com.apple.product-type.framework";
@@ -203,7 +206,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1110;
-				LastUpgradeCheck = 1110;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Marino Faggiana";
 				TargetAttributes = {
 					F74D5C29235DE83B0006DA38 = {
@@ -224,6 +227,11 @@
 				Base,
 			);
 			mainGroup = F74D5C20235DE83B0006DA38;
+			packageReferences = (
+				F79F7E652533056E0073ADD8 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				F79F7E6A253305A60073ADD8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+				F79F7E6F253305D90073ADD8 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
+			);
 			productRefGroup = F74D5C2B235DE83B0006DA38 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -318,6 +326,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -381,6 +390,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -415,6 +425,7 @@
 		F74D5C3F235DE83B0006DA38 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 0;
@@ -423,23 +434,23 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
-				INFOPLIST_FILE = NCCommunication/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Supporting Files/NCCommunication.plist";
+				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.79;
+				MARKETING_VERSION = 0.80;
+				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -449,6 +460,7 @@
 		F74D5C40235DE83B0006DA38 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 0;
@@ -457,23 +469,23 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
-				INFOPLIST_FILE = NCCommunication/Info.plist;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "Supporting Files/NCCommunication.plist";
+				INFOPLIST_OUTPUT_FORMAT = "same-as-input";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.79;
+				MARKETING_VERSION = 0.80;
+				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -485,7 +497,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6JLRKY9ZV7;
-				INFOPLIST_FILE = NCCommunicationTests/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunicationTests.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -504,7 +516,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 6JLRKY9ZV7;
-				INFOPLIST_FILE = NCCommunicationTests/Info.plist;
+				INFOPLIST_FILE = "Supporting Files/NCCommunicationTests.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -548,6 +560,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F79F7E652533056E0073ADD8 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.2;
+			};
+		};
+		F79F7E6A253305A60073ADD8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+		F79F7E6F253305D90073ADD8 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yahoojapan/SwiftyXMLParser";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F79F7E662533056E0073ADD8 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F79F7E652533056E0073ADD8 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		F79F7E6B253305A60073ADD8 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F79F7E6A253305A60073ADD8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		F79F7E70253305D90073ADD8 /* SwiftyXMLParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F79F7E6F253305D90073ADD8 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */;
+			productName = SwiftyXMLParser;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F74D5C21235DE83B0006DA38 /* Project object */;
 }

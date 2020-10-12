@@ -45,6 +45,7 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
             
             switch response.result {
             case .failure(let error):
@@ -111,6 +112,7 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
     
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -141,6 +143,7 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
@@ -193,6 +196,7 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
 
             switch response.result {
             case .failure(let error):
