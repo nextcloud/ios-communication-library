@@ -6,7 +6,10 @@ import PackageDescription
 let package = Package(
     name: "NCCommunication",
     platforms: [
-        .iOS(.v10)
+        .macOS(.v10_15),
+        .iOS(.v10),
+        .tvOS(.v10),
+        .watchOS(.v3)
     ],
     products: [
         .library(
