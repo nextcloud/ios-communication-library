@@ -171,7 +171,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getPreview(fileNamePath: String, widthPreview: Int, heightPreview: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getPreview(fileNamePath: String, widthPreview: CGFloat, heightPreview: CGFloat, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         
@@ -208,7 +208,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: CGFloat, heightPreview: CGFloat, fileNameIconLocalPath: String? = nil, sizeIcon: CGFloat = 0, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -258,8 +258,10 @@ extension NCCommunication {
                                 imagePreview = UIImage.init(data: data)!
                             }
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                var imageIcon = NCCommunicationCommon.shared.resizeImage(image: imagePreview, toHeight: CGFloat(sizeIcon))
-                                if let data = imageIcon.jpegData(compressionQuality: 0.5) {
+                                let toWidth = imagePreview.size.width * (sizeIcon/imagePreview.size.height)
+                                let size = CGSize(width: toWidth, height: sizeIcon)
+                                var imageIcon = NCCommunicationCommon.shared.resizeImageUsingVImage(imagePreview, size: size)
+                                if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
                                 }
