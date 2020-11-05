@@ -25,6 +25,7 @@ import Foundation
 import UIKit
 import Alamofire
 import MobileCoreServices
+import Accelerate
 
 @objc public protocol NCCommunicationCommonDelegate {
     
@@ -424,35 +425,36 @@ import MobileCoreServices
         return nil
     }
     
-    func resizeImage(image: UIImage, toHeight: CGFloat) -> UIImage {
-        return autoreleasepool { () -> UIImage in
-            let toWidth = image.size.width * (toHeight/image.size.height)
-            let targetSize = CGSize(width: toWidth, height: toHeight)
-            let size = image.size
-           
-            let widthRatio  = targetSize.width  / size.width
-            let heightRatio = targetSize.height / size.height
-           
-            // Orientation detection
-            var newSize: CGSize
-            if(widthRatio > heightRatio) {
-                newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
-            } else {
-                newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-            }
-           
-            // Calculated rect
-            let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-           
-            // Resize
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-            image.draw(in: rect)
-           
-            let newImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-           
-            return newImage!
+    func resizeImageUsingVImage(_ image: UIImage, size: CGSize) -> UIImage? {
+        
+        let cgImage = image.cgImage!
+        var format = vImage_CGImageFormat(bitsPerComponent: 8, bitsPerPixel: 32, colorSpace: nil, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.first.rawValue), version: 0, decode: nil, renderingIntent: CGColorRenderingIntent.defaultIntent)
+        var sourceBuffer = vImage_Buffer()
+        defer {
+            free(sourceBuffer.data)
         }
+        var error = vImageBuffer_InitWithCGImage(&sourceBuffer, &format, nil, cgImage, numericCast(kvImageNoFlags))
+        guard error == kvImageNoError else { return nil }
+        // create a destination buffer
+        let destWidth = Int(size.width)
+        let destHeight = Int(size.height)
+        let bytesPerPixel = image.cgImage!.bitsPerPixel/8
+        let destBytesPerRow = destWidth * bytesPerPixel
+        let destData = UnsafeMutablePointer<UInt8>.allocate(capacity: destHeight * destBytesPerRow)
+        defer {
+            destData.deallocate()
+        }
+        var destBuffer = vImage_Buffer(data: destData, height: vImagePixelCount(destHeight), width: vImagePixelCount(destWidth), rowBytes: destBytesPerRow)
+        // scale the image
+        error = vImageScale_ARGB8888(&sourceBuffer, &destBuffer, nil, numericCast(kvImageHighQualityResampling))
+        guard error == kvImageNoError else { return nil }
+        // create a CGImage from vImage_Buffer
+        var destCGImage = vImageCreateCGImageFromBuffer(&destBuffer, &format, nil, nil, numericCast(kvImageNoFlags), &error)?.takeRetainedValue()
+        guard error == kvImageNoError else { return nil }
+        // create a UIImage
+        let resizedImage = destCGImage.flatMap { UIImage(cgImage: $0, scale: 0.0, orientation: image.imageOrientation) }
+        destCGImage = nil
+        return resizedImage
     }
     
     //MARK: - Log
