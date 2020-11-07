@@ -155,7 +155,7 @@ import SwiftyJSON
         
         if serverUrlFileName is URL {
             convertible = serverUrlFileName as? URLConvertible
-        } else if serverUrlFileName is String {
+        } else if serverUrlFileName is String || serverUrlFileName is NSString {
             convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String)
         }
         
@@ -225,15 +225,23 @@ import SwiftyJSON
         }
     }
 
-    public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
+        var convertible: URLConvertible?
         var size: Int64 = 0
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        if serverUrlFileName is URL {
+            convertible = serverUrlFileName as? URLConvertible
+        } else if serverUrlFileName is String || serverUrlFileName is NSString {
+            convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String)
+        }
+        
+        guard let url = convertible else {
             completionHandler(account, nil, nil, nil, 0, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
+        
         let fileNameLocalPathUrl = URL.init(fileURLWithPath: fileNameLocalPath)
         
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
