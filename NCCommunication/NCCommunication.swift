@@ -140,23 +140,23 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: String? = nil, url: URL? = nil, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        download(serverUrlFileName: serverUrlFileName, url: url, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in }, progressHandler: progressHandler) { (account, etag, date, lenght, error, errorCode, errorDescription) in
+        download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in }, progressHandler: progressHandler) { (account, etag, date, lenght, error, errorCode, errorDescription) in
             
             completionHandler(account, etag, date, lenght, errorCode, errorDescription)
         }
     }
     
-    public func download(serverUrlFileName: String? = nil, url: URL? = nil, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: DownloadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: DownloadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var convertible: URLConvertible?
         
-        if url != nil {
-            convertible = url
-        } else if serverUrlFileName != nil {
-            convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName!)
+        if serverUrlFileName is URL {
+            convertible = serverUrlFileName as? URLConvertible
+        } else if serverUrlFileName is String {
+            convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String)
         }
         
         guard let url = convertible else {
