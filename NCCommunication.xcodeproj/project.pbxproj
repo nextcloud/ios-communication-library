@@ -109,10 +109,10 @@
 			children = (
 				F74D5C2D235DE83B0006DA38 /* NCCommunication.h */,
 				F74D5C44235DE8F80006DA38 /* NCCommunication.swift */,
+				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74D5C47235DE8F80006DA38 /* NCCommunicationCommon.swift */,
 				F74D5C45235DE8F80006DA38 /* NCCommunicationModel.swift */,
 				F7FE196D23757BEB001465E3 /* NCCommunicationError.swift */,
-				F7EC2DDC2372FBC0008E28EF /* NCCommunicationBackground.swift */,
 				F74AA255246404CD00DD13B1 /* NCCommunication+Login.swift */,
 				F74AA257246405B200DD13B1 /* NCCommunication+API.swift */,
 				F7BBDFFF2472F42200C3B0E2 /* NCCommunication+Richdocuments.swift */,
@@ -443,7 +443,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.82.0;
+				MARKETING_VERSION = 0.83.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -478,7 +478,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.82.0;
+				MARKETING_VERSION = 0.83.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

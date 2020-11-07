@@ -31,12 +31,19 @@ import Foundation
         
     //MARK: - Download
     
-    @objc public func download(serverUrlFileName: String, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
+    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, description: String?, session: URLSession) -> URLSessionDownloadTask? {
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) as? URL else {
-            return nil
+        var url: URL?
+        
+        if serverUrlFileName is URL {
+            url = serverUrlFileName as? URL
+        } else if serverUrlFileName is String || serverUrlFileName is NSString {
+            url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String) as? URL
         }
-        var request = URLRequest(url: url)
+        
+        guard let urlForRequest = url else { return nil }
+        
+        var request = URLRequest(url: urlForRequest)
         let loginString = "\(NCCommunicationCommon.shared.user):\(NCCommunicationCommon.shared.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
@@ -55,17 +62,29 @@ import Foundation
         }
         
         task.resume()
+        
+        NCCommunicationCommon.shared.writeLog("Network start download file: \(serverUrlFileName)")
+        
         return task
     }
     
     //MARK: - Upload
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, description: String?, session: URLSession) -> URLSessionUploadTask? {
+    @objc public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, description: String?, session: URLSession) -> URLSessionUploadTask? {
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) as? URL else {
+        var url: URL?
+        
+        if serverUrlFileName is URL {
+            url = serverUrlFileName as? URL
+        } else if serverUrlFileName is String || serverUrlFileName is NSString {
+            url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String) as? URL
+        }
+        
+        guard let urlForRequest = url else {
             return nil
         }
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: urlForRequest)
+        
         let loginString = "\(NCCommunicationCommon.shared.user):\(NCCommunicationCommon.shared.password)"
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             return nil
@@ -89,7 +108,7 @@ import Foundation
         task.taskDescription = description
         task.resume()
         
-        NCCommunicationCommon.shared.writeLog("Network start upload file: " + serverUrlFileName)
+        NCCommunicationCommon.shared.writeLog("Network start upload file: \(serverUrlFileName)")
         
         return task
     }
