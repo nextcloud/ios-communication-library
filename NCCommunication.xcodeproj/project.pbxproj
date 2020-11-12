@@ -206,7 +206,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1110;
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1210;
 				ORGANIZATIONNAME = "Marino Faggiana";
 				TargetAttributes = {
 					F74D5C29235DE83B0006DA38 = {
@@ -443,7 +443,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.83.0;
+				MARKETING_VERSION = 0.84.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -478,7 +478,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.83.0;
+				MARKETING_VERSION = 0.84.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -567,7 +567,7 @@
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.2.2;
+				minimumVersion = 5.4.0;
 			};
 		};
 		F79F7E6A253305A60073ADD8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
