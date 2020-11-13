@@ -17,9 +17,9 @@ let package = Package(
             targets: ["NCCommunication"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.2.2")),
+        .package(url: "https://github.com/Alamofire/Alamofire", .upToNextMajor(from: "5.4.0")),
         .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", .upToNextMajor(from: "5.0.0")),
-        .package(url: "https://github.com/yahoojapan/SwiftyXMLParser", .upToNextMajor(from: "5.2.1")),
+        .package(url: "https://github.com/yahoojapan/SwiftyXMLParser", .upToNextMajor(from: "5.3.0")),
     ],
     targets: [
         .target(
