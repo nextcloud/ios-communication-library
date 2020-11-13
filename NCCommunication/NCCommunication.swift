@@ -140,15 +140,29 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void , completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+                               taskHandler: @escaping (_ task: URLSessionTask) -> Void,
+                               progressHandler: @escaping (_ progress: Progress) -> Void,
+                               completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, requestHandler: { (_) in }, progressHandler: progressHandler) { (account, etag, date, lenght, allHeaderFields, error, errorCode, errorDescription) in
-            
+        download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
+            // not available in objc
+        } taskHandler: { (task) in
+            taskHandler(task)
+        } progressHandler: { (progress) in
+            progressHandler(progress)
+        } completionHandler: { (account, etag, date, lenght, allHeaderFields, error, errorCode, errorDescription) in
+            // error not available in objc
             completionHandler(account, etag, date, lenght, allHeaderFields, errorCode, errorDescription)
         }
     }
     
-    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: DownloadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void, completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil,
+                         addCustomHeaders: [String: String]? = nil,
+                         requestHandler: @escaping (_ request: DownloadRequest) -> Void,
+                         taskHandler: @escaping (_ task: URLSessionTask) -> Void,
+                         progressHandler: @escaping (_ progress: Progress) -> Void,
+                         completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var convertible: URLConvertible?
@@ -173,7 +187,11 @@ import SwiftyJSON
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination).validate(statusCode: 200..<300).downloadProgress { progress in
+        let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination).validate(statusCode: 200..<300).onURLSessionTaskCreation { (task) in
+            
+            taskHandler(task)
+            
+        } .downloadProgress { progress in
             
             progressHandler(progress)
             
@@ -217,15 +235,28 @@ import SwiftyJSON
         }
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+                             taskHandler: @escaping (_ task: URLSessionTask) -> Void,
+                             progressHandler: @escaping (_ progress: Progress) -> Void,
+                             completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, requestHandler: { (_) in }, progressHandler: progressHandler) { (account, ocId, etag, date, size, allHeaderFields, error, errorCode, errorDescription) in
-            
+        upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
+            // not available in objc
+        } taskHandler: { (task) in
+            taskHandler(task)
+        } progressHandler: { (progress) in
+            progressHandler(progress)
+        } completionHandler: { (account, ocId, etag, date, size, allHeaderFields, error, errorCode, errorDescription) in
+            // error not available in objc
             completionHandler(account, ocId, etag, date, size, allHeaderFields, errorCode, errorDescription)
         }
     }
 
-    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, requestHandler: @escaping (_ request: UploadRequest) -> Void, progressHandler: @escaping (_ progress: Progress) -> Void ,completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+                       requestHandler: @escaping (_ request: UploadRequest) -> Void,
+                       taskHandler: @escaping (_ task: URLSessionTask) -> Void,
+                       progressHandler: @escaping (_ progress: Progress) -> Void,
+                       completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var convertible: URLConvertible?
@@ -254,13 +285,16 @@ import SwiftyJSON
             headers.update(name: "X-OC-MTime", value: sDate)
         }
         
-        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).uploadProgress { progress in
+        let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).onURLSessionTaskCreation(perform: { (task) in
+            
+            taskHandler(task)
+            
+        }) .uploadProgress { progress in
             
             progressHandler(progress)
             size = progress.totalUnitCount
-        }
-    
-        .response { response in
+            
+        } .response { response in
             
             switch response.result {
             case .failure(let error):
