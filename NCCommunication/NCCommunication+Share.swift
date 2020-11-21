@@ -155,9 +155,9 @@ extension NCCommunication {
                                 let date = Date(timeIntervalSince1970: clearAt) as NSDate
                                 sharee.userClearAt = date
                             }
-                            sharee.userIcon = json["status"]["icon"].stringValue
-                            sharee.userMessage = json["status"]["message"].stringValue
-                            sharee.userStatus = json["status"]["status"].stringValue
+                            sharee.userIcon = subJson["status"]["icon"].stringValue
+                            sharee.userMessage = subJson["status"]["message"].stringValue
+                            sharee.userStatus = subJson["status"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
@@ -178,9 +178,9 @@ extension NCCommunication {
                                 let date = Date(timeIntervalSince1970: clearAt) as NSDate
                                 sharee.userClearAt = date
                             }
-                            sharee.userIcon = json["status"]["icon"].stringValue
-                            sharee.userMessage = json["status"]["message"].stringValue
-                            sharee.userStatus = json["status"]["status"].stringValue
+                            sharee.userIcon = subJson["status"]["icon"].stringValue
+                            sharee.userMessage = subJson["status"]["message"].stringValue
+                            sharee.userStatus = subJson["status"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
