@@ -216,6 +216,10 @@ import SwiftyJSON
     @objc public var shareType: Int = 0
     @objc public var shareWith = ""
     @objc public var uuid = ""
+    @objc public var userClearAt: NSDate?
+    @objc public var userIcon = ""
+    @objc public var userMessage = ""
+    @objc public var userStatus = ""
 }
 
 @objc public class NCCommunicationTrash: NSObject {

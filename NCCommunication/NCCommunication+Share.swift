@@ -151,6 +151,14 @@ extension NCCommunication {
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
+                            if let clearAt = subJson["value"]["clearAt"].double {
+                                let date = Date(timeIntervalSince1970: clearAt) as NSDate
+                                sharee.userClearAt = date
+                            }
+                            sharee.userIcon = json["value"]["icon"].stringValue
+                            sharee.userMessage = json["value"]["message"].stringValue
+                            sharee.userStatus = json["value"]["status"].stringValue
+                            
                             sharees.append(sharee)
                         }
                         for (_, subJson):(String, JSON) in json["ocs"]["data"][shareType] {
@@ -165,6 +173,14 @@ extension NCCommunication {
                             
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
+                            
+                            if let clearAt = subJson["value"]["clearAt"].double {
+                                let date = Date(timeIntervalSince1970: clearAt) as NSDate
+                                sharee.userClearAt = date
+                            }
+                            sharee.userIcon = json["value"]["icon"].stringValue
+                            sharee.userMessage = json["value"]["message"].stringValue
+                            sharee.userStatus = json["value"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
