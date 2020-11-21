@@ -151,13 +151,13 @@ extension NCCommunication {
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
-                            if let clearAt = subJson["value"]["clearAt"].double {
+                            if let clearAt = subJson["status"]["clearAt"].double {
                                 let date = Date(timeIntervalSince1970: clearAt) as NSDate
                                 sharee.userClearAt = date
                             }
-                            sharee.userIcon = json["value"]["icon"].stringValue
-                            sharee.userMessage = json["value"]["message"].stringValue
-                            sharee.userStatus = json["value"]["status"].stringValue
+                            sharee.userIcon = json["status"]["icon"].stringValue
+                            sharee.userMessage = json["status"]["message"].stringValue
+                            sharee.userStatus = json["status"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
@@ -174,13 +174,13 @@ extension NCCommunication {
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
-                            if let clearAt = subJson["value"]["clearAt"].double {
+                            if let clearAt = subJson["status"]["clearAt"].double {
                                 let date = Date(timeIntervalSince1970: clearAt) as NSDate
                                 sharee.userClearAt = date
                             }
-                            sharee.userIcon = json["value"]["icon"].stringValue
-                            sharee.userMessage = json["value"]["message"].stringValue
-                            sharee.userStatus = json["value"]["status"].stringValue
+                            sharee.userIcon = json["status"]["icon"].stringValue
+                            sharee.userMessage = json["status"]["message"].stringValue
+                            sharee.userStatus = json["status"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
