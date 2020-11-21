@@ -401,10 +401,9 @@ extension NCCommunication {
         share.uidFileOwner = json["ocs"]["data"]["uid_file_owner"].stringValue
         share.uidOwner = json["ocs"]["data"]["uid_owner"].stringValue
         share.url = json["ocs"]["data"]["url"].stringValue
-        if let clearAt = json["ocs"]["data"]["status"]["clearAt"].string {
-            if let date = NCCommunicationCommon.shared.convertDate(clearAt, format: "YYYY-MM-dd HH:mm:ss") {
-                 share.userClearAt = date
-            }
+        if let clearAt = json["ocs"]["data"]["status"]["clearAt"].double {
+            let date = Date(timeIntervalSince1970: clearAt) as NSDate
+            share.userClearAt = date
         }
         share.userIcon = json["ocs"]["data"]["status"]["icon"].stringValue
         share.userMessage = json["ocs"]["data"]["status"]["message"].stringValue
