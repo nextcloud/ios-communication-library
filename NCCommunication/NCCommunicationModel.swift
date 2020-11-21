@@ -201,7 +201,10 @@ import SwiftyJSON
     @objc public var uidFileOwner = ""
     @objc public var uidOwner = ""
     @objc public var url = ""
-
+    @objc public var userClearAt: NSDate?
+    @objc public var userIcon = ""
+    @objc public var userMessage = ""
+    @objc public var userStatus = ""
 }
 
 @objc public class NCCommunicationSharee: NSObject {
@@ -1140,6 +1143,24 @@ class NCDataFileXML: NSObject {
             
             if let value = element["url"].text {
                 item.url = value
+            }
+            
+            if let value = element["status","clearAt"].text {
+                if let date = NCCommunicationCommon.shared.convertDate(value, format: "YYYY-MM-dd HH:mm:ss") {
+                     item.userClearAt = date
+                }
+            }
+            
+            if let value = element["status","icon"].text {
+                item.userIcon = value
+            }
+            
+            if let value = element["status","message"].text {
+                item.userMessage = value
+            }
+            
+            if let value = element["status","status"].text {
+                item.userStatus = value
             }
             
             items.append(item)
