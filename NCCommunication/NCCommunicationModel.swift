@@ -1115,9 +1115,9 @@ class NCDataFileXML: NSObject {
                 item.shareWithDisplayname = value
             }
             
-            if let date = element["stime"].double {
-                if date > 0 {
-                    item.date = NSDate(timeIntervalSince1970: date)
+            if let value = element["stime"].double {
+                if value > 0 {
+                    item.date = NSDate(timeIntervalSince1970: value)
                 }
             }
             
@@ -1145,9 +1145,9 @@ class NCDataFileXML: NSObject {
                 item.url = value
             }
             
-            if let value = element["status","clearAt"].text {
-                if let date = NCCommunicationCommon.shared.convertDate(value, format: "YYYY-MM-dd HH:mm:ss") {
-                     item.userClearAt = date
+            if let value = element["status","clearAt"].double {
+                if value > 0 {
+                     item.userClearAt = NSDate(timeIntervalSince1970: value)
                 }
             }
             
