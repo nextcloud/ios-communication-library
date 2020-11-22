@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F70A5247256AF8D10017B506 /* NCCommunication+UserStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */; };
 		F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */; };
 		F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */; };
 		F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+UserStatus.swift"; sourceTree = "<group>"; };
 		F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+E2EE.swift"; sourceTree = "<group>"; };
 		F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Comments.swift"; sourceTree = "<group>"; };
 		F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+NCText.swift"; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */,
 				F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */,
 				F754C06D24977C8C00051563 /* NCCommunication+Share.swift */,
+				F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */,
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */,
 				F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */,
@@ -271,6 +274,7 @@
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
 				F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */,
+				F70A5247256AF8D10017B506 /* NCCommunication+UserStatus.swift in Sources */,
 				F7D0A5382477C37C002F2164 /* NCCommunication+PushNotification.swift in Sources */,
 				F7FE196E23757BEB001465E3 /* NCCommunicationError.swift in Sources */,
 				F754C06E24977C8C00051563 /* NCCommunication+Share.swift in Sources */,
