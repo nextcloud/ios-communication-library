@@ -271,7 +271,7 @@ extension NCCommunication {
                     for (_, subJson):(String, JSON) in ocsdata {
                         let userStatus = NCCommunicationUserStatus()
                     
-                        if let value = subJson["clearAt"]["time"].double {
+                        if let value = subJson["clearAt"]["time"].int {
                             userStatus.clearAtTime = String(value)
                         } else if let value = subJson["clearAt"]["time"].string {
                             userStatus.clearAtTime = value
