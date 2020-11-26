@@ -272,9 +272,9 @@ extension NCCommunication {
                         let userStatus = NCCommunicationUserStatus()
                     
                         if let value = subJson["clearAt"]["time"].double {
-                            print(value)
+                            userStatus.clearAtTime = String(value)
                         } else if let value = subJson["clearAt"]["time"].string {
-                            print(value)
+                            userStatus.clearAtTime = value
                         }
                         userStatus.clearAtType = subJson["clearAt"]["type"].string
                         userStatus.icon = subJson["icon"].string
