@@ -265,6 +265,15 @@ import SwiftyJSON
     @objc public var webpage = ""
 }
 
+@objc public class NCCommunicationUserStatus: NSObject {
+    
+    @objc public var clearAtTime: String?
+    @objc public var clearAtType: String?
+    @objc public var icon: String?
+    @objc public var id: String?
+    @objc public var message: String?
+}
+
 //MARK: - Data File
 
 class NCDataFileXML: NSObject {

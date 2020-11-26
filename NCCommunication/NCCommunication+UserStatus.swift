@@ -240,9 +240,10 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getUserStatusPredefinedStatuses(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ status: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getUserStatusPredefinedStatuses(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
+        var userStatuses: [NCCommunicationUserStatus] = []
         let endpoint = "/ocs/v2.php/apps/user_status/api/v1/predefined_statuses?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
@@ -266,9 +267,22 @@ extension NCCommunication {
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     
-                    completionHandler(account, nil, 0, "")
+                    let ocsdata = json["ocs"]["data"]
+                    for (_, subJson):(String, JSON) in ocsdata {
+                        let userStatus = NCCommunicationUserStatus()
                     
-                } else {
+                        userStatus.clearAtTime = subJson["clearAt"]["time"].string
+                        userStatus.clearAtType = subJson["clearAt"]["type"].string
+                        userStatus.icon = subJson["icon"].string
+                        userStatus.id = subJson["id"].string
+                        userStatus.message = subJson["message"].string
+                        
+                        userStatuses.append(userStatus)
+                    }
+                
+                    completionHandler(account, userStatuses, 0, "")
+                    
+                }  else {
                     
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     completionHandler(account, nil, statusCode, errorDescription)
@@ -277,9 +291,10 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getUserStatusRetrieveStatuses(limit: Int, offset: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ status: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getUserStatusRetrieveStatuses(limit: Int, offset: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
+        var userStatuses: [NCCommunicationUserStatus] = []
         let endpoint = "/ocs/v2.php/apps/user_status/api/v1/predefined_statuses?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
@@ -308,7 +323,20 @@ extension NCCommunication {
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
                 if statusCode == 200 {
                     
-                    completionHandler(account, nil, 0, "")
+                    let ocsdata = json["ocs"]["data"]
+                    for (_, subJson):(String, JSON) in ocsdata {
+                        let userStatus = NCCommunicationUserStatus()
+                    
+                        userStatus.clearAtTime = subJson["clearAt"]["time"].string
+                        userStatus.clearAtType = subJson["clearAt"]["type"].string
+                        userStatus.icon = subJson["icon"].string
+                        userStatus.id = subJson["id"].string
+                        userStatus.message = subJson["message"].string
+                        
+                        userStatuses.append(userStatus)
+                    }
+                
+                    completionHandler(account, userStatuses, 0, "")
                     
                 } else {
                     
