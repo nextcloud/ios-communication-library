@@ -271,12 +271,15 @@ extension NCCommunication {
                     for (_, subJson):(String, JSON) in ocsdata {
                         let userStatus = NCCommunicationUserStatus()
                     
-                        userStatus.clearAtTime = subJson["clearAt"]["time"].string
+                        if let value = subJson["clearAt"]["time"].double {
+                            print(value)
+                        }
                         userStatus.clearAtType = subJson["clearAt"]["type"].string
                         userStatus.icon = subJson["icon"].string
                         userStatus.id = subJson["id"].string
                         userStatus.message = subJson["message"].string
-                        
+                        userStatus.predefined = true
+
                         userStatuses.append(userStatus)
                     }
                 
@@ -327,11 +330,15 @@ extension NCCommunication {
                     for (_, subJson):(String, JSON) in ocsdata {
                         let userStatus = NCCommunicationUserStatus()
                     
-                        userStatus.clearAtTime = subJson["clearAt"]["time"].string
-                        userStatus.clearAtType = subJson["clearAt"]["type"].string
+                        if let value = subJson["clearAt"].double {
+                            if value > 0 {
+                                userStatus.clearAt = NSDate(timeIntervalSince1970: value)
+                            }
+                        }
                         userStatus.icon = subJson["icon"].string
-                        userStatus.id = subJson["id"].string
                         userStatus.message = subJson["message"].string
+                        userStatus.predefined = false
+                        userStatus.userId = subJson["userId"].string
                         
                         userStatuses.append(userStatus)
                     }

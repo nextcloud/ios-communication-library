@@ -267,11 +267,15 @@ import SwiftyJSON
 
 @objc public class NCCommunicationUserStatus: NSObject {
     
+    @objc public var clearAt: NSDate?
     @objc public var clearAtTime: String?
     @objc public var clearAtType: String?
     @objc public var icon: String?
     @objc public var id: String?
     @objc public var message: String?
+    @objc public var predefined: Bool = false
+    @objc public var status: String?
+    @objc public var userId: String?
 }
 
 //MARK: - Data File
