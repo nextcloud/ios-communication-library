@@ -295,7 +295,7 @@ extension NCCommunication {
     
         let account = NCCommunicationCommon.shared.account
         var userStatuses: [NCCommunicationUserStatus] = []
-        let endpoint = "/ocs/v2.php/apps/user_status/api/v1/predefined_statuses?format=json"
+        let endpoint = "/ocs/v2.php/apps/user_status/api/v1/statuses?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
