@@ -151,6 +151,14 @@ extension NCCommunication {
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
                             
+                            if let clearAt = subJson["status"]["clearAt"].double {
+                                let date = Date(timeIntervalSince1970: clearAt) as NSDate
+                                sharee.userClearAt = date
+                            }
+                            sharee.userIcon = subJson["status"]["icon"].stringValue
+                            sharee.userMessage = subJson["status"]["message"].stringValue
+                            sharee.userStatus = subJson["status"]["status"].stringValue
+                            
                             sharees.append(sharee)
                         }
                         for (_, subJson):(String, JSON) in json["ocs"]["data"][shareType] {
@@ -165,6 +173,14 @@ extension NCCommunication {
                             
                             sharee.circleInfo = subJson["value"]["circleInfo"].stringValue
                             sharee.circleOwner = subJson["value"]["circleOwner"].stringValue
+                            
+                            if let clearAt = subJson["status"]["clearAt"].double {
+                                let date = Date(timeIntervalSince1970: clearAt) as NSDate
+                                sharee.userClearAt = date
+                            }
+                            sharee.userIcon = subJson["status"]["icon"].stringValue
+                            sharee.userMessage = subJson["status"]["message"].stringValue
+                            sharee.userStatus = subJson["status"]["status"].stringValue
                             
                             sharees.append(sharee)
                         }
@@ -367,8 +383,8 @@ extension NCCommunication {
         share.canEdit = json["ocs"]["data"]["can_edit"].boolValue
         share.displaynameFileOwner = json["ocs"]["data"]["displayname_file_owner"].stringValue
         share.displaynameOwner = json["ocs"]["data"]["displayname_owner"].stringValue
-        if let value = json["ocs"]["data"]["expiration"].string {
-            if let date = NCCommunicationCommon.shared.convertDate(value, format: "YYYY-MM-dd HH:mm:ss") {
+        if let expiration = json["ocs"]["data"]["expiration"].string {
+            if let date = NCCommunicationCommon.shared.convertDate(expiration, format: "YYYY-MM-dd HH:mm:ss") {
                  share.expirationDate = date
             }
         }
@@ -401,6 +417,13 @@ extension NCCommunication {
         share.uidFileOwner = json["ocs"]["data"]["uid_file_owner"].stringValue
         share.uidOwner = json["ocs"]["data"]["uid_owner"].stringValue
         share.url = json["ocs"]["data"]["url"].stringValue
+        if let clearAt = json["ocs"]["data"]["status"]["clearAt"].double {
+            let date = Date(timeIntervalSince1970: clearAt) as NSDate
+            share.userClearAt = date
+        }
+        share.userIcon = json["ocs"]["data"]["status"]["icon"].stringValue
+        share.userMessage = json["ocs"]["data"]["status"]["message"].stringValue
+        share.userStatus = json["ocs"]["data"]["status"]["status"].stringValue
 
         return share
     }

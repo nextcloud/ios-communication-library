@@ -201,7 +201,10 @@ import SwiftyJSON
     @objc public var uidFileOwner = ""
     @objc public var uidOwner = ""
     @objc public var url = ""
-
+    @objc public var userClearAt: NSDate?
+    @objc public var userIcon = ""
+    @objc public var userMessage = ""
+    @objc public var userStatus = ""
 }
 
 @objc public class NCCommunicationSharee: NSObject {
@@ -213,6 +216,10 @@ import SwiftyJSON
     @objc public var shareType: Int = 0
     @objc public var shareWith = ""
     @objc public var uuid = ""
+    @objc public var userClearAt: NSDate?
+    @objc public var userIcon = ""
+    @objc public var userMessage = ""
+    @objc public var userStatus = ""
 }
 
 @objc public class NCCommunicationTrash: NSObject {
@@ -256,6 +263,19 @@ import SwiftyJSON
     @objc public var twitter = ""
     @objc public var userId = ""
     @objc public var webpage = ""
+}
+
+@objc public class NCCommunicationUserStatus: NSObject {
+    
+    @objc public var clearAt: NSDate?
+    @objc public var clearAtTime: String?
+    @objc public var clearAtType: String?
+    @objc public var icon: String?
+    @objc public var id: String?
+    @objc public var message: String?
+    @objc public var predefined: Bool = false
+    @objc public var status: String?
+    @objc public var userId: String?
 }
 
 //MARK: - Data File
@@ -1112,9 +1132,9 @@ class NCDataFileXML: NSObject {
                 item.shareWithDisplayname = value
             }
             
-            if let date = element["stime"].double {
-                if date > 0 {
-                    item.date = NSDate(timeIntervalSince1970: date)
+            if let value = element["stime"].double {
+                if value > 0 {
+                    item.date = NSDate(timeIntervalSince1970: value)
                 }
             }
             
@@ -1140,6 +1160,24 @@ class NCDataFileXML: NSObject {
             
             if let value = element["url"].text {
                 item.url = value
+            }
+            
+            if let value = element["status","clearAt"].double {
+                if value > 0 {
+                     item.userClearAt = NSDate(timeIntervalSince1970: value)
+                }
+            }
+            
+            if let value = element["status","icon"].text {
+                item.userIcon = value
+            }
+            
+            if let value = element["status","message"].text {
+                item.userMessage = value
+            }
+            
+            if let value = element["status","status"].text {
+                item.userStatus = value
             }
             
             items.append(item)
