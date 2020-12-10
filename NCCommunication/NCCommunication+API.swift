@@ -401,7 +401,7 @@ extension NCCommunication {
                     userProfile.phone = data["phone"].stringValue
                     userProfile.quotaFree = data["quota"]["free"].int64Value
                     userProfile.quota = data["quota"]["quota"].int64Value
-                    userProfile.quotaRelative = data["quota"]["relative"].int64Value
+                    userProfile.quotaRelative = data["quota"]["relative"].doubleValue
                     userProfile.quotaTotal = data["quota"]["total"].int64Value
                     userProfile.quotaUsed = data["quota"]["used"].int64Value
                     userProfile.storageLocation = data["storageLocation"].stringValue

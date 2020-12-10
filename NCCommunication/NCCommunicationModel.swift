@@ -255,7 +255,7 @@ import SwiftyJSON
     @objc public var phone = ""
     @objc public var quota: Int64 = 0
     @objc public var quotaFree: Int64 = 0
-    @objc public var quotaRelative: Int64 = 0
+    @objc public var quotaRelative: Double = 0
     @objc public var quotaTotal: Int64 = 0
     @objc public var quotaUsed: Int64 = 0
     @objc public var storageLocation = ""
