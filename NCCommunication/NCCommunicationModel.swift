@@ -125,11 +125,11 @@ import SwiftyJSON
     @objc public var ownerDisplayName = ""
     @objc public var path = ""
     @objc public var permissions = ""
-    @objc public var quotaUsedBytes: Double = 0
-    @objc public var quotaAvailableBytes: Double = 0
+    @objc public var quotaUsedBytes: Int64 = 0
+    @objc public var quotaAvailableBytes: Int64 = 0
     @objc public var resourceType = ""
     @objc public var richWorkspace: String?
-    @objc public var size: Double = 0
+    @objc public var size: Int64 = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
@@ -232,7 +232,7 @@ import SwiftyJSON
     @objc public var filePath = ""
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
-    @objc public var size: Double = 0
+    @objc public var size: Int64 = 0
     @objc public var typeFile = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
@@ -250,14 +250,14 @@ import SwiftyJSON
     @objc public var enabled: Bool = false
     @objc public var groups: [String] = []
     @objc public var language = ""
-    @objc public var lastLogin: Double = 0
+    @objc public var lastLogin: Int64 = 0
     @objc public var locale = ""
     @objc public var phone = ""
-    @objc public var quota: Double = 0
-    @objc public var quotaFree: Double = 0
-    @objc public var quotaRelative: Double = 0
-    @objc public var quotaTotal: Double = 0
-    @objc public var quotaUsed: Double = 0
+    @objc public var quota: Int64 = 0
+    @objc public var quotaFree: Int64 = 0
+    @objc public var quotaRelative: Int64 = 0
+    @objc public var quotaTotal: Int64 = 0
+    @objc public var quotaUsed: Int64 = 0
     @objc public var storageLocation = ""
     @objc public var subadmin: [String] = []
     @objc public var twitter = ""
@@ -771,11 +771,11 @@ class NCDataFileXML: NSObject {
             }
             
             if let quotaavailablebytes = propstat["d:prop", "d:quota-available-bytes"].text {
-                file.quotaAvailableBytes = Double(quotaavailablebytes) ?? 0
+                file.quotaAvailableBytes = Int64(quotaavailablebytes) ?? 0
             }
             
             if let quotausedbytes = propstat["d:prop", "d:quota-used-bytes"].text {
-                file.quotaUsedBytes = Double(quotausedbytes) ?? 0
+                file.quotaUsedBytes = Int64(quotausedbytes) ?? 0
             }
                        
             if let permissions = propstat["d:prop", "oc:permissions"].text {
@@ -791,7 +791,7 @@ class NCDataFileXML: NSObject {
             }
             
             if let size = propstat["d:prop", "oc:size"].text {
-                file.size = Double(size) ?? 0
+                file.size = Int64(size) ?? 0
             }
             
             if let favorite = propstat["d:prop", "oc:favorite"].text {
@@ -923,7 +923,7 @@ class NCDataFileXML: NSObject {
             }
             
             if let size = propstat["d:prop", "oc:size"].text {
-                file.size = Double(size) ?? 0
+                file.size = Int64(size) ?? 0
             }
             
             if let trashbinFileName = propstat["d:prop", "nc:trashbin-filename"].text {

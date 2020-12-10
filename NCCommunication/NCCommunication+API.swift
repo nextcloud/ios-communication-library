@@ -396,14 +396,14 @@ extension NCCommunication {
                     }
                     userProfile.userId = data["id"].stringValue
                     userProfile.language = data["language"].stringValue
-                    userProfile.lastLogin = data["lastLogin"].doubleValue
+                    userProfile.lastLogin = data["lastLogin"].int64Value
                     userProfile.locale = data["locale"].stringValue
                     userProfile.phone = data["phone"].stringValue
-                    userProfile.quotaFree = data["quota"]["free"].doubleValue
-                    userProfile.quota = data["quota"]["quota"].doubleValue
-                    userProfile.quotaRelative = data["quota"]["relative"].doubleValue
-                    userProfile.quotaTotal = data["quota"]["total"].doubleValue
-                    userProfile.quotaUsed = data["quota"]["used"].doubleValue
+                    userProfile.quotaFree = data["quota"]["free"].int64Value
+                    userProfile.quota = data["quota"]["quota"].int64Value
+                    userProfile.quotaRelative = data["quota"]["relative"].int64Value
+                    userProfile.quotaTotal = data["quota"]["total"].int64Value
+                    userProfile.quotaUsed = data["quota"]["used"].int64Value
                     userProfile.storageLocation = data["storageLocation"].stringValue
                     if let subadmins = data["subadmin"].array {
                         for subadmin in subadmins {
@@ -564,7 +564,7 @@ extension NCCommunication {
                     file.ocId = subJson["ocId"].stringValue
                     file.permissions = subJson["permissions"].stringValue
                     file.serverUrl = serverUrl
-                    file.size = subJson["size"].doubleValue
+                    file.size = subJson["size"].int64Value
                     file.urlBase = NCCommunicationCommon.shared.urlBase
                     
                     let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)

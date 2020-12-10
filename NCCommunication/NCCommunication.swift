@@ -143,7 +143,7 @@ import SwiftyJSON
     @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
                                taskHandler: @escaping (_ task: URLSessionTask) -> Void,
                                progressHandler: @escaping (_ progress: Progress) -> Void,
-                               completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+                               completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
             // not available in objc
@@ -162,7 +162,7 @@ import SwiftyJSON
                          requestHandler: @escaping (_ request: DownloadRequest) -> Void,
                          taskHandler: @escaping (_ task: URLSessionTask) -> Void,
                          progressHandler: @escaping (_ progress: Progress) -> Void,
-                         completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Double, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+                         completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var convertible: URLConvertible?
@@ -205,11 +205,11 @@ import SwiftyJSON
 
                 var date: NSDate?
                 var etag: String?
-                var length: Double = 0
+                var length: Int64 = 0
                 let allHeaderFields = response.response?.allHeaderFields
                                 
                 if let result = response.response?.allHeaderFields["Content-Length"] as? String {
-                    length = Double(result) ?? 0
+                    length = Int64(result) ?? 0
                 }
                 
                 if NCCommunicationCommon.shared.findHeader("oc-etag", allHeaderFields: response.response?.allHeaderFields) != nil {
