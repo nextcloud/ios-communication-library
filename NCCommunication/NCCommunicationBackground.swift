@@ -123,7 +123,7 @@ import Foundation
         guard let url = downloadTask.currentRequest?.url?.absoluteString.removingPercentEncoding else { return }
         let fileName = (url as NSString).lastPathComponent
         let serverUrl = url.replacingOccurrences(of: "/"+fileName, with: "")
-        let progress = totalBytesWritten/totalBytesExpectedToWrite
+        let progress = Double(totalBytesWritten/totalBytesExpectedToWrite)
 
         DispatchQueue.main.async {
             NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
@@ -153,7 +153,7 @@ import Foundation
         guard let url = task.currentRequest?.url?.absoluteString.removingPercentEncoding else { return }
         let fileName = (url as NSString).lastPathComponent
         let serverUrl = url.replacingOccurrences(of: "/"+fileName, with: "")
-        let progress = totalBytesSent/totalBytesExpectedToSend
+        let progress = Double(totalBytesSent/totalBytesExpectedToSend)
 
         DispatchQueue.main.async {
             NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
