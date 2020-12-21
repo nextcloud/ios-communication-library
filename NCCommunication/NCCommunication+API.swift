@@ -258,9 +258,9 @@ extension NCCommunication {
                                 imagePreview = UIImage.init(data: data)!
                             }
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                let toWidth = imagePreview.size.width * (sizeIcon/imagePreview.size.height)
-                                let size = CGSize(width: toWidth, height: sizeIcon)
-                                var imageIcon = NCCommunicationCommon.shared.resizeImageUsingVImage(imagePreview, size: size)
+                                //let toWidth = imagePreview.size.width * (sizeIcon/imagePreview.size.height)
+                                //let size = CGSize(width: toWidth, height: sizeIcon)
+                                var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
                                 if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
@@ -282,7 +282,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: CGFloat, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + userID + "/\(size)"
