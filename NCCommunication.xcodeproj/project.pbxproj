@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F70A5247256AF8D10017B506 /* NCCommunication+UserStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */; };
+		F72A25D92590E3B0009740EC /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72A25D82590E3B0009740EC /* UIImage+Extensions.swift */; };
 		F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */; };
 		F73B422E24767E0B00A30FD3 /* NCCommunication+Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */; };
 		F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+UserStatus.swift"; sourceTree = "<group>"; };
+		F72A25D82590E3B0009740EC /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+E2EE.swift"; sourceTree = "<group>"; };
 		F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Comments.swift"; sourceTree = "<group>"; };
 		F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+NCText.swift"; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */,
 				F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */,
+				F72A25D82590E3B0009740EC /* UIImage+Extensions.swift */,
 			);
 			path = NCCommunication;
 			sourceTree = "<group>";
@@ -209,7 +212,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1110;
-				LastUpgradeCheck = 1210;
+				LastUpgradeCheck = 1220;
 				ORGANIZATIONNAME = "Marino Faggiana";
 				TargetAttributes = {
 					F74D5C29235DE83B0006DA38 = {
@@ -282,6 +285,7 @@
 				F76138EA246415BC002C8771 /* NCCommunication+WebDAV.swift in Sources */,
 				F74D5C4B235DE8F80006DA38 /* NCCommunicationCommon.swift in Sources */,
 				F74D5C49235DE8F80006DA38 /* NCCommunicationModel.swift in Sources */,
+				F72A25D92590E3B0009740EC /* UIImage+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,7 +451,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.87.0;
+				MARKETING_VERSION = 0.88.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -482,7 +486,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.87.0;
+				MARKETING_VERSION = 0.88.0;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
