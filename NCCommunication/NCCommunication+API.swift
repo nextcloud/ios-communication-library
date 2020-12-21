@@ -258,8 +258,6 @@ extension NCCommunication {
                                 imagePreview = UIImage.init(data: data)!
                             }
                             if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                //let toWidth = imagePreview.size.width * (sizeIcon/imagePreview.size.height)
-                                //let size = CGSize(width: toWidth, height: sizeIcon)
                                 var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
                                 if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
