@@ -253,39 +253,30 @@ import MobileCoreServices
             if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-                resultExtension = "docx"
             } else if fileUTI as String == "com.microsoft.word.doc" {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-                resultExtension = "doc"
             } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
                 resultIconName = iconName.xls.rawValue
                 resultFileName = "document"
-                resultExtension = "xlsx"
             } else if fileUTI as String == "com.microsoft.excel.xls" {
                 resultIconName = iconName.xls.rawValue
                 resultFileName = "document"
-                resultExtension = "xls"
             } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" {
                 resultIconName = iconName.ppt.rawValue
                 resultFileName = "document"
-                resultExtension = "pptx"
             } else if fileUTI as String == "com.microsoft.powerpoint.ppt" {
                 resultIconName = iconName.ppt.rawValue
                 resultFileName = "document"
-                resultExtension = "ppt"
             } else if fileUTI as String == "public.plain-text" {
                 resultIconName = iconName.txt.rawValue
                 resultFileName = "document"
-                resultExtension = "text"
             } else if fileUTI as String == "public.html" {
                 resultIconName = iconName.code.rawValue
                 resultFileName = "document"
-                resultExtension = "html"
             } else {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-                resultExtension = ""
             }
         } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
             resultTypeFile = typeFile.compress.rawValue
