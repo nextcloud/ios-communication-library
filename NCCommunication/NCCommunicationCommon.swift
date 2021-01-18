@@ -218,38 +218,36 @@ import MobileCoreServices
         var resultTypeFile: String
         var resultIconName: String
         var resultFileName: String
-        var resultExtension: String
+        var resultExtension: String = ""
+        
+        if let fileExtension = UTTypeCopyPreferredTagWithClass(fileUTI as CFString, kUTTagClassFilenameExtension) {
+            resultExtension = String(fileExtension.takeRetainedValue())
+        }
         
         if UTTypeConformsTo(fileUTI, kUTTypeImage) {
             resultTypeFile = typeFile.image.rawValue
             resultIconName = iconName.image.rawValue
             resultFileName = "image"
-            resultExtension = "jpg"
         } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
             resultTypeFile = typeFile.video.rawValue
             resultIconName = iconName.movie.rawValue
             resultFileName = "movie"
-            resultExtension = "mov"
         } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
             resultTypeFile = typeFile.audio.rawValue
             resultIconName = iconName.audio.rawValue
             resultFileName = "audio"
-            resultExtension = "mp3"
         } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.pdf.rawValue
             resultFileName = "document"
-            resultExtension = "pdf"
         } else if UTTypeConformsTo(fileUTI, kUTTypeRTF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
-            resultExtension = "rtf"
         } else if UTTypeConformsTo(fileUTI, kUTTypeText) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
-            resultExtension = "txt"
         } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
             resultTypeFile = typeFile.document.rawValue
             if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
@@ -293,12 +291,10 @@ import MobileCoreServices
             resultTypeFile = typeFile.compress.rawValue
             resultIconName = iconName.compress.rawValue
             resultFileName = "archive"
-            resultExtension = "zip"
         } else {
             resultTypeFile = typeFile.unknow.rawValue
             resultIconName = iconName.unknow.rawValue
             resultFileName = "file"
-            resultExtension = ""
         }
         
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
