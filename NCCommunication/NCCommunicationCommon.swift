@@ -167,16 +167,16 @@ import MobileCoreServices
         
     //MARK: -  Common public
     
-    @objc public func objcGetInternalContenType(fileName: String, contentType: String, directory: Bool) -> [String: String] {
+    @objc public func objcGetInternalType(fileName: String, mimeType: String, directory: Bool) -> [String: String] {
                 
-        let results = getInternalContenType(fileName: fileName , contentType: contentType, directory: directory)
+        let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["contentType":results.contentType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalContenType(fileName: String, contentType: String, directory: Bool) -> (contentType: String, typeFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, typeFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
-        var resultContentType = contentType
+        var resultMimeType = mimeType
         var resultTypeFile = "", resultIconName = "", resultTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
         
         // UTI
@@ -186,9 +186,9 @@ import MobileCoreServices
             fileNameWithoutExt = (fileName as NSString).deletingPathExtension
             
             // contentType detect
-            if contentType == "" {
+            if mimeType == "" {
                 if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
-                    resultContentType = mimeUTI.takeRetainedValue() as String
+                    resultMimeType = mimeUTI.takeRetainedValue() as String
                 }
             }
             
@@ -196,7 +196,7 @@ import MobileCoreServices
             resultTypeIdentifier = fileUTI as String
 
             if directory {
-                resultContentType = "httpd/unix-directory"
+                resultMimeType = "httpd/unix-directory"
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
                 resultTypeIdentifier = kUTTypeFolder as String
@@ -204,81 +204,81 @@ import MobileCoreServices
                 resultTypeFile = typeFile.imagemeter.rawValue
                 resultIconName = iconName.imagemeter.rawValue
             } else {
-                let type = convertUTItoResultType(fileUTI: fileUTI)
+                let type = getDescriptionFile(inUTI: fileUTI)
                 resultTypeFile = type.resultTypeFile
                 resultIconName = type.resultIconName
             }
         }
         
-        return(contentType: resultContentType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: resultMimeType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
-    public func convertUTItoResultType(fileUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
+    public func getDescriptionFile(inUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
     
         var resultTypeFile: String
         var resultIconName: String
         var resultFileName: String
         var resultExtension: String = ""
         
-        if let fileExtension = UTTypeCopyPreferredTagWithClass(fileUTI as CFString, kUTTagClassFilenameExtension) {
+        if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
             resultExtension = String(fileExtension.takeRetainedValue())
         }
         
-        if UTTypeConformsTo(fileUTI, kUTTypeImage) {
+        if UTTypeConformsTo(inUTI, kUTTypeImage) {
             resultTypeFile = typeFile.image.rawValue
             resultIconName = iconName.image.rawValue
             resultFileName = "image"
-        } else if UTTypeConformsTo(fileUTI, kUTTypeMovie) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeMovie) {
             resultTypeFile = typeFile.video.rawValue
             resultIconName = iconName.movie.rawValue
             resultFileName = "movie"
-        } else if UTTypeConformsTo(fileUTI, kUTTypeAudio) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeAudio) {
             resultTypeFile = typeFile.audio.rawValue
             resultIconName = iconName.audio.rawValue
             resultFileName = "audio"
-        } else if UTTypeConformsTo(fileUTI, kUTTypePDF) {
+        } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.pdf.rawValue
             resultFileName = "document"
-        } else if UTTypeConformsTo(fileUTI, kUTTypeRTF) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeRTF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
-        } else if UTTypeConformsTo(fileUTI, kUTTypeText) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeText) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
-        } else if UTTypeConformsTo(fileUTI, kUTTypeContent) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeContent) {
             resultTypeFile = typeFile.document.rawValue
-            if fileUTI as String == "org.openxmlformats.wordprocessingml.document" {
+            if inUTI as String == "org.openxmlformats.wordprocessingml.document" {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "com.microsoft.word.doc" {
+            } else if inUTI as String == "com.microsoft.word.doc" {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
+            } else if inUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
                 resultIconName = iconName.xls.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "com.microsoft.excel.xls" {
+            } else if inUTI as String == "com.microsoft.excel.xls" {
                 resultIconName = iconName.xls.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "org.openxmlformats.presentationml.presentation" {
+            } else if inUTI as String == "org.openxmlformats.presentationml.presentation" {
                 resultIconName = iconName.ppt.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "com.microsoft.powerpoint.ppt" {
+            } else if inUTI as String == "com.microsoft.powerpoint.ppt" {
                 resultIconName = iconName.ppt.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "public.plain-text" {
+            } else if inUTI as String == "public.plain-text" {
                 resultIconName = iconName.txt.rawValue
                 resultFileName = "document"
-            } else if fileUTI as String == "public.html" {
+            } else if inUTI as String == "public.html" {
                 resultIconName = iconName.code.rawValue
                 resultFileName = "document"
             } else {
                 resultIconName = iconName.document.rawValue
                 resultFileName = "document"
             }
-        } else if UTTypeConformsTo(fileUTI, kUTTypeZipArchive) {
+        } else if UTTypeConformsTo(inUTI, kUTTypeZipArchive) {
             resultTypeFile = typeFile.compress.rawValue
             resultIconName = iconName.compress.rawValue
             resultFileName = "archive"
