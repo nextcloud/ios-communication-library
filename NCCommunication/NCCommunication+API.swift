@@ -565,9 +565,9 @@ extension NCCommunication {
                     file.size = subJson["size"].int64Value
                     file.urlBase = NCCommunicationCommon.shared.urlBase
                     
-                    let results = NCCommunicationCommon.shared.getInternalContenType(fileName: file.fileName, contentType: file.contentType, directory: file.directory)
+                    let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
                     
-                    file.contentType = results.contentType
+                    file.contentType = results.mimeType
                     file.typeFile = results.typeFile
                     file.iconName = results.iconName
                     
