@@ -171,46 +171,46 @@ import MobileCoreServices
                 
         let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["mimeType":results.mimeType, "typeFile":results.typeFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "typeFile":results.typeFile, "iconName":results.iconName, "uniformTypeIdentifier":results.uniformTypeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, typeFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, typeFile: String, iconName: String, uniformTypeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
         var resultMimeType = mimeType
-        var resultTypeFile = "", resultIconName = "", resultTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
+        var resultTypeFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
-            let fileUTI = unmanagedFileUTI.takeRetainedValue()
+            let inUTI = unmanagedFileUTI.takeRetainedValue()
             ext = (fileName as NSString).pathExtension.lowercased()
             fileNameWithoutExt = (fileName as NSString).deletingPathExtension
             
             // contentType detect
             if mimeType == "" {
-                if let mimeUTI = UTTypeCopyPreferredTagWithClass(fileUTI, kUTTagClassMIMEType) {
+                if let mimeUTI = UTTypeCopyPreferredTagWithClass(inUTI, kUTTagClassMIMEType) {
                     resultMimeType = mimeUTI.takeRetainedValue() as String
                 }
             }
             
             // TypeIdentifier
-            resultTypeIdentifier = fileUTI as String
+            resultUniformTypeIdentifier = inUTI as String
 
             if directory {
                 resultMimeType = "httpd/unix-directory"
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
-                resultTypeIdentifier = kUTTypeFolder as String
+                resultUniformTypeIdentifier = kUTTypeFolder as String
             } else if ext == "imi" {
                 resultTypeFile = typeFile.imagemeter.rawValue
                 resultIconName = iconName.imagemeter.rawValue
             } else {
-                let type = getDescriptionFile(inUTI: fileUTI)
+                let type = getDescriptionFile(inUTI: inUTI)
                 resultTypeFile = type.resultTypeFile
                 resultIconName = type.resultIconName
             }
         }
         
-        return(mimeType: resultMimeType, typeFile: resultTypeFile, iconName: resultIconName, typeIdentifier: resultTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: resultMimeType, typeFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
     public func getDescriptionFile(inUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
