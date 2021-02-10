@@ -433,16 +433,19 @@ import MobileCoreServices
     }
     
     @objc public func writeLog(_ text: String?) {
-        guard let text = text else { return }
         
+        guard let text = text else { return }
+        guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+        
+        let textToWrite = "\(date) " + text + "\n"
+        debugPrint(textToWrite)
+
         if levelLog > 0 {
-            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            let textToWrite = "\(date) " + text + "\n"
             
             guard let data = textToWrite.data(using: .utf8) else { return }
             if !FileManager.default.fileExists(atPath: filenameLog) {
                 FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
-            }            
+            }
             if let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
                 fileHandle.seekToEndOfFile()
                 fileHandle.write(data)
