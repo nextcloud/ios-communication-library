@@ -97,7 +97,7 @@ import MobileCoreServices
     private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     var levelLog: Int = 0
     private var logPrint: Bool = true
-    var writeLogPrint: Bool {
+    @objc public var writeLogPrint: Bool {
         get {
             return logPrint
         }
