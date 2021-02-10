@@ -448,7 +448,7 @@ import MobileCoreServices
         let textToWrite = "\(date) " + text + "\n"
 
         if logPrint {
-            print("NCCommunication: " + textToWrite)
+            print(textToWrite)
         }
         
         if levelLog > 0 {
