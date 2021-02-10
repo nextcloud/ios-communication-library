@@ -96,7 +96,7 @@ import MobileCoreServices
     
     private var _filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
     private var _levelLog: Int = 0
-    private var _logPrint: Bool = true
+    private var _printLog: Bool = true
     
     @objc public var filenameLog: String {
         get {
@@ -116,12 +116,12 @@ import MobileCoreServices
         }
     }
     
-    @objc public var writeLogPrint: Bool {
+    @objc public var printLog: Bool {
         get {
-            return _logPrint
+            return _printLog
         }
         set(newVal) {
-            _logPrint = newVal
+            _printLog = newVal
         }
     }
 
@@ -451,7 +451,7 @@ import MobileCoreServices
         guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
         let textToWrite = "\(date) " + text + "\n"
 
-        if writeLogPrint {
+        if printLog {
             print(textToWrite)
         }
         
