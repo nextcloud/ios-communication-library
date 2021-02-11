@@ -94,8 +94,36 @@ import MobileCoreServices
         case xls = "file_xls"
     }
     
-    private var filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
-    var levelLog: Int = 0
+    private var _filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
+    private var _levelLog: Int = 0
+    private var _printLog: Bool = true
+    
+    @objc public var filenameLog: String {
+        get {
+            return _filenameLog
+        }
+        set(newVal) {
+            _filenameLog = newVal
+        }
+    }
+    
+    @objc public var levelLog: Int {
+        get {
+            return _levelLog
+        }
+        set(newVal) {
+            _levelLog = newVal
+        }
+    }
+    
+    @objc public var printLog: Bool {
+        get {
+            return _printLog
+        }
+        set(newVal) {
+            _printLog = newVal
+        }
+    }
 
     //MARK: - Init
     
@@ -412,37 +440,27 @@ import MobileCoreServices
     
     //MARK: - Log
 
-    @objc public func setFileLog(level: Int) {
-        
-        self.levelLog = level
-    }
-    
-    @objc public func getFileNameLog() -> String {
-        
-        return self.filenameLog
-    }
-    
-    @objc public func setFileNameLog(_ filenameLog: String) {
-        
-        self.filenameLog = filenameLog
-    }
-    
     @objc public func clearFileLog() {
 
         FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
     }
     
     @objc public func writeLog(_ text: String?) {
+        
         guard let text = text else { return }
+        guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
+        let textToWrite = "\(date) " + text + "\n"
+
+        if printLog {
+            print(textToWrite)
+        }
         
         if levelLog > 0 {
-            guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
-            let textToWrite = "\(date) " + text + "\n"
             
             guard let data = textToWrite.data(using: .utf8) else { return }
             if !FileManager.default.fileExists(atPath: filenameLog) {
                 FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
-            }            
+            }
             if let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
                 fileHandle.seekToEndOfFile()
                 fileHandle.write(data)
