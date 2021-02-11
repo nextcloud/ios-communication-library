@@ -41,6 +41,8 @@ extension NCCommunication {
         var headers: HTTPHeaders = [.authorization(username: username, password: password)]
         if customUserAgent != nil {
             headers.update(.userAgent(customUserAgent!))
+        } else if let userAgent = NCCommunicationCommon.shared.userAgent {
+            headers.update(.userAgent(userAgent))
         }
         headers.update(name: "OCS-APIRequest", value: "true")
                
