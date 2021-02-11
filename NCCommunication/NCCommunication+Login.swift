@@ -54,7 +54,7 @@ extension NCCommunication {
             return
         }
 
-        sessionLogin.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -85,7 +85,7 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionLogin.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -114,7 +114,7 @@ extension NCCommunication {
 
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionLogin.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
