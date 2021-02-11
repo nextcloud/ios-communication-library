@@ -36,6 +36,11 @@ import SwiftyJSON
         return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: [AlamofireLogger()])
     }()
     
+    internal lazy var sessionLogin: Alamofire.Session = {
+        let configuration = URLSessionConfiguration.af.default
+        return Alamofire.Session(configuration: configuration, delegate: self, rootQueue: DispatchQueue(label: "com.nextcloud.sessionManagerData.rootQueue"), startRequestsImmediately: true, requestQueue: nil, serializationQueue: nil, interceptor: nil, serverTrustManager: nil, redirectHandler: nil, cachedResponseHandler: nil, eventMonitors: [AlamofireLogger()])
+    }()
+    
     private let reachabilityManager = Alamofire.NetworkReachabilityManager()
     
     override public init(fileManager: FileManager = .default) {
