@@ -29,7 +29,7 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "ocs/v2.php/core/getapppassword"
         
@@ -39,6 +39,9 @@ extension NCCommunication {
         }
         
         var headers: HTTPHeaders = [.authorization(username: username, password: password)]
+        if customUserAgent != nil {
+            headers.update(.userAgent(customUserAgent!))
+        }
         headers.update(name: "OCS-APIRequest", value: "true")
                
         var urlRequest: URLRequest
