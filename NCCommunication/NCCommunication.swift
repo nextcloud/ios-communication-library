@@ -75,7 +75,7 @@ import SwiftyJSON
         }
     }
     
-    internal func sessionDeleteCookies() {
+    @objc public func sessionDeleteCookies() {
         if let cookieStore = sessionManager.session.configuration.httpCookieStorage {
             for cookie in cookieStore.cookies ?? [] {
                 cookieStore.deleteCookie(cookie)

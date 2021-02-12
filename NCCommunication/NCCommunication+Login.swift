@@ -29,9 +29,9 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, customUserAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, userAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
-        let endpoint = "/ocs/v2.php/core/getapppassword"
+        let endpoint = "ocs/v2.php/core/getapppassword"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
             completionHandler(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -39,10 +39,8 @@ extension NCCommunication {
         }
         
         var headers: HTTPHeaders = [.authorization(username: username, password: password)]
-        if customUserAgent != nil {
-            headers.update(.userAgent(customUserAgent!))
-        } else if let userAgent = NCCommunicationCommon.shared.userAgent {
-            headers.update(.userAgent(userAgent))
+        if userAgent != nil {
+            headers.update(.userAgent(userAgent!))
         }
         headers.update(name: "OCS-APIRequest", value: "true")
                
