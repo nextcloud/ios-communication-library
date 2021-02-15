@@ -242,4 +242,10 @@ import Foundation
             })
         }
     }
+    
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        DispatchQueue.main.async {
+            NCCommunicationCommon.shared.delegate?.urlSessionDidFinishEvents?(forBackgroundURLSession: session)
+        }
+    }
 }
