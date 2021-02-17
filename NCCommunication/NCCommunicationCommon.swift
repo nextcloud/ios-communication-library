@@ -97,7 +97,7 @@ import MobileCoreServices
     
     private var _filenameLog: String = "communication.log"
     private var _pathLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
-    private var filenamePathLog: String = ""
+    private var _filenamePathLog: String = ""
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
     
@@ -108,7 +108,7 @@ import MobileCoreServices
         set(newVal) {
             if newVal.count > 0 {
                 _filenameLog = newVal
-                filenamePathLog = _pathLog + "/" + _filenameLog
+                _filenamePathLog = _pathLog + "/" + _filenameLog
             }
         }
     }
@@ -124,8 +124,14 @@ import MobileCoreServices
             }
             if tempVal.count > 0 {
                 _pathLog = tempVal
-                filenamePathLog = _pathLog + "/" + _filenameLog
+                _filenamePathLog = _pathLog + "/" + _filenameLog
             }
+        }
+    }
+    
+    @objc public var filenamePathLog: String {
+        get {
+            return _filenamePathLog
         }
     }
     
@@ -150,7 +156,7 @@ import MobileCoreServices
     //MARK: - Init
     
     override init() {
-        filenamePathLog = _pathLog + "/" + _filenameLog
+        _filenamePathLog = _pathLog + "/" + _filenameLog
     }
     
     //MARK: - Setup
