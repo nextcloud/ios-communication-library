@@ -97,6 +97,7 @@ import MobileCoreServices
     
     private var _filenameLog: String = "communication.log"
     private var _pathLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+    private var filenamePathLog: String = ""
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
     
@@ -107,6 +108,7 @@ import MobileCoreServices
         set(newVal) {
             if newVal.count > 0 {
                 _filenameLog = newVal
+                filenamePathLog = _pathLog + "/" + _filenameLog
             }
         }
     }
@@ -122,6 +124,7 @@ import MobileCoreServices
             }
             if tempVal.count > 0 {
                 _pathLog = tempVal
+                filenamePathLog = _pathLog + "/" + _filenameLog
             }
         }
     }
@@ -147,6 +150,7 @@ import MobileCoreServices
     //MARK: - Init
     
     override init() {
+        filenamePathLog = _pathLog + "/" + _filenameLog
     }
     
     //MARK: - Setup
@@ -461,8 +465,7 @@ import MobileCoreServices
 
     @objc public func clearFileLog() {
 
-        let fileNamePathLog = pathLog + "/" + filenameLog
-        FileManager.default.createFile(atPath: fileNamePathLog, contents: nil, attributes: nil)
+        FileManager.default.createFile(atPath: filenamePathLog, contents: nil, attributes: nil)
     }
     
     @objc public func writeLog(_ text: String?) {
@@ -470,7 +473,6 @@ import MobileCoreServices
         guard let text = text else { return }
         guard let date = NCCommunicationCommon.shared.convertDate(Date(), format: "yyyy-MM-dd' 'HH:mm:ss") else { return }
         let textToWrite = "\(date) " + text + "\n"
-        let fileNamePathLog = pathLog + "/" + filenameLog
 
         if printLog {
             print(textToWrite)
@@ -479,10 +481,10 @@ import MobileCoreServices
         if levelLog > 0 {
             
             guard let data = textToWrite.data(using: .utf8) else { return }
-            if !FileManager.default.fileExists(atPath: fileNamePathLog) {
-                FileManager.default.createFile(atPath: fileNamePathLog, contents: nil, attributes: nil)
+            if !FileManager.default.fileExists(atPath: filenamePathLog) {
+                FileManager.default.createFile(atPath: filenamePathLog, contents: nil, attributes: nil)
             }
-            if let fileHandle = FileHandle(forWritingAtPath: fileNamePathLog) {
+            if let fileHandle = FileHandle(forWritingAtPath: filenamePathLog) {
                 fileHandle.seekToEndOfFile()
                 fileHandle.write(data)
                 fileHandle.closeFile()
