@@ -100,7 +100,7 @@ import MobileCoreServices
     private var _filenamePathLog: String = ""
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
-    private var _copyToDocumentDirectory: Bool = false
+    private var _copyLogToDocumentDirectory: Bool = false
     
     @objc public var filenameLog: String {
         get {
@@ -154,12 +154,12 @@ import MobileCoreServices
         }
     }
     
-    @objc public var copyToDocumentDirectory: Bool {
+    @objc public var copyLogToDocumentDirectory: Bool {
         get {
-            return _copyToDocumentDirectory
+            return _copyLogToDocumentDirectory
         }
         set(newVal) {
-            _copyToDocumentDirectory = newVal
+            _copyLogToDocumentDirectory = newVal
         }
     }
 
@@ -482,7 +482,7 @@ import MobileCoreServices
     @objc public func clearFileLog() {
 
         FileManager.default.createFile(atPath: filenamePathLog, contents: nil, attributes: nil)
-        if copyToDocumentDirectory {
+        if copyLogToDocumentDirectory {
             let filenameCopyToDocumentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/" + filenameLog
             FileManager.default.createFile(atPath: filenameCopyToDocumentDirectory, contents: nil, attributes: nil)
 
@@ -503,7 +503,7 @@ import MobileCoreServices
             
             writeLogToDisk(filename: filenamePathLog, text: textToWrite)
            
-            if copyToDocumentDirectory {
+            if copyLogToDocumentDirectory {
                 let filenameCopyToDocumentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/" + filenameLog
                 writeLogToDisk(filename: filenameCopyToDocumentDirectory, text: textToWrite)
             }
