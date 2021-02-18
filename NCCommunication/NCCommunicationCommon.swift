@@ -95,16 +95,44 @@ import MobileCoreServices
         case xls = "file_xls"
     }
     
-    private var _filenameLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/communication.log"
+    private var _filenameLog: String = "communication.log"
+    private var _pathLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+    private var _filenamePathLog: String = ""
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
+    private var _copyLogToDocumentDirectory: Bool = false
     
     @objc public var filenameLog: String {
         get {
             return _filenameLog
         }
         set(newVal) {
-            _filenameLog = newVal
+            if newVal.count > 0 {
+                _filenameLog = newVal
+                _filenamePathLog = _pathLog + "/" + _filenameLog
+            }
+        }
+    }
+    
+    @objc public var pathLog: String {
+        get {
+            return _pathLog
+        }
+        set(newVal) {
+            var tempVal = newVal
+            if tempVal.last == "/" {
+                tempVal = String(tempVal.dropLast())
+            }
+            if tempVal.count > 0 {
+                _pathLog = tempVal
+                _filenamePathLog = _pathLog + "/" + _filenameLog
+            }
+        }
+    }
+    
+    @objc public var filenamePathLog: String {
+        get {
+            return _filenamePathLog
         }
     }
     
@@ -125,10 +153,20 @@ import MobileCoreServices
             _printLog = newVal
         }
     }
+    
+    @objc public var copyLogToDocumentDirectory: Bool {
+        get {
+            return _copyLogToDocumentDirectory
+        }
+        set(newVal) {
+            _copyLogToDocumentDirectory = newVal
+        }
+    }
 
     //MARK: - Init
     
     override init() {
+        _filenamePathLog = _pathLog + "/" + _filenameLog
     }
     
     //MARK: - Setup
@@ -443,7 +481,12 @@ import MobileCoreServices
 
     @objc public func clearFileLog() {
 
-        FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+        FileManager.default.createFile(atPath: filenamePathLog, contents: nil, attributes: nil)
+        if copyLogToDocumentDirectory {
+            let filenameCopyToDocumentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/" + filenameLog
+            FileManager.default.createFile(atPath: filenameCopyToDocumentDirectory, contents: nil, attributes: nil)
+
+        }
     }
     
     @objc public func writeLog(_ text: String?) {
@@ -458,15 +501,26 @@ import MobileCoreServices
         
         if levelLog > 0 {
             
-            guard let data = textToWrite.data(using: .utf8) else { return }
-            if !FileManager.default.fileExists(atPath: filenameLog) {
-                FileManager.default.createFile(atPath: filenameLog, contents: nil, attributes: nil)
+            writeLogToDisk(filename: filenamePathLog, text: textToWrite)
+           
+            if copyLogToDocumentDirectory {
+                let filenameCopyToDocumentDirectory = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/" + filenameLog
+                writeLogToDisk(filename: filenameCopyToDocumentDirectory, text: textToWrite)
             }
-            if let fileHandle = FileHandle(forWritingAtPath: filenameLog) {
-                fileHandle.seekToEndOfFile()
-                fileHandle.write(data)
-                fileHandle.closeFile()
-            }
+        }
+    }
+    
+    private func writeLogToDisk(filename: String, text: String) {
+        
+        guard let data = text.data(using: .utf8) else { return }
+        
+        if !FileManager.default.fileExists(atPath: filename) {
+            FileManager.default.createFile(atPath: filename, contents: nil, attributes: nil)
+        }
+        if let fileHandle = FileHandle(forWritingAtPath: filename) {
+            fileHandle.seekToEndOfFile()
+            fileHandle.write(data)
+            fileHandle.closeFile()
         }
     }
  }
