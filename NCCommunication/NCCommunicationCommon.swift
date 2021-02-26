@@ -267,6 +267,8 @@ import MobileCoreServices
                 resultTypeFile = typeFile.directory.rawValue
                 resultIconName = iconName.directory.rawValue
                 resultUniformTypeIdentifier = kUTTypeFolder as String
+                fileNameWithoutExt = fileName
+                ext = ""
             } else if ext == "imi" {
                 resultTypeFile = typeFile.imagemeter.rawValue
                 resultIconName = iconName.imagemeter.rawValue
