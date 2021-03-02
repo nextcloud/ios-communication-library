@@ -280,10 +280,10 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(userID: String, fileNameLocalPath: String, size: CGFloat, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(userId: String, fileNameLocalPath: String, size: CGFloat, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let endpoint = "index.php/avatar/" + userID + "/\(size)"
+        let endpoint = "index.php/avatar/" + userId + "/\(size)"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
