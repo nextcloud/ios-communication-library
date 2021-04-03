@@ -360,6 +360,42 @@ import MobileCoreServices
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
+    @objc public func fileChunks(path: String, fileName: String, pathChunks: String, sizeInMB: Int) -> [String]? {
+           
+        var filesNameOut: [String] = []
+        
+        do {
+            
+            let data = try Data(contentsOf: URL(fileURLWithPath: path + "/" + fileName))
+            let dataLen = data.count
+            let chunkSize = ((1024 * 1000) * sizeInMB)
+            let fullChunks = Int(dataLen / chunkSize)
+            let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
+                
+            for chunkCounter in 0..<totalChunks {
+                
+                let chunkBase = chunkCounter * chunkSize
+                var diff = chunkSize
+                if chunkCounter == totalChunks - 1 {
+                    diff = dataLen - chunkBase
+                }
+                    
+                let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
+                let chunk = data.subdata(in: range)
+                                
+                let fileNameOut = fileName + "." + String(format: "%010d", chunkCounter)
+                try chunk.write(to: URL(fileURLWithPath: pathChunks + "/" + fileNameOut))
+                filesNameOut.append(fileNameOut)
+            }
+            
+        } catch {
+            
+            return nil
+        }
+        
+        return filesNameOut
+    }
+    
     //MARK: - Common
         
     func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
