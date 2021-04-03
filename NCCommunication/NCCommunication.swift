@@ -252,7 +252,7 @@ import SwiftyJSON
         }
     }
 
-    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date?, dateModificationFile: Date?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
                        requestHandler: @escaping (_ request: UploadRequest) -> Void,
                        taskHandler: @escaping (_ task: URLSessionTask) -> Void,
                        progressHandler: @escaping (_ progress: Progress) -> Void,
