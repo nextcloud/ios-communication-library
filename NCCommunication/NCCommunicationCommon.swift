@@ -360,7 +360,7 @@ import MobileCoreServices
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
-    @objc public func fileChunks(path: String, fileName: String, pathChunks: String, sizeInMB: Int) -> [String]? {
+    @objc public func ChunkedFile(path: String, fileName: String, pathChunks: String, sizeInMB: Int) -> [String]? {
            
         var filesNameOut: [String] = []
         
