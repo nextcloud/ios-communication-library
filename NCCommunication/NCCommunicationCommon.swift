@@ -452,7 +452,7 @@ import MobileCoreServices
         return nil
     }
     
-    func encodeString(_ string: String) -> String? {
+    @objc public func encodeString(_ string: String) -> String? {
         
         let encodeCharacterSet = " #;?@&=$+{}<>,!'*|%"
         let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
