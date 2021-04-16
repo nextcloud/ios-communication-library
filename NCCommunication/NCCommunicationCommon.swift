@@ -360,9 +360,9 @@ import MobileCoreServices
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
-    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String]? {
+    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String:Int]? {
            
-        var outFilesName: [String] = []
+        var out: [String:Int] = [:]
         
         do {
             
@@ -382,10 +382,12 @@ import MobileCoreServices
                     
                 let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
                 let chunk = data.subdata(in: range)
-                                
+                let size = chunk.count
+                
                 let outFileName = fileName + "." + String(format: "%010d", chunkCounter)
                 try chunk.write(to: URL(fileURLWithPath: outPath + "/" + outFileName))
-                outFilesName.append(outFileName)
+                
+                out[outFileName] = size
             }
             
         } catch {
@@ -393,7 +395,7 @@ import MobileCoreServices
             return nil
         }
         
-        return outFilesName
+        return out
     }
     
     //MARK: - Common
