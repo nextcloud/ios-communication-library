@@ -360,12 +360,10 @@ import MobileCoreServices
         return(resultTypeFile, resultIconName, resultFileName, resultExtension)
     }
     
-    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int, completionHandler: @escaping (_ fileNames: [String], _ sizes: [Int], _ error: Bool) -> Void) {
+    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String]? {
            
-        var fileNames: [String] = []
-        var sizes: [Int] = []
-        var chunkedError: Bool = false
-    
+        var outFilesName: [String] = []
+        
         do {
             
             let data = try Data(contentsOf: URL(fileURLWithPath: path + "/" + fileName))
@@ -384,20 +382,18 @@ import MobileCoreServices
                     
                 let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
                 let chunk = data.subdata(in: range)
-                let outSize = chunk.count
-                
+                                
                 let outFileName = fileName + "." + String(format: "%010d", chunkCounter)
                 try chunk.write(to: URL(fileURLWithPath: outPath + "/" + outFileName))
-                
-                fileNames.append(outFileName)
-                sizes.append(outSize)
+                outFilesName.append(outFileName)
             }
             
         } catch {
-            chunkedError = true
+            
+            return nil
         }
         
-        return completionHandler(fileNames, sizes, chunkedError)
+        return outFilesName
     }
     
     //MARK: - Common
