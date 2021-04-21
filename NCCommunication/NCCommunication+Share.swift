@@ -101,13 +101,18 @@ extension NCCommunication {
     * @param shareType      Any of the shareTypes (0 = user; 1 = group; 3 = public link; 6 = federated cloud share)
     * @param page           The page number to be returned (default 1)
     * @param perPage        The number of items per page (default 200)
+    * @param lookup         Default false, for global search use true
     */
     
-    @objc public func searchSharees(search: String = "", page: Int = 1, perPage: Int = 200, itemType: String = "file", customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func searchSharees(search: String = "", page: Int = 1, perPage: Int = 200, itemType: String = "file", lookup: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ sharees: [NCCommunicationSharee]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/sharees?format=json"
-                
+        var lookupString = "false"
+        if lookup {
+            lookupString = "true"
+        }
+        
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
@@ -121,7 +126,8 @@ extension NCCommunication {
             "search": search,
             "page": String(page),
             "perPage": String(perPage),
-            "itemType": itemType
+            "itemType": itemType,
+            "lookup": lookupString
         ]
     
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
