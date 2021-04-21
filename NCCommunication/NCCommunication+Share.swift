@@ -112,6 +112,7 @@ extension NCCommunication {
         if lookup {
             lookupString = "true"
         }
+        
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
