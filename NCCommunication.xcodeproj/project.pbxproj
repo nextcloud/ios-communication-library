@@ -575,7 +575,7 @@
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.4.2;
+				minimumVersion = 5.4.3;
 			};
 		};
 		F79F7E6A253305A60073ADD8 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
