@@ -32,6 +32,7 @@ import SwiftyJSON
     
     @objc public var app = ""
     @objc public var date = NSDate()
+    @objc public var filename = ""
     @objc public var idActivity: Int = 0
     @objc public var icon = ""
     @objc public var link = ""

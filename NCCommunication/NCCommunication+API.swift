@@ -621,6 +621,7 @@ extension NCCommunication {
                     let activity = NCCommunicationActivity()
                     
                     activity.app = subJson["app"].stringValue
+                    activity.filename = subJson["filename"].stringValue
                     activity.idActivity = subJson["activity_id"].intValue
                     if let datetime = subJson["datetime"].string {
                         if let date = NCCommunicationCommon.shared.convertDate(datetime, format: "yyyy-MM-dd'T'HH:mm:ssZZZZZ") {
