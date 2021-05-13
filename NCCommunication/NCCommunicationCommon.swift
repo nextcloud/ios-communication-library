@@ -27,7 +27,7 @@ import MobileCoreServices
 
 @objc public protocol NCCommunicationCommonDelegate {
     
-    @objc optional func authenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    @objc optional func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     @objc optional func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession)
     
     @objc optional func networkReachabilityObserver(_ typeReachability: NCCommunicationCommon.typeReachability)
