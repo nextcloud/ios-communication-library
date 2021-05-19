@@ -342,7 +342,7 @@ import SwiftyJSON
         if NCCommunicationCommon.shared.delegate == nil {
             completionHandler(URLSession.AuthChallengeDisposition.performDefaultHandling, nil)
         } else {
-            NCCommunicationCommon.shared.delegate?.authenticationChallenge?(challenge, completionHandler: { (authChallengeDisposition, credential) in
+            NCCommunicationCommon.shared.delegate?.authenticationChallenge?(session, didReceive: challenge, completionHandler: { authChallengeDisposition, credential in
                 completionHandler(authChallengeDisposition, credential)
             })
         }

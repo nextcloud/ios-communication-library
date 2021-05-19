@@ -27,7 +27,7 @@ import MobileCoreServices
 
 @objc public protocol NCCommunicationCommonDelegate {
     
-    @objc optional func authenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    @objc optional func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     @objc optional func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession)
     
     @objc optional func networkReachabilityObserver(_ typeReachability: NCCommunicationCommon.typeReachability)
@@ -368,7 +368,9 @@ import MobileCoreServices
             
             let data = try Data(contentsOf: URL(fileURLWithPath: path + "/" + fileName))
             let dataLen = data.count
+            if dataLen == 0 { return nil }
             let chunkSize = ((1024 * 1000) * sizeInMB)
+            if chunkSize == 0 { return nil }
             let fullChunks = Int(dataLen / chunkSize)
             let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
                 
