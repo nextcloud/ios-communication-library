@@ -210,7 +210,7 @@ extension NCCommunication {
     
     //MARK: -
 
-    @objc public func getE2EECertificatde(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ certificate: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EECertificate(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ certificate: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
