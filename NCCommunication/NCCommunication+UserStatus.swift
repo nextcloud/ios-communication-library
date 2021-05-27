@@ -132,12 +132,10 @@ extension NCCommunication {
              
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        var parameters = [
-            "messageId": String(messageId)
+        let parameters = [
+            "messageId": String(messageId),
+            "clearAt": String(clearAt)
         ]
-        if clearAt > 0 {
-            parameters["clearAt"] = String(clearAt)
-        }
                 
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -175,13 +173,11 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         var parameters = [
-            "message": String(message)
+            "message": String(message),
+            "clearAt": String(clearAt)
         ]
         if statusIcon != nil {
             parameters["statusIcon"] = statusIcon
-        }
-        if clearAt > 0 {
-            parameters["clearAt"] = String(clearAt)
         }
                 
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
