@@ -121,7 +121,7 @@ extension NCCommunication {
     @objc public func setCustomMessagePredefined(messageId: String, clearAt: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
-        let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status//message/predefined?format=json"
+        let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/message/predefined?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -163,7 +163,7 @@ extension NCCommunication {
     @objc public func setCustomMessageUserDefined(statusIcon: String?, message: String, clearAt: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
-        let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status//message/custom?format=json"
+        let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/message/custom?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
