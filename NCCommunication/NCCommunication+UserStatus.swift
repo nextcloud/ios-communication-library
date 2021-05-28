@@ -175,11 +175,13 @@ extension NCCommunication {
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
         var parameters = [
-            "message": String(message),
-            "clearAt": String(clearAt)
+            "message": String(message)
         ]
         if statusIcon != nil {
             parameters["statusIcon"] = statusIcon
+        }
+        if clearAt > 0 {
+            parameters["clearAt"] = String(clearAt)
         }
                 
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
