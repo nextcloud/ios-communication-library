@@ -132,10 +132,12 @@ extension NCCommunication {
              
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        let parameters = [
-            "messageId": String(messageId),
-            "clearAt": String(clearAt)
+        var parameters = [
+            "messageId": String(messageId)
         ]
+        if clearAt > 0 {
+            parameters["clearAt"] = String(clearAt)
+        }
                 
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
