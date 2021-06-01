@@ -210,7 +210,7 @@ extension NCCommunication {
     
     //MARK: -
 
-    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EECertificate(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ certificate: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -295,7 +295,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getE2EEServerPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ serverKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/server-key?format=json"
@@ -337,7 +337,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func signE2EEPublicKey(publicKey: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func signE2EECertificate(certificate: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ certificate: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
@@ -349,7 +349,7 @@ extension NCCommunication {
 
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         
-        let parameters = ["csr": publicKey]
+        let parameters = ["csr": certificate]
         
         sessionManager.request(url, method: .post, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
@@ -422,7 +422,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func deleteE2EEPublicKey(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func deleteE2EECertificate(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
                                
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/end_to_end_encryption/api/v1/public-key?format=json"
