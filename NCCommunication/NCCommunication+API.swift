@@ -770,4 +770,37 @@ extension NCCommunication {
             }
         }
     }
+    
+    //MARK: -
+    
+    @objc public func getDirectDownload(fileId: String,customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        
+        let account = NCCommunicationCommon.shared.account
+        let endpoint = "ocs/v2.php/apps/dav/api/v1/direct"
+        let parameters: [String: Any] = ["fileId": fileId]
+
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
+            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return
+        }
+        
+        let method = HTTPMethod(rawValue: "POST")
+        
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+            debugPrint(response)
+            
+            switch response.result {
+            case .failure(let error):
+                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                completionHandler(account, nil, error.errorCode, error.description ?? "")
+            case .success(let json):
+                let json = JSON(json)
+                let ocsdata = json["ocs"]["data"]
+                let url = ocsdata["url"].string
+                completionHandler(account, url, 0, "")
+            }
+        }
+    }
 }
