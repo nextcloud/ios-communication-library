@@ -773,11 +773,14 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getDirectDownload(fileId: String,customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getDirectDownload(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/dav/api/v1/direct"
-        let parameters: [String: Any] = ["fileId": fileId]
+        let parameters: [String: Any] = [
+            "fileId": fileId,
+            "format": "json"
+        ]
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
