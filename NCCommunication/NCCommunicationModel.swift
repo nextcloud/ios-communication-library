@@ -121,7 +121,6 @@ import SwiftyJSON
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
     @objc public var livePhoto: Bool = false
-    @objc public var metadataEtag = ""
     @objc public var mountType = ""
     @objc public var note = ""
     @objc public var ocId = ""
@@ -362,7 +361,6 @@ class NCDataFileXML: NSObject {
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
-            <metadata_etag xmlns=\"http://nextcloud.org/ns\"/>
             <note xmlns=\"http://nextcloud.org/ns\"/>
     
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
@@ -415,7 +413,6 @@ class NCDataFileXML: NSObject {
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
-            <metadata_etag xmlns=\"http://nextcloud.org/ns\"/>
             <note xmlns=\"http://nextcloud.org/ns\"/>
                 
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
@@ -790,10 +787,6 @@ class NCDataFileXML: NSObject {
             
             if let downloadURL = propstat["d:prop", "d:downloadURL"].text {
                 file.downloadURL = downloadURL
-            }
-            
-            if let metadataEtag = propstat["d:prop", "d:metadata_etag"].text {
-                file.metadataEtag = metadataEtag
             }
             
             if let note = propstat["d:prop", "d:note"].text {
