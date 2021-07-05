@@ -308,7 +308,7 @@ import MobileCoreServices
         } else if UTTypeConformsTo(inUTI, kUTTypeHTML) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.code.rawValue
-            resultFileName = "audio"
+            resultFileName = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.pdf.rawValue
