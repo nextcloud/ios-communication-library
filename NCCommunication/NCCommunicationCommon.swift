@@ -70,7 +70,6 @@ import MobileCoreServices
     
     public enum typeFile: String {
         case audio = "audio"
-        case code = "code"
         case compress = "compress"
         case directory = "directory"
         case document = "document"
@@ -307,13 +306,13 @@ import MobileCoreServices
             resultIconName = iconName.audio.rawValue
             resultFileName = "audio"
         } else if UTTypeConformsTo(inUTI, kUTTypeHTML) {
-            resultTypeFile = typeFile.audio.rawValue
-            resultIconName = iconName.audio.rawValue
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.code.rawValue
             resultFileName = "audio"
         } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
-            resultTypeFile = typeFile.code.rawValue
-            resultIconName = iconName.code.rawValue
-            resultFileName = "code"
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.pdf.rawValue
+            resultFileName = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeRTF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
