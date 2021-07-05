@@ -397,6 +397,7 @@ class NCDataFileXML: NSObject {
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
+            <checksums xmlns=\"http://nextcloud.org/ns\"/>
         </d:prop>
         <oc:filter-rules>
             <oc:favorite>1</oc:favorite>
