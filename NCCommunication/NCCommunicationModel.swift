@@ -106,6 +106,7 @@ import SwiftyJSON
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
     @objc public var date = NSDate()
+    @objc public var checksums = ""
     @objc public var creationDate: NSDate?
     @objc public var uploadDate: NSDate?
     @objc public var directory: Bool = false
@@ -391,6 +392,7 @@ class NCDataFileXML: NSObject {
             <owner-id xmlns=\"http://owncloud.org/ns\"/>
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <checksums xmlns=\"http://owncloud.org/ns\"/>
 
             <creation_time xmlns=\"http://nextcloud.org/ns\"/>
             <upload_time xmlns=\"http://nextcloud.org/ns\"/>
@@ -759,6 +761,10 @@ class NCDataFileXML: NSObject {
             
             if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
                 file.contentType = getcontenttype
+            }
+            
+            if let checksums = propstat["d:prop", "d:checksums"].text {
+                file.checksums = checksums
             }
             
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]
