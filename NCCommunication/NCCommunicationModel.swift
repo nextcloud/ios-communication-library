@@ -105,10 +105,12 @@ import SwiftyJSON
     
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
-    @objc public var date = NSDate()
+    @objc public var checksums = ""
     @objc public var creationDate: NSDate?
-    @objc public var uploadDate: NSDate?
+    @objc public var dataFingerprint = ""
+    @objc public var date = NSDate()
     @objc public var directory: Bool = false
+    @objc public var downloadURL = ""
     @objc public var e2eEncrypted: Bool = false
     @objc public var etag = ""
     @objc public var ext = ""
@@ -120,6 +122,7 @@ import SwiftyJSON
     @objc public var iconName = ""
     @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
+    @objc public var note = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
     @objc public var ownerDisplayName = ""
@@ -129,12 +132,14 @@ import SwiftyJSON
     @objc public var quotaAvailableBytes: Int64 = 0
     @objc public var resourceType = ""
     @objc public var richWorkspace: String?
+    @objc public var sharePermissions = ""
     @objc public var size: Int64 = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
     @objc public var typeFile = ""
+    @objc public var uploadDate: NSDate?
     @objc public var urlBase = ""
 }
 
@@ -346,6 +351,9 @@ class NCDataFileXML: NSObject {
             <owner-id xmlns=\"http://owncloud.org/ns\"/>
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <checksums xmlns=\"http://owncloud.org/ns\"/>
+            <downloadURL xmlns=\"http://owncloud.org/ns\"/>
+            <data-fingerprint xmlns=\"http://owncloud.org/ns\"/>
 
             <creation_time xmlns=\"http://nextcloud.org/ns\"/>
             <upload_time xmlns=\"http://nextcloud.org/ns\"/>
@@ -353,6 +361,11 @@ class NCDataFileXML: NSObject {
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
+            <note xmlns=\"http://nextcloud.org/ns\"/>
+    
+            <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
+            
+            <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
     </d:propfind>
     """
@@ -390,6 +403,9 @@ class NCDataFileXML: NSObject {
             <owner-id xmlns=\"http://owncloud.org/ns\"/>
             <owner-display-name xmlns=\"http://owncloud.org/ns\"/>
             <comments-unread xmlns=\"http://owncloud.org/ns\"/>
+            <checksums xmlns=\"http://owncloud.org/ns\"/>
+            <downloadURL xmlns=\"http://owncloud.org/ns\"/>
+            <data-fingerprint xmlns=\"http://owncloud.org/ns\"/>
 
             <creation_time xmlns=\"http://nextcloud.org/ns\"/>
             <upload_time xmlns=\"http://nextcloud.org/ns\"/>
@@ -397,6 +413,11 @@ class NCDataFileXML: NSObject {
             <has-preview xmlns=\"http://nextcloud.org/ns\"/>
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
+            <note xmlns=\"http://nextcloud.org/ns\"/>
+                
+            <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
+                        
+            <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
         <oc:filter-rules>
             <oc:favorite>1</oc:favorite>
@@ -758,6 +779,26 @@ class NCDataFileXML: NSObject {
             
             if let getcontenttype = propstat["d:prop", "d:getcontenttype"].text {
                 file.contentType = getcontenttype
+            }
+            
+            if let dataFingerprint = propstat["d:prop", "d:data-fingerprint"].text {
+                file.dataFingerprint = dataFingerprint
+            }
+            
+            if let downloadURL = propstat["d:prop", "d:downloadURL"].text {
+                file.downloadURL = downloadURL
+            }
+            
+            if let note = propstat["d:prop", "d:note"].text {
+                file.note = note
+            }
+            
+            if let sharePermissions = propstat["d:prop", "d:share-permissions"].text {
+                file.sharePermissions = sharePermissions
+            }
+            
+            if let checksums = propstat["d:prop", "d:checksums"].text {
+                file.checksums = checksums
             }
             
             let resourcetypeElement = propstat["d:prop", "d:resourcetype"]

@@ -296,10 +296,11 @@ extension NCCommunication {
     *                       For instance, for Re-Share, delete, read, update, add 16+8+2+1 = 27.
     * @param publicUpload   If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
     * @param note           Note
+    * @param label          Label
     * @param hideDownload   Permission if file can be downloaded via share link (only for single file)
     */
     
-    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: String? = nil, permissions: Int = 1, publicUpload: Bool = false, note: String? = nil, hideDownload: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func updateShare(idShare: Int, password: String? = nil, expireDate: String? = nil, permissions: Int = 1, publicUpload: Bool = false, note: String? = nil, label: String? = nil, hideDownload: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare) + "?format=json"
@@ -324,6 +325,9 @@ extension NCCommunication {
         }
         if note != nil {
             parameters["note"] = note
+        }
+        if label != nil {
+            parameters["label"] = label
         }
         parameters["publicUpload"] = publicUpload == true ? "true" : "false"
         parameters["hideDownload"] = hideDownload == true ? "true" : "false"

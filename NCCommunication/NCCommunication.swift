@@ -141,8 +141,8 @@ import SwiftyJSON
     //MARK: - download / upload
     
     @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
-                               taskHandler: @escaping (_ task: URLSessionTask) -> Void,
-                               progressHandler: @escaping (_ progress: Progress) -> Void,
+                               taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
+                               progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                                completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
@@ -157,11 +157,10 @@ import SwiftyJSON
         }
     }
     
-    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil,
-                         addCustomHeaders: [String: String]? = nil,
-                         requestHandler: @escaping (_ request: DownloadRequest) -> Void,
-                         taskHandler: @escaping (_ task: URLSessionTask) -> Void,
-                         progressHandler: @escaping (_ progress: Progress) -> Void,
+    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+                         requestHandler: @escaping (_ request: DownloadRequest) -> () = { _ in },
+                         taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
+                         progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                          completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
@@ -236,8 +235,8 @@ import SwiftyJSON
     }
     
     @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
-                             taskHandler: @escaping (_ task: URLSessionTask) -> Void,
-                             progressHandler: @escaping (_ progress: Progress) -> Void,
+                             taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
+                             progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                              completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
@@ -253,9 +252,9 @@ import SwiftyJSON
     }
 
     public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
-                       requestHandler: @escaping (_ request: UploadRequest) -> Void,
-                       taskHandler: @escaping (_ task: URLSessionTask) -> Void,
-                       progressHandler: @escaping (_ progress: Progress) -> Void,
+                       requestHandler: @escaping (_ request: UploadRequest) -> () = { _ in },
+                       taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
+                       progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                        completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ error: AFError?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
