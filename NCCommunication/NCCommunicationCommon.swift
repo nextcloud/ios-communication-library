@@ -318,6 +318,7 @@ import MobileCoreServices
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
+            if resultExtension == "" { resultExtension = "txt" }
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
