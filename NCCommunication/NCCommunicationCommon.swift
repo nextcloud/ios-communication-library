@@ -321,15 +321,15 @@ import MobileCoreServices
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
+        } else if inUTI as String == "net.daringfireball.markdown" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.document.rawValue
+            resultFileName = "markdown"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
             if resultExtension == "" { resultExtension = "txt" }
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "text"
-        } else if inUTI as String == "net.daringfireball.markdown" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "markdown"
         } else if inUTI as String == "org.openxmlformats.wordprocessingml.document" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.document.rawValue
