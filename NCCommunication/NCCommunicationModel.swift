@@ -704,7 +704,7 @@ class NCDataFileXML: NSObject {
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
         var dicImage: [String:Int] = [:]
-        let webDavRoot = "/" + NCCommunicationCommon.shared.webDav + "/"
+        let webDavRoot = "/" + NCCommunicationCommon.shared.dav + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.dav + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files

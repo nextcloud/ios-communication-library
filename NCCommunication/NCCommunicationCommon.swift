@@ -51,7 +51,7 @@ import MobileCoreServices
     var urlBase = ""
     var userAgent: String?
     var nextcloudVersion: Int = 0
-    var webDav: String = "remote.php/webdav"
+    //var webDav: String = "remote.php/webdav"
     var dav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
@@ -175,7 +175,7 @@ import MobileCoreServices
         
         self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
         self.setup(userAgent: userAgent)
-        if (webDav != nil) { self.setup(webDav: webDav!) }
+        //if (webDav != nil) { self.setup(webDav: webDav!) }
         if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
         self.setup(delegate: delegate)
@@ -204,6 +204,7 @@ import MobileCoreServices
         self.userAgent = userAgent
     }
     
+    /*
     @objc public func setup(webDav: String) {
         
         self.webDav = webDav
@@ -211,6 +212,7 @@ import MobileCoreServices
         if webDav.first == "/" { self.webDav = String(self.webDav.dropFirst()) }
         if webDav.last == "/" { self.webDav = String(self.webDav.dropLast()) }
     }
+    */
     
     @objc public func setup(dav: String) {
         
