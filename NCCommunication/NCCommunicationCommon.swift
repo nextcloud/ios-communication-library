@@ -284,9 +284,9 @@ import MobileCoreServices
     
     public func getDescriptionFile(inUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
     
-        var resultTypeFile: String
-        var resultIconName: String
-        var resultFileName: String
+        var resultTypeFile: String = ""
+        var resultIconName: String = ""
+        var resultFileName: String = ""
         var resultExtension: String = ""
         
         if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
@@ -305,10 +305,14 @@ import MobileCoreServices
             resultTypeFile = typeFile.audio.rawValue
             resultIconName = iconName.audio.rawValue
             resultFileName = "audio"
+        } else if UTTypeConformsTo(inUTI, kUTTypeZipArchive) {
+            resultTypeFile = typeFile.compress.rawValue
+            resultIconName = iconName.compress.rawValue
+            resultFileName = "archive"
         } else if UTTypeConformsTo(inUTI, kUTTypeHTML) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.code.rawValue
-            resultFileName = "document"
+            resultFileName = "code"
         } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.pdf.rawValue
@@ -317,44 +321,51 @@ import MobileCoreServices
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
+        } else if inUTI as String == "net.daringfireball.markdown" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.document.rawValue
+            resultFileName = "markdown"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
+            if resultExtension == "" { resultExtension = "txt" }
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
-            resultFileName = "document"
-        } else if UTTypeConformsTo(inUTI, kUTTypeContent) {
+            resultFileName = "text"
+        } else if inUTI as String == "org.openxmlformats.wordprocessingml.document" {
             resultTypeFile = typeFile.document.rawValue
-            if inUTI as String == "org.openxmlformats.wordprocessingml.document" {
-                resultIconName = iconName.document.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "com.microsoft.word.doc" {
-                resultIconName = iconName.document.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
-                resultIconName = iconName.xls.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "com.microsoft.excel.xls" {
-                resultIconName = iconName.xls.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "org.openxmlformats.presentationml.presentation" {
-                resultIconName = iconName.ppt.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "com.microsoft.powerpoint.ppt" {
-                resultIconName = iconName.ppt.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "public.plain-text" {
-                resultIconName = iconName.txt.rawValue
-                resultFileName = "document"
-            } else if inUTI as String == "public.html" {
-                resultIconName = iconName.code.rawValue
-                resultFileName = "document"
-            } else {
-                resultIconName = iconName.document.rawValue
-                resultFileName = "document"
-            }
-        } else if UTTypeConformsTo(inUTI, kUTTypeZipArchive) {
-            resultTypeFile = typeFile.compress.rawValue
-            resultIconName = iconName.compress.rawValue
-            resultFileName = "archive"
+            resultIconName = iconName.document.rawValue
+            resultFileName = "document"
+        } else if inUTI as String == "com.microsoft.word.doc" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.document.rawValue
+            resultFileName = "document"
+        } else if inUTI as String == "com.apple.iwork.pages.pages" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.document.rawValue
+            resultFileName = "pages"
+        } else if inUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.xls.rawValue
+            resultFileName = "sheet"
+        } else if inUTI as String == "com.microsoft.excel.xls" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.xls.rawValue
+            resultFileName = "sheet"
+        } else if inUTI as String == "com.apple.iwork.numbers.numbers" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.xls.rawValue
+            resultFileName = "numbers"
+        } else if inUTI as String == "org.openxmlformats.presentationml.presentation" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.ppt.rawValue
+            resultFileName = "presentation"
+        } else if inUTI as String == "com.microsoft.powerpoint.ppt" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.ppt.rawValue
+            resultFileName = "presentation"
+        } else if inUTI as String == "com.apple.iwork.keynote.key" {
+            resultTypeFile = typeFile.document.rawValue
+            resultIconName = iconName.ppt.rawValue
+            resultFileName = "keynote"
         } else {
             resultTypeFile = typeFile.unknow.rawValue
             resultIconName = iconName.unknow.rawValue
