@@ -288,6 +288,7 @@ import MobileCoreServices
         var resultIconName: String = ""
         var resultFileName: String = ""
         var resultExtension: String = ""
+        let inUTIString: String = inUTI as String
         
         if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
             resultExtension = String(fileExtension.takeRetainedValue())
@@ -321,7 +322,7 @@ import MobileCoreServices
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "document"
-        } else if inUTI as String == "net.daringfireball.markdown" {
+        } else if inUTIString == "net.daringfireball.markdown" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.document.rawValue
             resultFileName = "markdown"
@@ -330,39 +331,27 @@ import MobileCoreServices
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.txt.rawValue
             resultFileName = "text"
-        } else if inUTI as String == "org.openxmlformats.wordprocessingml.document" {
+        } else if inUTIString == "org.oasis-open.opendocument.text" || inUTIString == "org.openxmlformats.wordprocessingml.document" || inUTIString == "com.microsoft.word.doc" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.document.rawValue
             resultFileName = "document"
-        } else if inUTI as String == "com.microsoft.word.doc" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "document"
-        } else if inUTI as String == "com.apple.iwork.pages.pages" {
+        } else if inUTIString == "com.apple.iwork.pages.pages" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.document.rawValue
             resultFileName = "pages"
-        } else if inUTI as String == "org.openxmlformats.spreadsheetml.sheet" {
+        } else if inUTIString == "org.oasis-open.opendocument.spreadsheet" || inUTIString == "org.openxmlformats.spreadsheetml.sheet" || inUTIString == "com.microsoft.excel.xls" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.xls.rawValue
             resultFileName = "sheet"
-        } else if inUTI as String == "com.microsoft.excel.xls" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.xls.rawValue
-            resultFileName = "sheet"
-        } else if inUTI as String == "com.apple.iwork.numbers.numbers" {
+        } else if inUTIString == "com.apple.iwork.numbers.numbers" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.xls.rawValue
             resultFileName = "numbers"
-        } else if inUTI as String == "org.openxmlformats.presentationml.presentation" {
+        } else if inUTIString == "org.oasis-open.opendocument.presentation" || inUTIString == "org.openxmlformats.presentationml.presentation" || inUTIString == "com.microsoft.powerpoint.ppt" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.ppt.rawValue
             resultFileName = "presentation"
-        } else if inUTI as String == "com.microsoft.powerpoint.ppt" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.ppt.rawValue
-            resultFileName = "presentation"
-        } else if inUTI as String == "com.apple.iwork.keynote.key" {
+        } else if inUTIString == "com.apple.iwork.keynote.key" {
             resultTypeFile = typeFile.document.rawValue
             resultIconName = iconName.ppt.rawValue
             resultFileName = "keynote"
