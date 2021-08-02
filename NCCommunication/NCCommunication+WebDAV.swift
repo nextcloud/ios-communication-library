@@ -156,7 +156,7 @@ extension NCCommunication {
          
         let account = NCCommunicationCommon.shared.account
         var files: [NCCommunicationFile] = []
-        var serverUrlFileName = String(serverUrlFileName)
+        var serverUrlFileName = String(serverUrlFileName) + NCCommunicationCommon.shared.dav + "/files/" + NCCommunicationCommon.shared.userId
         
         if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
         if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
