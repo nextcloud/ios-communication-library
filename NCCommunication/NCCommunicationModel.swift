@@ -704,7 +704,7 @@ class NCDataFileXML: NSObject {
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
         var dicImage: [String:Int] = [:]
-        let webDavRoot = "/" + NCCommunicationCommon.shared.webDav + "/"
+        let davRoot = "/" + NCCommunicationCommon.shared.dav + "/"
         let davRootFiles = "/" + NCCommunicationCommon.shared.dav + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files
@@ -738,16 +738,16 @@ class NCDataFileXML: NSObject {
                 file.fileName = file.fileName.removingPercentEncoding ?? ""
               
                 // ServerUrl
-                if href.hasSuffix(webDavRoot) {
+                if href.hasSuffix(davRoot) {
                     file.fileName = "."
                     file.serverUrl = ".."
-                } else if file.path.contains(webDavRoot) {
+                } else if file.path.contains(davRoot) {
                     file.serverUrl = baseUrl + file.path.dropLast()
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.user) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: webDavRoot.dropLast())
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: davRoot.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.userId) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: webDavRoot.dropLast())
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: davRoot.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
