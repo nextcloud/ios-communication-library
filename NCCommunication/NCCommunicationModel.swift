@@ -741,8 +741,8 @@ class NCDataFileXML: NSObject {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else {
-                    let postUrl = file.path.replacingOccurrences(of: webDavRootFiles + NCCommunicationCommon.shared.userId, with: webDavRootFiles.dropLast())
-                    file.serverUrl = baseUrl + postUrl.dropLast()
+                    //let postUrl = file.path.replacingOccurrences(of: webDavRootFiles + NCCommunicationCommon.shared.userId, with: webDavRootFiles.dropLast())
+                    file.serverUrl = baseUrl + file.path.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
