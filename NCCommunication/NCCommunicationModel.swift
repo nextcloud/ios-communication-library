@@ -741,10 +741,10 @@ class NCDataFileXML: NSObject {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.user) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: davRootFiles.dropLast())
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: "")
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.userId) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: davRootFiles.dropLast())
+                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: "")
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
