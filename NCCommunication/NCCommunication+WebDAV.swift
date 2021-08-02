@@ -277,7 +277,7 @@ extension NCCommunication {
          
         var files: [NCCommunicationFile] = []
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.dav) else {
+        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.webDav) else {
             completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
@@ -318,7 +318,7 @@ extension NCCommunication {
     @objc public func setFavorite(fileName: String, favorite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
-        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
+        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -355,7 +355,7 @@ extension NCCommunication {
     @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
-        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/files/" + NCCommunicationCommon.shared.userId
+        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId
         var files: [NCCommunicationFile] = []
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
@@ -398,7 +398,7 @@ extension NCCommunication {
            
         let account = NCCommunicationCommon.shared.account
         var items: [NCCommunicationTrash] = []
-        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.dav + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
+        let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
             
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
             completionHandler(account, items, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))

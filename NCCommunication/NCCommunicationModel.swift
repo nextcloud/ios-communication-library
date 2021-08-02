@@ -704,7 +704,7 @@ class NCDataFileXML: NSObject {
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
         var dicImage: [String:Int] = [:]
-        let davRootFiles = "/" + NCCommunicationCommon.shared.dav + "/files/"
+        let webDavRootFiles = "/" + NCCommunicationCommon.shared.webDav + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files
         }
@@ -737,11 +737,11 @@ class NCDataFileXML: NSObject {
                 file.fileName = file.fileName.removingPercentEncoding ?? ""
               
                 // ServerUrl
-                if href == davRootFiles + NCCommunicationCommon.shared.user + "/" {
+                if href == webDavRootFiles + NCCommunicationCommon.shared.user + "/" {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: davRootFiles.dropLast())
+                    let postUrl = file.path.replacingOccurrences(of: webDavRootFiles + NCCommunicationCommon.shared.userId, with: webDavRootFiles.dropLast())
                     file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
