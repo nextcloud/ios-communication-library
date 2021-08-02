@@ -141,6 +141,7 @@ import SwiftyJSON
     @objc public var typeFile = ""
     @objc public var uploadDate: NSDate?
     @objc public var urlBase = ""
+    @objc public var userId = ""
 }
 
 @objc public class NCCommunicationNotifications: NSObject {
@@ -699,7 +700,7 @@ class NCDataFileXML: NSObject {
         return xml["ocs", "data", "apppassword"].text        
     }
     
-    func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
+    func convertDataFile(data: Data, userId: String, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
@@ -869,6 +870,7 @@ class NCDataFileXML: NSObject {
             file.iconName = results.iconName
             file.typeFile = results.typeFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
+            file.userId = userId
             
             files.append(file)
             
