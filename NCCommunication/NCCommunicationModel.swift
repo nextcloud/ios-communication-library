@@ -737,7 +737,7 @@ class NCDataFileXML: NSObject {
                 file.fileName = file.fileName.removingPercentEncoding ?? ""
               
                 // ServerUrl
-                if href == davRootFiles + NCCommunicationCommon.shared.user {
+                if href == davRootFiles + NCCommunicationCommon.shared.user + "/" {
                     file.fileName = "."
                     file.serverUrl = ".."
                 } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.user) {
