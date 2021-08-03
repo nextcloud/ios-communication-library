@@ -54,6 +54,7 @@ import MobileCoreServices
     var webDav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
+    var externalUTI: [UTTypeConformsToServer] = []
 
     var delegate: NCCommunicationCommonDelegate?
     
@@ -68,6 +69,24 @@ import MobileCoreServices
     }
     
     public enum typeFile: String {
+        case audio = "audio"
+        case compress = "compress"
+        case directory = "directory"
+        case document = "document"
+        case image = "image"
+        case imagemeter = "imagemeter"
+        case unknow = "unknow"
+        case video = "video"
+    }
+
+    public struct UTTypeConformsToServer {
+        var UTIString: String
+        var typeFile: String
+        var iconName: String
+        var fileName: String
+    }
+    
+    public enum internalUTI: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
@@ -215,6 +234,11 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
+    public func addInternalUTI(newUTI: UTTypeConformsToServer) {
+        
+        externalUTI.append(newUTI)
+    }
+    
     //MARK: -
     
     @objc public func remove(account: String) {
@@ -282,6 +306,16 @@ import MobileCoreServices
         
         if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
             resultExtension = String(fileExtension.takeRetainedValue())
+        }
+        
+        for uti in externalUTI {
+            if inUTIString == uti.UTIString {
+                resultTypeFile = uti.typeFile
+                resultIconName = uti.iconName
+                resultFileName = uti.fileName
+                
+                return(resultTypeFile, resultIconName, resultFileName, resultExtension)
+            }
         }
         
         if UTTypeConformsTo(inUTI, kUTTypeImage) {
