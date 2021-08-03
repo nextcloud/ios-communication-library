@@ -236,8 +236,10 @@ import MobileCoreServices
     
     @objc public func addInternalUTI(UTIString: String, typeFile: String, iconName: String, fileName: String) {
         
-        let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, typeFile: typeFile, iconName: iconName, fileName: fileName)
-        externalUTI.append(newUTI)
+        if !externalUTI.contains(where: { $0.UTIString == UTIString }) {
+            let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, typeFile: typeFile, iconName: iconName, fileName: fileName)
+            externalUTI.append(newUTI)
+        }
     }
     
     //MARK: -
