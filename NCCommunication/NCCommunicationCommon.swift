@@ -234,7 +234,7 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
-    public func addInternalUTI(UTIString: String, typeFile: String, iconName: String, fileName: String) {
+    @objc public func addInternalUTI(UTIString: String, typeFile: String, iconName: String, fileName: String) {
         
         let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, typeFile: typeFile, iconName: iconName, fileName: fileName)
         externalUTI.append(newUTI)
