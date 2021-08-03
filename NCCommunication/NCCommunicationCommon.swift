@@ -97,7 +97,7 @@ import MobileCoreServices
         case video = "video"
     }
 
-    private enum iconName: String {
+    public enum iconName: String {
         case audio = "file_audio"
         case code = "file_code"
         case compress = "file_compress"
@@ -309,16 +309,6 @@ import MobileCoreServices
             resultExtension = String(fileExtension.takeRetainedValue())
         }
         
-        for uti in externalUTI {
-            if inUTIString == uti.UTIString {
-                resultTypeFile = uti.typeFile
-                resultIconName = uti.iconName
-                resultFileName = uti.fileName
-                
-                return(resultTypeFile, resultIconName, resultFileName, resultExtension)
-            }
-        }
-        
         if UTTypeConformsTo(inUTI, kUTTypeImage) {
             resultTypeFile = typeFile.image.rawValue
             resultIconName = iconName.image.rawValue
@@ -381,6 +371,14 @@ import MobileCoreServices
             resultIconName = iconName.ppt.rawValue
             resultFileName = "keynote"
         } else {
+            for uti in externalUTI {
+                if inUTIString == uti.UTIString {
+                    resultTypeFile = uti.typeFile
+                    resultIconName = uti.iconName
+                    resultFileName = uti.fileName
+                    return(resultTypeFile, resultIconName, resultFileName, resultExtension)
+                }
+            }
             resultTypeFile = typeFile.unknow.rawValue
             resultIconName = iconName.unknow.rawValue
             resultFileName = "file"
