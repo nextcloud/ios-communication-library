@@ -239,7 +239,7 @@ import SwiftyJSON
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
     @objc public var size: Int64 = 0
-    @objc public var typeFile = ""
+    @objc public var classFile = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
@@ -980,7 +980,7 @@ class NCDataFileXML: NSObject {
             let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
             
             file.contentType = results.mimeType
-            file.typeFile = results.classFile
+            file.classFile = results.classFile
             file.iconName = results.iconName
             
             files.append(file)

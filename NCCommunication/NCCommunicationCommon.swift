@@ -273,7 +273,7 @@ import MobileCoreServices
         
         var ext = (fileName as NSString).pathExtension.lowercased()
         var resultMimeType = mimeType
-        var resultTypeFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = ""
+        var resultClassFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext as CFString, nil) {
@@ -292,19 +292,19 @@ import MobileCoreServices
 
             if directory {
                 resultMimeType = "httpd/unix-directory"
-                resultTypeFile = typeClassFile.directory.rawValue
+                resultClassFile = typeClassFile.directory.rawValue
                 resultIconName = typeIconFile.directory.rawValue
                 resultUniformTypeIdentifier = kUTTypeFolder as String
                 fileNameWithoutExt = fileName
                 ext = ""
             } else {
                 let result = getDescriptionFile(inUTI: inUTI)
-                resultTypeFile = result.classFile
+                resultClassFile = result.classFile
                 resultIconName = result.iconName
             }
         }
         
-        return(mimeType: resultMimeType, classFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: resultMimeType, classFile: resultClassFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
     public func getDescriptionFile(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
