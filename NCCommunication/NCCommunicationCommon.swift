@@ -54,7 +54,7 @@ import MobileCoreServices
     var webDav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
-    var internalUTI: [UTTypeConformsToServer] = []
+    var internalTypeIdentifier: [UTTypeConformsToServer] = []
 
     var delegate: NCCommunicationCommonDelegate?
     
@@ -95,7 +95,7 @@ import MobileCoreServices
     }
 
     public struct UTTypeConformsToServer {
-        var UTIString: String
+        var typeIdentifier: String
         var classFile: String
         var iconName: String
         var name: String
@@ -175,7 +175,7 @@ import MobileCoreServices
         super.init()
         
         _filenamePathLog = _pathLog + "/" + _filenameLog
-        loadingInternalUTI()
+        loadingInternalTypeIdentifier()
     }
     
     //MARK: - Setup
@@ -232,36 +232,36 @@ import MobileCoreServices
         cookies[account] = nil
     }
         
-    //MARK: -  UTI
+    //MARK: -  Type Identifier
     
-    internal func loadingInternalUTI() {
+    internal func loadingInternalTypeIdentifier() {
         
-        internalUTI = []
+        internalTypeIdentifier = []
 
         // markdown
-        addInternalUTI(UTIString: "net.daringfireball.markdown", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "markdown")
+        addInternalTypeIdentifier(typeIdentifier: "net.daringfireball.markdown", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "markdown")
         // text
-        addInternalUTI(UTIString: "org.oasis-open.opendocument.text", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
-        addInternalUTI(UTIString: "org.openxmlformats.wordprocessingml.document", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
-        addInternalUTI(UTIString: "com.microsoft.word.doc", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
-        addInternalUTI(UTIString: "com.apple.iwork.pages.pages", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "pages")
+        addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.text", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.wordprocessingml.document", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalTypeIdentifier(typeIdentifier: "com.microsoft.word.doc", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalTypeIdentifier(typeIdentifier: "com.apple.iwork.pages.pages", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "pages")
         // sheet
-        addInternalUTI(UTIString: "org.oasis-open.opendocument.spreadsheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
-        addInternalUTI(UTIString: "org.openxmlformats.spreadsheetml.sheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
-        addInternalUTI(UTIString: "com.microsoft.excel.xls", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
-        addInternalUTI(UTIString: "com.apple.iwork.numbers.numbers", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "numbers")
+        addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.spreadsheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.spreadsheetml.sheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalTypeIdentifier(typeIdentifier: "com.microsoft.excel.xls", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalTypeIdentifier(typeIdentifier: "com.apple.iwork.numbers.numbers", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "numbers")
         // presentation
-        addInternalUTI(UTIString: "org.oasis-open.opendocument.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
-        addInternalUTI(UTIString: "org.openxmlformats.presentationml.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
-        addInternalUTI(UTIString: "com.microsoft.powerpoint.ppt", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
-        addInternalUTI(UTIString: "com.apple.iwork.keynote.key", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "keynote")
+        addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.presentationml.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalTypeIdentifier(typeIdentifier: "com.microsoft.powerpoint.ppt", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalTypeIdentifier(typeIdentifier: "com.apple.iwork.keynote.key", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "keynote")
     }
     
-    @objc public func addInternalUTI(UTIString: String, classFile: String, iconName: String, name: String) {
+    @objc public func addInternalTypeIdentifier(typeIdentifier: String, classFile: String, iconName: String, name: String) {
         
-        if !internalUTI.contains(where: { $0.UTIString == UTIString }) {
-            let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, classFile: classFile, iconName: iconName, name: name)
-            internalUTI.append(newUTI)
+        if !internalTypeIdentifier.contains(where: { $0.typeIdentifier == typeIdentifier }) {
+            let newUTI = UTTypeConformsToServer.init(typeIdentifier: typeIdentifier, classFile: classFile, iconName: iconName, name: name)
+            internalTypeIdentifier.append(newUTI)
         }
     }
     
@@ -269,14 +269,14 @@ import MobileCoreServices
                 
         let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "UTI":results.UTI, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, UTI: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
         var ext = (fileName as NSString).pathExtension.lowercased()
         var mimeType = mimeType
-        var classFile = "", iconName = "", UTIString = "", fileNameWithoutExt = ""
+        var classFile = "", iconName = "", typeIdentifier = "", fileNameWithoutExt = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext as CFString, nil) {
@@ -291,13 +291,13 @@ import MobileCoreServices
             }
             
             // TypeIdentifier
-            UTIString = inUTI as String
+            typeIdentifier = inUTI as String
 
             if directory {
                 mimeType = "httpd/unix-directory"
                 classFile = typeClassFile.directory.rawValue
                 iconName = typeIconFile.directory.rawValue
-                UTIString = kUTTypeFolder as String
+                typeIdentifier = kUTTypeFolder as String
                 fileNameWithoutExt = fileName
                 ext = ""
             } else {
@@ -307,7 +307,7 @@ import MobileCoreServices
             }
         }
         
-        return(mimeType: mimeType, classFile: classFile, iconName: iconName, UTI: UTIString, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: mimeType, classFile: classFile, iconName: iconName, typeIdentifier: typeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
     public func getFileProperties(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
@@ -316,7 +316,7 @@ import MobileCoreServices
         var iconName: String = ""
         var name: String = ""
         var ext: String = ""
-        let inUTIString: String = inUTI as String
+        let typeIdentifier: String = inUTI as String
         
         if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
             ext = String(fileExtension.takeRetainedValue())
@@ -356,7 +356,7 @@ import MobileCoreServices
             iconName = typeIconFile.txt.rawValue
             name = "text"
         } else {
-            if let result = internalUTI.first(where: {$0.UTIString == inUTIString}) {
+            if let result = internalTypeIdentifier.first(where: {$0.typeIdentifier == typeIdentifier}) {
                 return(result.classFile, result.iconName, result.name, ext)
             } else {
                 if UTTypeConformsTo(inUTI, kUTTypeContent) {
