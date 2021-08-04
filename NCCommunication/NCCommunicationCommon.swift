@@ -307,12 +307,17 @@ import MobileCoreServices
         return(mimeType: resultMimeType, classFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
-    public func getDescriptionFile(inUTI: CFString) -> (classFile: String, iconName: String, name: String) {
+    public func getDescriptionFile(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
     
         var classFile: String = ""
         var iconName: String = ""
         var name: String = ""
+        var ext: String = ""
         let inUTIString: String = inUTI as String
+        
+        if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
+            ext = String(fileExtension.takeRetainedValue())
+        }
         
         if UTTypeConformsTo(inUTI, kUTTypeImage) {
             classFile = typeClassFile.image.rawValue
@@ -343,12 +348,13 @@ import MobileCoreServices
             iconName = typeIconFile.txt.rawValue
             name = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
+            if ext == "" { ext = "txt" }
             classFile = typeClassFile.document.rawValue
             iconName = typeIconFile.txt.rawValue
             name = "text"
         } else {
             if let result = internalUTI.first(where: {$0.UTIString == inUTIString}) {
-                return(result.classFile, result.iconName, result.name)
+                return(result.classFile, result.iconName, result.name, ext)
             } else {
                 classFile = typeClassFile.unknow.rawValue
                 iconName = typeIconFile.unknow.rawValue
@@ -356,7 +362,7 @@ import MobileCoreServices
             }
         }
         
-        return(classFile, iconName, name)
+        return(classFile, iconName, name, ext)
     }
     
     //MARK: -  Common public
