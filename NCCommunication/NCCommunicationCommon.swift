@@ -172,7 +172,10 @@ import MobileCoreServices
     //MARK: - Init
     
     override init() {
+        super.init()
+        
         _filenamePathLog = _pathLog + "/" + _filenameLog
+        loadingInternalUTI()
     }
     
     //MARK: - Setup
