@@ -269,14 +269,14 @@ import MobileCoreServices
                 
         let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "uniformTypeIdentifier":results.uniformTypeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "UTI":results.UTI, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, uniformTypeIdentifier: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, UTI: String, fileNameWithoutExt: String, ext: String) {
         
         var ext = (fileName as NSString).pathExtension.lowercased()
-        var resultMimeType = mimeType
-        var resultClassFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = ""
+        var mimeType = mimeType
+        var classFile = "", iconName = "", UTIString = "", fileNameWithoutExt = ""
         
         // UTI
         if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext as CFString, nil) {
@@ -286,31 +286,31 @@ import MobileCoreServices
             // contentType detect
             if mimeType == "" {
                 if let mimeUTI = UTTypeCopyPreferredTagWithClass(inUTI, kUTTagClassMIMEType) {
-                    resultMimeType = mimeUTI.takeRetainedValue() as String
+                    mimeType = mimeUTI.takeRetainedValue() as String
                 }
             }
             
             // TypeIdentifier
-            resultUniformTypeIdentifier = inUTI as String
+            UTIString = inUTI as String
 
             if directory {
-                resultMimeType = "httpd/unix-directory"
-                resultClassFile = typeClassFile.directory.rawValue
-                resultIconName = typeIconFile.directory.rawValue
-                resultUniformTypeIdentifier = kUTTypeFolder as String
+                mimeType = "httpd/unix-directory"
+                classFile = typeClassFile.directory.rawValue
+                iconName = typeIconFile.directory.rawValue
+                UTIString = kUTTypeFolder as String
                 fileNameWithoutExt = fileName
                 ext = ""
             } else {
-                let result = getDescriptionFile(inUTI: inUTI)
-                resultClassFile = result.classFile
-                resultIconName = result.iconName
+                let result = getFileProperties(inUTI: inUTI)
+                classFile = result.classFile
+                iconName = result.iconName
             }
         }
         
-        return(mimeType: resultMimeType, classFile: resultClassFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: mimeType, classFile: classFile, iconName: iconName, UTI: UTIString, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
-    public func getDescriptionFile(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
+    public func getFileProperties(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
     
         var classFile: String = ""
         var iconName: String = ""
@@ -359,9 +359,15 @@ import MobileCoreServices
             if let result = internalUTI.first(where: {$0.UTIString == inUTIString}) {
                 return(result.classFile, result.iconName, result.name, ext)
             } else {
-                classFile = typeClassFile.unknow.rawValue
-                iconName = typeIconFile.unknow.rawValue
-                name = "file"
+                if UTTypeConformsTo(inUTI, kUTTypeContent) {
+                    classFile = typeClassFile.document.rawValue
+                    iconName = typeIconFile.document.rawValue
+                    name = "document"
+                } else {
+                    classFile = typeClassFile.unknow.rawValue
+                    iconName = typeIconFile.unknow.rawValue
+                    name = "file"
+                }
             }
         }
         
