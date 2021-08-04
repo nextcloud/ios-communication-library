@@ -254,7 +254,7 @@ import MobileCoreServices
         addInternalUTI(UTIString: "org.oasis-open.opendocument.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
         addInternalUTI(UTIString: "org.openxmlformats.presentationml.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
         addInternalUTI(UTIString: "com.microsoft.powerpoint.ppt", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
-        addInternalUTI(UTIString: "om.apple.iwork.keynote.key", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "keynote")
+        addInternalUTI(UTIString: "com.apple.iwork.keynote.key", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "keynote")
     }
     
     @objc public func addInternalUTI(UTIString: String, classFile: String, iconName: String, name: String) {
