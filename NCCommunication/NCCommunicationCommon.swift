@@ -85,7 +85,6 @@ import MobileCoreServices
         case directory = "directory"
         case document = "document"
         case image = "file_photo"
-        case imagemeter = "imagemeter"
         case movie = "file_movie"
         case pdf = "file_pdf"
         case ppt = "file_ppt"
