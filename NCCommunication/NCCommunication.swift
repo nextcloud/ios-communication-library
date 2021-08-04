@@ -50,7 +50,7 @@ import SwiftyJSON
     
     @objc func changeUser(_ notification: NSNotification) {
         sessionDeleteCookies()
-        NCCommunicationCommon.shared.externalUTI = []
+        NCCommunicationCommon.shared.loadingInternalUTI()
     }
     
     //MARK: -  Cookies

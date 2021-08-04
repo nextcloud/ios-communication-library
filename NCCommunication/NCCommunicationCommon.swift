@@ -54,7 +54,7 @@ import MobileCoreServices
     var webDav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
-    var externalUTI: [UTTypeConformsToServer] = []
+    var internalUTI: [UTTypeConformsToServer] = []
 
     var delegate: NCCommunicationCommonDelegate?
     
@@ -68,36 +68,17 @@ import MobileCoreServices
         case reachableCellular = 3
     }
     
-    public enum typeFile: String {
+    public enum typeClassFile: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
         case document = "document"
         case image = "image"
-        case imagemeter = "imagemeter"
         case unknow = "unknow"
         case video = "video"
-    }
-
-    public struct UTTypeConformsToServer {
-        var UTIString: String
-        var typeFile: String
-        var iconName: String
-        var fileName: String
     }
     
-    public enum internalUTI: String {
-        case audio = "audio"
-        case compress = "compress"
-        case directory = "directory"
-        case document = "document"
-        case image = "image"
-        case imagemeter = "imagemeter"
-        case unknow = "unknow"
-        case video = "video"
-    }
-
-    public enum iconName: String {
+    public enum typeIconFile: String {
         case audio = "file_audio"
         case code = "file_code"
         case compress = "file_compress"
@@ -111,6 +92,13 @@ import MobileCoreServices
         case txt = "file_txt"
         case unknow = "file"
         case xls = "file_xls"
+    }
+
+    public struct UTTypeConformsToServer {
+        var UTIString: String
+        var classFile: String
+        var iconName: String
+        var name: String
     }
     
     private var _filenameLog: String = "communication.log"
@@ -234,14 +222,6 @@ import MobileCoreServices
         self.nextcloudVersion = nextcloudVersion
     }
     
-    @objc public func addInternalUTI(UTIString: String, typeFile: String, iconName: String, fileName: String) {
-        
-        if !externalUTI.contains(where: { $0.UTIString == UTIString }) {
-            let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, typeFile: typeFile, iconName: iconName, fileName: fileName)
-            externalUTI.append(newUTI)
-        }
-    }
-    
     //MARK: -
     
     @objc public func remove(account: String) {
@@ -249,24 +229,55 @@ import MobileCoreServices
         cookies[account] = nil
     }
         
-    //MARK: -  Common public
+    //MARK: -  UTI
+    
+    internal func loadingInternalUTI() {
+        
+        internalUTI = []
+
+        // markdown
+        addInternalUTI(UTIString: "net.daringfireball.markdown", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "markdown")
+        // text
+        addInternalUTI(UTIString: "org.oasis-open.opendocument.text", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalUTI(UTIString: "org.openxmlformats.wordprocessingml.document", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalUTI(UTIString: "com.microsoft.word.doc", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
+        addInternalUTI(UTIString: "com.apple.iwork.pages.pages", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "pages")
+        // sheet
+        addInternalUTI(UTIString: "org.oasis-open.opendocument.spreadsheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalUTI(UTIString: "org.openxmlformats.spreadsheetml.sheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalUTI(UTIString: "com.microsoft.excel.xls", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
+        addInternalUTI(UTIString: "com.apple.iwork.numbers.numbers", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "numbers")
+        // presentation
+        addInternalUTI(UTIString: "org.oasis-open.opendocument.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalUTI(UTIString: "org.openxmlformats.presentationml.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalUTI(UTIString: "com.microsoft.powerpoint.ppt", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
+        addInternalUTI(UTIString: "om.apple.iwork.keynote.key", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "keynote")
+    }
+    
+    @objc public func addInternalUTI(UTIString: String, classFile: String, iconName: String, name: String) {
+        
+        if !internalUTI.contains(where: { $0.UTIString == UTIString }) {
+            let newUTI = UTTypeConformsToServer.init(UTIString: UTIString, classFile: classFile, iconName: iconName, name: name)
+            internalUTI.append(newUTI)
+        }
+    }
     
     @objc public func objcGetInternalType(fileName: String, mimeType: String, directory: Bool) -> [String: String] {
                 
         let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["mimeType":results.mimeType, "typeFile":results.typeFile, "iconName":results.iconName, "uniformTypeIdentifier":results.uniformTypeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "uniformTypeIdentifier":results.uniformTypeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, typeFile: String, iconName: String, uniformTypeIdentifier: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, uniformTypeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
+        var ext = (fileName as NSString).pathExtension.lowercased()
         var resultMimeType = mimeType
-        var resultTypeFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
+        var resultTypeFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = ""
         
         // UTI
-        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
+        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext as CFString, nil) {
             let inUTI = unmanagedFileUTI.takeRetainedValue()
-            ext = (fileName as NSString).pathExtension.lowercased()
             fileNameWithoutExt = (fileName as NSString).deletingPathExtension
             
             // contentType detect
@@ -281,113 +292,74 @@ import MobileCoreServices
 
             if directory {
                 resultMimeType = "httpd/unix-directory"
-                resultTypeFile = typeFile.directory.rawValue
-                resultIconName = iconName.directory.rawValue
+                resultTypeFile = typeClassFile.directory.rawValue
+                resultIconName = typeIconFile.directory.rawValue
                 resultUniformTypeIdentifier = kUTTypeFolder as String
                 fileNameWithoutExt = fileName
                 ext = ""
-            } else if ext == "imi" {
-                resultTypeFile = typeFile.imagemeter.rawValue
-                resultIconName = iconName.imagemeter.rawValue
             } else {
-                let type = getDescriptionFile(inUTI: inUTI)
-                resultTypeFile = type.resultTypeFile
-                resultIconName = type.resultIconName
+                let result = getDescriptionFile(inUTI: inUTI)
+                resultTypeFile = result.classFile
+                resultIconName = result.iconName
             }
         }
         
-        return(mimeType: resultMimeType, typeFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: resultMimeType, classFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
-    public func getDescriptionFile(inUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
+    public func getDescriptionFile(inUTI: CFString) -> (classFile: String, iconName: String, name: String) {
     
-        var resultTypeFile: String = ""
-        var resultIconName: String = ""
-        var resultFileName: String = ""
-        var resultExtension: String = ""
+        var classFile: String = ""
+        var iconName: String = ""
+        var name: String = ""
         let inUTIString: String = inUTI as String
         
-        if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
-            resultExtension = String(fileExtension.takeRetainedValue())
-        }
-        
         if UTTypeConformsTo(inUTI, kUTTypeImage) {
-            resultTypeFile = typeFile.image.rawValue
-            resultIconName = iconName.image.rawValue
-            resultFileName = "image"
+            classFile = typeClassFile.image.rawValue
+            iconName = typeIconFile.image.rawValue
+            name = "image"
         } else if UTTypeConformsTo(inUTI, kUTTypeMovie) {
-            resultTypeFile = typeFile.video.rawValue
-            resultIconName = iconName.movie.rawValue
-            resultFileName = "movie"
+            classFile = typeClassFile.video.rawValue
+            iconName = typeIconFile.movie.rawValue
+            name = "movie"
         } else if UTTypeConformsTo(inUTI, kUTTypeAudio) {
-            resultTypeFile = typeFile.audio.rawValue
-            resultIconName = iconName.audio.rawValue
-            resultFileName = "audio"
+            classFile = typeClassFile.audio.rawValue
+            iconName = typeIconFile.audio.rawValue
+            name = "audio"
         } else if UTTypeConformsTo(inUTI, kUTTypeZipArchive) {
-            resultTypeFile = typeFile.compress.rawValue
-            resultIconName = iconName.compress.rawValue
-            resultFileName = "archive"
+            classFile = typeClassFile.compress.rawValue
+            iconName = typeIconFile.compress.rawValue
+            name = "archive"
         } else if UTTypeConformsTo(inUTI, kUTTypeHTML) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.code.rawValue
-            resultFileName = "code"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.code.rawValue
+            name = "code"
         } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.pdf.rawValue
-            resultFileName = "document"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.pdf.rawValue
+            name = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeRTF) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.txt.rawValue
-            resultFileName = "document"
-        } else if inUTIString == "net.daringfireball.markdown" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "markdown"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.txt.rawValue
+            name = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
-            if resultExtension == "" { resultExtension = "txt" }
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.txt.rawValue
-            resultFileName = "text"
-        } else if inUTIString == "org.oasis-open.opendocument.text" || inUTIString == "org.openxmlformats.wordprocessingml.document" || inUTIString == "com.microsoft.word.doc" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "document"
-        } else if inUTIString == "com.apple.iwork.pages.pages" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "pages"
-        } else if inUTIString == "org.oasis-open.opendocument.spreadsheet" || inUTIString == "org.openxmlformats.spreadsheetml.sheet" || inUTIString == "com.microsoft.excel.xls" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.xls.rawValue
-            resultFileName = "sheet"
-        } else if inUTIString == "com.apple.iwork.numbers.numbers" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.xls.rawValue
-            resultFileName = "numbers"
-        } else if inUTIString == "org.oasis-open.opendocument.presentation" || inUTIString == "org.openxmlformats.presentationml.presentation" || inUTIString == "com.microsoft.powerpoint.ppt" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.ppt.rawValue
-            resultFileName = "presentation"
-        } else if inUTIString == "com.apple.iwork.keynote.key" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.ppt.rawValue
-            resultFileName = "keynote"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.txt.rawValue
+            name = "text"
         } else {
-            for uti in externalUTI {
-                if inUTIString == uti.UTIString {
-                    resultTypeFile = uti.typeFile
-                    resultIconName = uti.iconName
-                    resultFileName = uti.fileName
-                    return(resultTypeFile, resultIconName, resultFileName, resultExtension)
-                }
+            if let result = internalUTI.first(where: {$0.UTIString == inUTIString}) {
+                return(result.classFile, result.iconName, result.name)
+            } else {
+                classFile = typeClassFile.unknow.rawValue
+                iconName = typeIconFile.unknow.rawValue
+                name = "file"
             }
-            resultTypeFile = typeFile.unknow.rawValue
-            resultIconName = iconName.unknow.rawValue
-            resultFileName = "file"
         }
         
-        return(resultTypeFile, resultIconName, resultFileName, resultExtension)
+        return(classFile, iconName, name)
     }
+    
+    //MARK: -  Common public
     
     @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String]? {
            

@@ -103,6 +103,7 @@ import SwiftyJSON
 
 @objc public class NCCommunicationFile: NSObject {
     
+    @objc public var classFile = ""
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
     @objc public var checksums = ""
@@ -138,7 +139,6 @@ import SwiftyJSON
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
-    @objc public var typeFile = ""
     @objc public var uploadDate: NSDate?
     @objc public var urlBase = ""
     @objc public var userId = ""
@@ -868,7 +868,7 @@ class NCDataFileXML: NSObject {
             file.ext = results.ext
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
-            file.typeFile = results.typeFile
+            file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
             file.userId = userId
             
@@ -877,7 +877,7 @@ class NCDataFileXML: NSObject {
             // Detect Live Photo
             if file.ext == "mov" {
                 dicMOV[file.fileNameWithoutExt] = files.count - 1
-            } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
+            } else if file.classFile == NCCommunicationCommon.typeClassFile.image.rawValue {
                 dicImage[file.fileNameWithoutExt] = files.count - 1
             }
         }
@@ -980,7 +980,7 @@ class NCDataFileXML: NSObject {
             let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
             
             file.contentType = results.mimeType
-            file.typeFile = results.typeFile
+            file.typeFile = results.classFile
             file.iconName = results.iconName
             
             files.append(file)

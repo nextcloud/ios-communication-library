@@ -568,7 +568,7 @@ extension NCCommunication {
                     let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
                     
                     file.contentType = results.mimeType
-                    file.typeFile = results.typeFile
+                    file.classFile = results.classFile
                     file.iconName = results.iconName
                     
                     files.append(file)
