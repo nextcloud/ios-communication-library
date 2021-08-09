@@ -402,7 +402,7 @@ import MobileCoreServices
         
         repeat {
             
-            let bufferCounter = autoreleasepool { () -> Int in
+            if autoreleasepool(invoking: { () -> Int in
                 
                 if chunk >= chunkSize {
                     writer?.closeFile()
@@ -416,31 +416,26 @@ import MobileCoreServices
                 let buffer = reader?.readData(ofLength: min(bufferSize, chunkRemaining))
                 
                 if writer == nil {
-                    
                     let fileNameChunk = fileName + String(format: "%010d", counter)
                     let outputFileName = outputDirectory + "/" + fileNameChunk
                     fileManager.createFile(atPath: outputFileName, contents: nil, attributes: nil)
-                    
                     do {
                         writer = try .init(forWritingTo: URL(fileURLWithPath: outputFileName))
-                    } catch { }
-                    
+                    } catch {
+                        outputFilesName = []
+                        return 0
+                    }
                     outputFilesName.append(fileNameChunk)
                 }
-                    
+                
                 if let buffer = buffer {
                     writer?.write(buffer)
                     chunk = chunk + buffer.count
-                    
                     return buffer.count
                 }
-                
                 return 0
-            }
-            
-            if bufferCounter == 0 {
-                break
-            }
+                
+            }) == 0 { break }
             
         } while true
         
