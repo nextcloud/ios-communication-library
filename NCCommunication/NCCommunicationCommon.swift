@@ -375,7 +375,7 @@ import MobileCoreServices
     
     //MARK: -  chunkedFile
     
-    @objc func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSizeMB:Int, bufferSize: Int = 1000000) -> [String] {
+    @objc public func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSizeMB:Int, bufferSize: Int = 1000000) -> [String] {
         
         let fileManager: FileManager = .default
         var isDirectory: ObjCBool = false
