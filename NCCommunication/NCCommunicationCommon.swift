@@ -373,54 +373,79 @@ import MobileCoreServices
         return(classFile, iconName, name, ext)
     }
     
-    //MARK: -  Common public
+    //MARK: -  chunkedFile
     
-    @objc public func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSize: Int, bufferSize: Int = 1000000) throws-> [String] {
+    @objc func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSizeMB:Int, bufferSize: Int = 1000000) -> [String] {
         
         let fileManager: FileManager = .default
         var isDirectory: ObjCBool = false
+        let chunkSize = chunkSizeMB * 1000000
         var outputFilesName: [String] = []
-        let reader: FileHandle = try .init(forReadingFrom: URL(fileURLWithPath: inputDirectory + "/" + fileName))
+        var reader: FileHandle?
         var writer: FileHandle?
-        var buffer: Data?
         var chunk: Int = 0
         var counter: Int = 0
         
         if !fileManager.fileExists(atPath:outputDirectory, isDirectory:&isDirectory) {
-            try fileManager.createDirectory(atPath: outputDirectory, withIntermediateDirectories: true, attributes: nil)
+            do {
+                try fileManager.createDirectory(atPath: outputDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                return []
+            }
         }
-       
+        
+        do {
+            reader = try .init(forReadingFrom: URL(fileURLWithPath: inputDirectory + "/" + fileName))
+        } catch {
+            return []
+        }
+        
         repeat {
             
-            if chunk >= chunkSize {
-                writer?.closeFile()
-                writer = nil
-                chunk = 0
-                counter += 1
-            }
-            
-            let chunkRemaining: Int = chunkSize - chunk
-            buffer = reader.readData(ofLength: min(bufferSize, chunkRemaining))
-            
-            if let buffer = buffer {
+            let bufferCounter = autoreleasepool { () -> Int in
+                
+                if chunk >= chunkSize {
+                    writer?.closeFile()
+                    writer = nil
+                    chunk = 0
+                    counter += 1
+                    print("Counter: \(counter)")
+                }
+                
+                let chunkRemaining: Int = chunkSize - chunk
+                let buffer = reader?.readData(ofLength: min(bufferSize, chunkRemaining))
                 
                 if writer == nil {
                     
                     let fileNameChunk = fileName + String(format: "%010d", counter)
                     let outputFileName = outputDirectory + "/" + fileNameChunk
                     fileManager.createFile(atPath: outputFileName, contents: nil, attributes: nil)
-                    writer = try .init(forWritingTo: URL(fileURLWithPath: outputFileName))
+                    
+                    do {
+                        writer = try .init(forWritingTo: URL(fileURLWithPath: outputFileName))
+                    } catch { }
+                    
                     outputFilesName.append(fileNameChunk)
                 }
+                    
+                if let buffer = buffer {
+                    writer?.write(buffer)
+                    chunk = chunk + buffer.count
+                    
+                    return buffer.count
+                }
                 
-                writer?.write(buffer)
-                chunk = chunk + buffer.count
+                return 0
             }
             
-        } while buffer?.count ?? 0 > 0
+            if bufferCounter == 0 {
+                break
+            }
+            
+        } while true
         
         writer?.closeFile()
-        reader.closeFile()
+        reader?.closeFile()
         return outputFilesName
     }
     
