@@ -174,7 +174,7 @@ import MobileCoreServices
         super.init()
         
         _filenamePathLog = _pathLog + "/" + _filenameLog
-        loadingInternalTypeIdentifier()
+        loadingDefaultInternalTypeIdentifier()
     }
     
     //MARK: - Setup
@@ -233,23 +233,23 @@ import MobileCoreServices
         
     //MARK: -  Type Identifier
     
-    internal func loadingInternalTypeIdentifier() {
+    internal func loadingDefaultInternalTypeIdentifier() {
         
         internalTypeIdentifier = []
 
         // markdown
         addInternalTypeIdentifier(typeIdentifier: "net.daringfireball.markdown", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "markdown")
-        // text
+        // document: text
         addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.text", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
         addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.wordprocessingml.document", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
         addInternalTypeIdentifier(typeIdentifier: "com.microsoft.word.doc", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "document")
         addInternalTypeIdentifier(typeIdentifier: "com.apple.iwork.pages.pages", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.document.rawValue, name: "pages")
-        // sheet
+        // document: sheet
         addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.spreadsheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
         addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.spreadsheetml.sheet", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
         addInternalTypeIdentifier(typeIdentifier: "com.microsoft.excel.xls", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "sheet")
         addInternalTypeIdentifier(typeIdentifier: "com.apple.iwork.numbers.numbers", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.xls.rawValue, name: "numbers")
-        // presentation
+        // document: presentation
         addInternalTypeIdentifier(typeIdentifier: "org.oasis-open.opendocument.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
         addInternalTypeIdentifier(typeIdentifier: "org.openxmlformats.presentationml.presentation", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
         addInternalTypeIdentifier(typeIdentifier: "com.microsoft.powerpoint.ppt", classFile: typeClassFile.document.rawValue, iconName: typeIconFile.ppt.rawValue, name: "presentation")
