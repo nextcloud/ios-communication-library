@@ -375,42 +375,53 @@ import MobileCoreServices
     
     //MARK: -  Common public
     
-    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String]? {
-           
-        var outFilesName: [String] = []
+    @objc func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSize: Int, bufferSize: Int = 1000000) throws-> [String] {
         
-        do {
+        let fileManager: FileManager = .default
+        var isDirectory: ObjCBool = false
+        var outputFilesName: [String] = []
+        let reader: FileHandle = try .init(forReadingFrom: URL(fileURLWithPath: inputDirectory + "/" + fileName))
+        var writer: FileHandle?
+        var buffer: Data?
+        var chunk: Int = 0
+        var counter: Int = 0
+        
+        if !fileManager.fileExists(atPath:outputDirectory, isDirectory:&isDirectory) {
+            try fileManager.createDirectory(atPath: outputDirectory, withIntermediateDirectories: true, attributes: nil)
+        }
+       
+        repeat {
             
-            let data = try Data(contentsOf: URL(fileURLWithPath: path + "/" + fileName))
-            let dataLen = data.count
-            if dataLen == 0 { return nil }
-            let chunkSize = ((1024 * 1000) * sizeInMB)
-            if chunkSize == 0 { return nil }
-            let fullChunks = Int(dataLen / chunkSize)
-            let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
-                
-            for chunkCounter in 0..<totalChunks {
-                
-                let chunkBase = chunkCounter * chunkSize
-                var diff = chunkSize
-                if chunkCounter == totalChunks - 1 {
-                    diff = dataLen - chunkBase
-                }
-                    
-                let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
-                let chunk = data.subdata(in: range)
-                                
-                let outFileName = fileName + "." + String(format: "%010d", chunkCounter)
-                try chunk.write(to: URL(fileURLWithPath: outPath + "/" + outFileName))
-                outFilesName.append(outFileName)
+            if chunk >= chunkSize {
+                writer?.closeFile()
+                writer = nil
+                chunk = 0
+                counter += 1
             }
             
-        } catch {
+            let chunkRemaining: Int = chunkSize - chunk
+            buffer = reader.readData(ofLength: min(bufferSize, chunkRemaining))
             
-            return nil
-        }
+            if let buffer = buffer {
+                
+                if writer == nil {
+                    
+                    let fileNameChunk = fileName + String(format: "%010d", counter)
+                    let outputFileName = outputDirectory + "/" + fileNameChunk
+                    fileManager.createFile(atPath: outputFileName, contents: nil, attributes: nil)
+                    writer = try .init(forWritingTo: URL(fileURLWithPath: outputFileName))
+                    outputFilesName.append(fileNameChunk)
+                }
+                
+                writer?.write(buffer)
+                chunk = chunk + buffer.count
+            }
+            
+        } while buffer?.count ?? 0 > 0
         
-        return outFilesName
+        writer?.closeFile()
+        reader.closeFile()
+        return outputFilesName
     }
     
     //MARK: - Common
