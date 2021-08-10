@@ -96,6 +96,7 @@ import MobileCoreServices
     public struct UTTypeConformsToServer {
         var typeIdentifier: String
         var classFile: String
+        var editor: String
         var iconName: String
         var name: String
     }
@@ -232,10 +233,10 @@ import MobileCoreServices
         
     //MARK: -  Type Identifier
     
-    @objc public func addInternalTypeIdentifier(typeIdentifier: String, classFile: String, iconName: String, name: String) {
+    @objc public func addInternalTypeIdentifier(typeIdentifier: String, classFile: String, editor: String, iconName: String, name: String) {
         
         if !internalTypeIdentifier.contains(where: { $0.typeIdentifier == typeIdentifier }) {
-            let newUTI = UTTypeConformsToServer.init(typeIdentifier: typeIdentifier, classFile: classFile, iconName: iconName, name: name)
+            let newUTI = UTTypeConformsToServer.init(typeIdentifier: typeIdentifier, classFile: classFile, editor: editor, iconName: iconName, name: name)
             internalTypeIdentifier.append(newUTI)
         }
     }
