@@ -50,6 +50,7 @@ import SwiftyJSON
     
     @objc func changeUser(_ notification: NSNotification) {
         sessionDeleteCookies()
+        //
         NCCommunicationCommon.shared.internalTypeIdentifier = []
     }
     
