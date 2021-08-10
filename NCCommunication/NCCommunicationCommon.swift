@@ -54,7 +54,7 @@ import MobileCoreServices
     var webDav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
-    var internalTypeIdentifier: [UTTypeConformsToServer] = []
+    var internalTypeIdentifiers: [UTTypeConformsToServer] = []
 
     var delegate: NCCommunicationCommonDelegate?
     
@@ -233,11 +233,24 @@ import MobileCoreServices
         
     //MARK: -  Type Identifier
     
+    public func getInternalTypeIdentifier(typeIdentifier: String) -> [UTTypeConformsToServer] {
+        
+        var results: [UTTypeConformsToServer] = []
+        
+        for internalTypeIdentifier in internalTypeIdentifiers {
+            if internalTypeIdentifier.typeIdentifier == typeIdentifier {
+                results.append(internalTypeIdentifier)
+            }
+        }
+        
+        return results
+    }
+    
     @objc public func addInternalTypeIdentifier(typeIdentifier: String, classFile: String, editor: String, iconName: String, name: String) {
         
-        if !internalTypeIdentifier.contains(where: { $0.typeIdentifier == typeIdentifier }) {
+        if !internalTypeIdentifiers.contains(where: { $0.typeIdentifier == typeIdentifier && $0.editor == editor}) {
             let newUTI = UTTypeConformsToServer.init(typeIdentifier: typeIdentifier, classFile: classFile, editor: editor, iconName: iconName, name: name)
-            internalTypeIdentifier.append(newUTI)
+            internalTypeIdentifiers.append(newUTI)
         }
     }
     
@@ -332,7 +345,7 @@ import MobileCoreServices
             iconName = typeIconFile.txt.rawValue
             name = "text"
         } else {
-            if let result = internalTypeIdentifier.first(where: {$0.typeIdentifier == typeIdentifier}) {
+            if let result = internalTypeIdentifiers.first(where: {$0.typeIdentifier == typeIdentifier}) {
                 return(result.classFile, result.iconName, result.name, ext)
             } else {
                 if UTTypeConformsTo(inUTI, kUTTypeContent) {
