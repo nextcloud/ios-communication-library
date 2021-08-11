@@ -280,13 +280,13 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(userId: String, fileNameLocalPath: String, size: Int, indexPath: IndexPath?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ indexPath: IndexPath?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(userId: String, fileNameLocalPath: String, size: Int, imageAvatar: UIImage?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ imageAvatar: UIImage?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + userId + "/\(size)"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            completionHandler(account, nil, indexPath, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, imageAvatar, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -300,18 +300,18 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, indexPath, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, imageAvatar, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         try  data.write(to: url, options: .atomic)
-                        completionHandler(account, data, indexPath, 0, "")
+                        completionHandler(account, data, imageAvatar, 0, "")
                     } catch {
-                        completionHandler(account, nil, indexPath, error._code, error.localizedDescription)
+                        completionHandler(account, nil, imageAvatar, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, indexPath, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, nil, imageAvatar, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
