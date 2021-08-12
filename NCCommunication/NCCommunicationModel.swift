@@ -141,6 +141,7 @@ import SwiftyJSON
     @objc public var trashbinDeletionTime = NSDate()
     @objc public var uploadDate: NSDate?
     @objc public var urlBase = ""
+    @objc public var user = ""
     @objc public var userId = ""
 }
 
@@ -700,7 +701,7 @@ class NCDataFileXML: NSObject {
         return xml["ocs", "data", "apppassword"].text        
     }
     
-    func convertDataFile(data: Data, userId: String, showHiddenFiles: Bool) -> [NCCommunicationFile] {
+    func convertDataFile(data: Data, user: String, userId: String, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
@@ -870,6 +871,7 @@ class NCDataFileXML: NSObject {
             file.iconName = results.iconName
             file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
+            file.user = user
             file.userId = userId
             
             files.append(file)

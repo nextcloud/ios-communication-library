@@ -194,7 +194,7 @@ extension NCCommunication {
                 completionHandler(account, files, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    files = NCDataFileXML().convertDataFile(data: data, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
+                    files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, data, 0, "")
                 } else {
                     completionHandler(account, files, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
@@ -306,7 +306,7 @@ extension NCCommunication {
                 completionHandler(account, files, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    files = NCDataFileXML().convertDataFile(data: data, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
+                    files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, "")
                 } else {
                     completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
@@ -385,7 +385,7 @@ extension NCCommunication {
                 completionHandler(account, files, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    files = NCDataFileXML().convertDataFile(data: data, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
+                    files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
                     completionHandler(account, files, 0, "")
                 } else {
                     completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
