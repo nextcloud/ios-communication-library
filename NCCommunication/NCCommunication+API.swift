@@ -467,9 +467,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        
-        //let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-              
+                      
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
@@ -497,9 +495,7 @@ extension NCCommunication {
         }
         
         let method = HTTPMethod(rawValue: "POST")
-        
-        //let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-         
+                 
         sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
