@@ -280,13 +280,18 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, size: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, size: Int, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(size)"
+        var parameters: [String: Any]? 
+        
+        if etag != nil {
+            parameters = ["If-None-Match": String(etag!)]
+        }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -294,24 +299,25 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         try  data.write(to: url, options: .atomic)
-                        completionHandler(account, data, 0, "")
+                        let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
+                        completionHandler(account, data, etag, 0, "")
                     } catch {
-                        completionHandler(account, nil, error._code, error.localizedDescription)
+                        completionHandler(account, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
