@@ -310,8 +310,11 @@ extension NCCommunication {
                 if let data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try  data.write(to: url, options: .atomic)
-                        let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
+                        try data.write(to: url, options: .atomic)
+                        var etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
+                        if etag != nil {
+                            etag = etag!.replacingOccurrences(of: "\"", with: "")
+                        }
                         completionHandler(account, data, etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, error._code, error.localizedDescription)
