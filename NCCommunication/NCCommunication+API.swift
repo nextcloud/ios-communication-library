@@ -284,10 +284,9 @@ extension NCCommunication {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(size)"
-        var parameters: [String: Any]? 
+        var parameters: [String: Any] = [:]
         
-        if var etag = etag {
-            etag = "\"\(etag)\""            
+        if let etag = etag {
             parameters = ["If-None-Match": String(etag)]
         }
         
