@@ -291,10 +291,6 @@ extension NCCommunication {
             parameters = ["If-None-Match": String(etag)]
         }
         
-        if etag != nil {
-            parameters = ["If-None-Match": String(etag!)]
-        }
-        
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
