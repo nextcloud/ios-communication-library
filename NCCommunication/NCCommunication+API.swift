@@ -286,10 +286,7 @@ extension NCCommunication {
         let endpoint = "index.php/avatar/" + user + "/\(size)"
         var parameters: [String: Any] = [:]
         
-        if var etag = etag {
-            etag = """
-            "\(etag)"
-            """
+        if let etag = etag {
             parameters = ["If-None-Match": String(etag)]
         }
         
@@ -314,10 +311,7 @@ extension NCCommunication {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         try data.write(to: url, options: .atomic)
-                        var etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
-                        if etag != nil {
-                            etag = etag!.replacingOccurrences(of: "\"", with: "")
-                        }
+                        let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
                         completionHandler(account, data, etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, error._code, error.localizedDescription)
