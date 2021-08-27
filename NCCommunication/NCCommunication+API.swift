@@ -294,7 +294,7 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
                
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).response { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -506,71 +506,6 @@ extension NCCommunication {
                 completionHandler(account, error.errorCode, error.description ?? "")
             case .success( _):
                 completionHandler(account, 0, "")
-            }
-        }
-    }
-    
-    //MARK: -
-    
-    @objc public func iosHelper(fileNamePath: String, serverUrl: String, offset: Int, limit: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
-        
-        let account = NCCommunicationCommon.shared.account
-        var files: [NCCommunicationFile] = []
-
-        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return
-        }
-        
-        let endpoint = "index.php/apps/ioshelper/api/v1/list?dir=" + fileNamePath + "&offset=\(offset)&limit=\(limit)"
-        
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-            return
-        }
-               
-        let method = HTTPMethod(rawValue: "GET")
-        
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
-            debugPrint(response)
-            
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, files, error.errorCode, error.description ?? "")
-            case .success(let json):
-                let json = JSON(json)
-                for (_, subJson):(String, JSON) in json {
-                    let file = NCCommunicationFile()
-                    
-                    file.contentType = subJson["mimetype"].stringValue
-                    file.directory = subJson["directory"].boolValue
-                    file.etag = subJson["etag"].stringValue
-                    file.favorite = subJson["favorite"].boolValue
-                    file.fileId = String(subJson["fileId"].intValue)
-                    file.fileName = subJson["name"].stringValue
-                    file.hasPreview = subJson["hasPreview"].boolValue
-                    if let modificationDate = subJson["modificationDate"].double {
-                        let date = Date(timeIntervalSince1970: modificationDate) as NSDate
-                        file.date = date
-                    }
-                    file.ocId = subJson["ocId"].stringValue
-                    file.permissions = subJson["permissions"].stringValue
-                    file.serverUrl = serverUrl
-                    file.size = subJson["size"].int64Value
-                    file.urlBase = NCCommunicationCommon.shared.urlBase
-                    
-                    let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
-                    
-                    file.contentType = results.mimeType
-                    file.classFile = results.classFile
-                    file.iconName = results.iconName
-                    
-                    files.append(file)
-                }
-                completionHandler(account, files, 0, "")
             }
         }
     }
