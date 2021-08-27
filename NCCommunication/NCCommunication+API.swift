@@ -287,7 +287,7 @@ extension NCCommunication {
         var parameters: [String: Any]? 
         
         if var etag = etag {
-            etag = "\"" + etag + "\""
+            etag = "\"\(etag)\""            
             parameters = ["If-None-Match": String(etag)]
         }
         
