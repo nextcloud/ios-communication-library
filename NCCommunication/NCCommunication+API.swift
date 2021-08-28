@@ -310,8 +310,8 @@ extension NCCommunication {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         if sizeRoundedAvatar > 0, let image = UIImage(data: data) {
                             var avatarImage = image
-                            let rect = CGRect(x: 0, y: 0, width: sizeRoundedAvatar, height: sizeRoundedAvatar)
-                            UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
+                            let rect = CGRect(x: 0, y: 0, width: sizeRoundedAvatar/Int(UIScreen.main.scale), height: sizeRoundedAvatar/Int(UIScreen.main.scale))
+                            UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
                             UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
                             avatarImage.draw(in: rect)
                             avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
