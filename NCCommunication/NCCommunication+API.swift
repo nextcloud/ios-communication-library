@@ -280,10 +280,10 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, size: Int, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
-        let endpoint = "index.php/avatar/" + user + "/\(size)"
+        let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -305,10 +305,26 @@ extension NCCommunication {
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
-                if let data = response.data {
+                if var data = response.data {
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        try data.write(to: url, options: .atomic)
+                        if sizeRoundedAvatar > 0, let image = UIImage(data: data) {
+                            var avatarImage = image
+                            let rect = CGRect(x: 0, y: 0, width: sizeRoundedAvatar, height: sizeRoundedAvatar)
+                            UIGraphicsBeginImageContextWithOptions(rect.size, false, 3.0)
+                            UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
+                            avatarImage.draw(in: rect)
+                            avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+                            UIGraphicsEndImageContext()
+                            if let pngData = avatarImage.pngData() {
+                                data = pngData
+                                try pngData.write(to: url)
+                            } else {
+                                try data.write(to: url)
+                            }
+                        } else {
+                            try data.write(to: url)
+                        }
                         let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
                         completionHandler(account, data, etag, 0, "")
                     } catch {
