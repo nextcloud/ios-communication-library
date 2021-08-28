@@ -56,6 +56,8 @@ class NCCommunicationError: NSObject {
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_ssl_certificate_untrusted_", value: "The certificate for this server is invalid", comment: ""))
             case 101:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_forbidden_characters_from_server_", value: "The name contains at least one invalid character", comment: ""))
+            case 304:
+                return(errorCode, "\(errorCode): " + NSLocalizedString("_error_not_modified_", value: "Resource not modified", comment: ""))
             case 400:
                 return(errorCode, "\(errorCode): " + NSLocalizedString("_bad_request_", value: "Bad request", comment: ""))
             case 401:
