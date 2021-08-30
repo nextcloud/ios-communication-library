@@ -208,7 +208,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -220,7 +220,7 @@ extension NCCommunication {
                 endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileNamePathOrFileId + "&x=\(widthPreview)&y=\(heightPreview)"
             } else {
                 guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePathOrFileId) else {
-                    completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                    completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
                     return
                 }
                 endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(widthPreview)&y=\(heightPreview)&a=1&mode=cover"
@@ -234,13 +234,16 @@ extension NCCommunication {
         }
         
         guard let urlRequest = url else {
-            completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
         let method = HTTPMethod(rawValue: "GET")
         
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+        if let etag = etag {
+            headers = ["If-None-Match": etag]
+        }
                 
         sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
             debugPrint(response)
@@ -248,9 +251,10 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
+                    let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
                     do {
                         if var imagePreview = UIImage(data: data) {
                             if let data = imagePreview.jpegData(compressionQuality: 0.5) {
@@ -263,24 +267,24 @@ extension NCCommunication {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
                                 }
-                                completionHandler(account, imagePreview, imageIcon, 0, "")
+                                completionHandler(account, imagePreview, imageIcon, etag, 0, "")
                             } else {
-                                completionHandler(account, imagePreview, nil, 0, "")
+                                completionHandler(account, imagePreview, nil, etag, 0, "")
                             }
                         } else {
-                            completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                            completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                         }
                     } catch {
-                        completionHandler(account, nil, nil, error._code, error.localizedDescription)
+                        completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
@@ -306,17 +310,18 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if var data = response.data {
+                    var imageAvatar: UIImage?
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
                         if sizeRoundedAvatar > 0, let image = UIImage(data: data) {
-                            var avatarImage = image
+                            imageAvatar = image
                             let rect = CGRect(x: 0, y: 0, width: sizeRoundedAvatar/Int(UIScreen.main.scale), height: sizeRoundedAvatar/Int(UIScreen.main.scale))
                             UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
                             UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-                            avatarImage.draw(in: rect)
-                            avatarImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+                            imageAvatar?.draw(in: rect)
+                            imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
                             UIGraphicsEndImageContext()
-                            if let pngData = avatarImage.pngData() {
+                            if let pngData = imageAvatar?.pngData() {
                                 data = pngData
                                 try pngData.write(to: url)
                             } else {
@@ -326,7 +331,7 @@ extension NCCommunication {
                             try data.write(to: url)
                         }
                         let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
-                        completionHandler(account, data, etag, 0, "")
+                        completionHandler(account, imageAvatar, etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, error._code, error.localizedDescription)
                     }
