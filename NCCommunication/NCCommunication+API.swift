@@ -241,7 +241,8 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        if let etag = etag {
+        if var etag = etag {
+            etag = "\"" + etag + "\""
             headers = ["If-None-Match": etag]
         }
                 
@@ -254,7 +255,7 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
-                    let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
+                    let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     do {
                         if var imagePreview = UIImage(data: data) {
                             if let data = imagePreview.jpegData(compressionQuality: 0.5) {
@@ -297,7 +298,8 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        if let etag = etag {
+        if var etag = etag {
+            etag = "\"" + etag + "\""
             headers = ["If-None-Match": etag]
         }
                
@@ -310,6 +312,7 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if var data = response.data {
+                    let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     var imageAvatar: UIImage?
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
@@ -330,7 +333,6 @@ extension NCCommunication {
                         } else {
                             try data.write(to: url)
                         }
-                        let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)
                         completionHandler(account, imageAvatar, etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, error._code, error.localizedDescription)
