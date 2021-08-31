@@ -208,7 +208,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -220,7 +220,7 @@ extension NCCommunication {
                 endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileNamePathOrFileId + "&x=\(widthPreview)&y=\(heightPreview)"
             } else {
                 guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePathOrFileId) else {
-                    completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                    completionHandler(account, nil, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
                     return
                 }
                 endpoint = "index.php/core/preview.png?file=" + fileNamePath + "&x=\(widthPreview)&y=\(heightPreview)&a=1&mode=cover"
@@ -234,7 +234,7 @@ extension NCCommunication {
         }
         
         guard let urlRequest = url else {
-            completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -252,7 +252,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
@@ -268,30 +268,30 @@ extension NCCommunication {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
                                 }
-                                completionHandler(account, imagePreview, imageIcon, etag, 0, "")
+                                completionHandler(account, imagePreview, imageIcon, data, etag, 0, "")
                             } else {
-                                completionHandler(account, imagePreview, nil, etag, 0, "")
+                                completionHandler(account, imagePreview, nil, data, etag, 0, "")
                             }
                         } else {
-                            completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                            completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                         }
                     } catch {
-                        completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
+                        completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
         }
         
@@ -309,7 +309,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
+                completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if var data = response.data {
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
@@ -333,12 +333,12 @@ extension NCCommunication {
                         } else {
                             try data.write(to: url)
                         }
-                        completionHandler(account, imageAvatar, etag, 0, "")
+                        completionHandler(account, imageAvatar, data, etag, 0, "")
                     } catch {
-                        completionHandler(account, nil, nil, error._code, error.localizedDescription)
+                        completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
-                    completionHandler(account, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                 }
             }
         }
