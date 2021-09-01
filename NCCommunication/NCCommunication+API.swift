@@ -286,7 +286,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, avatarSizeRounded: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
@@ -318,9 +318,9 @@ extension NCCommunication {
                     var imageAvatar: UIImage?
                     do {
                         let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        if sizeRoundedAvatar > 0, let image = UIImage(data: data) {
+                        if avatarSizeRounded > 0, let image = UIImage(data: data) {
                             imageAvatar = image
-                            let rect = CGRect(x: 0, y: 0, width: sizeRoundedAvatar/Int(UIScreen.main.scale), height: sizeRoundedAvatar/Int(UIScreen.main.scale))
+                            let rect = CGRect(x: 0, y: 0, width: avatarSizeRounded/Int(UIScreen.main.scale), height: avatarSizeRounded/Int(UIScreen.main.scale))
                             UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
                             UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
                             imageAvatar?.draw(in: rect)
