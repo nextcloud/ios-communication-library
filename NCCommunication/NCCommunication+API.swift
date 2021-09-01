@@ -255,6 +255,7 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if let data = response.data {
+                    let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     do {
                         if var imagePreview = UIImage(data: data) {
@@ -268,9 +269,9 @@ extension NCCommunication {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
                                 }
-                                completionHandler(account, imagePreview, imageIcon, UIImage.init(data: data), etag, 0, "")
+                                completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
                             } else {
-                                completionHandler(account, imagePreview, nil, UIImage.init(data: data), etag, 0, "")
+                                completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
                             }
                         } else {
                             completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
@@ -312,6 +313,7 @@ extension NCCommunication {
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
                 if var data = response.data {
+                    let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     var imageAvatar: UIImage?
                     do {
@@ -333,7 +335,7 @@ extension NCCommunication {
                         } else {
                             try data.write(to: url)
                         }
-                        completionHandler(account, imageAvatar, UIImage(data: data), etag, 0, "")
+                        completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
