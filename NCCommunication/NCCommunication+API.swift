@@ -208,7 +208,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
@@ -268,9 +268,9 @@ extension NCCommunication {
                                     try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
                                     imageIcon = UIImage.init(data: data)!
                                 }
-                                completionHandler(account, imagePreview, imageIcon, data, etag, 0, "")
+                                completionHandler(account, imagePreview, imageIcon, UIImage.init(data: data), etag, 0, "")
                             } else {
-                                completionHandler(account, imagePreview, nil, data, etag, 0, "")
+                                completionHandler(account, imagePreview, nil, UIImage.init(data: data), etag, 0, "")
                             }
                         } else {
                             completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
@@ -285,7 +285,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ data: Data?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, sizeRoundedAvatar: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
@@ -333,7 +333,7 @@ extension NCCommunication {
                         } else {
                             try data.write(to: url)
                         }
-                        completionHandler(account, imageAvatar, data, etag, 0, "")
+                        completionHandler(account, imageAvatar, UIImage(data: data), etag, 0, "")
                     } catch {
                         completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
