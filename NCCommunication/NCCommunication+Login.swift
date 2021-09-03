@@ -72,7 +72,7 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, userAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
@@ -83,7 +83,12 @@ extension NCCommunication {
         
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        var headers: HTTPHeaders?
+        if userAgent != nil {
+            headers = [HTTPHeader.userAgent(userAgent!)]
+        }
+        
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
             debugPrint(response)
             
             switch response.result {
