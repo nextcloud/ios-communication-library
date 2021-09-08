@@ -785,7 +785,7 @@ class NCDataFileXML: NSObject {
                 file.downloadURL = downloadURL
             }
             
-            if let note = propstat["d:prop", "d:note"].text {
+            if let note = propstat["d:prop", "nc:note"].text {
                 file.note = note
             }
             
