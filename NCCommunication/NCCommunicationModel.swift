@@ -134,6 +134,7 @@ import SwiftyJSON
     @objc public var resourceType = ""
     @objc public var richWorkspace: String?
     @objc public var sharePermissions = ""
+    @objc public var shareType: Int64 = -1
     @objc public var size: Int64 = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
@@ -829,6 +830,10 @@ class NCDataFileXML: NSObject {
             
             if let size = propstat["d:prop", "oc:size"].text {
                 file.size = Int64(size) ?? 0
+            }
+            
+            if let shareTypes = propstat["d:prop", "oc:share-types"].text {
+                file.shareType = Int64(shareTypes) ?? -1
             }
             
             if let favorite = propstat["d:prop", "oc:favorite"].text {
