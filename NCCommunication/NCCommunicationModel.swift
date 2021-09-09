@@ -133,7 +133,8 @@ import SwiftyJSON
     @objc public var quotaAvailableBytes: Int64 = 0
     @objc public var resourceType = ""
     @objc public var richWorkspace: String?
-    @objc public var sharePermissions = ""
+    @objc public var sharePermissionsCollaborationServices: Int = 0
+    @objc public var sharePermissionsCloudMesh: [String] = []
     @objc public var shareType: [Int] = []
     @objc public var size: Int64 = 0
     @objc public var serverUrl = ""
@@ -367,7 +368,6 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
     
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
-            
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
     </d:propfind>
@@ -419,7 +419,6 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
                 
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
-                        
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
         <oc:filter-rules>
@@ -790,9 +789,18 @@ class NCDataFileXML: NSObject {
                 file.note = note
             }
             
-            if let sharePermissions = propstat["d:prop", "d:share-permissions"].text {
-                file.sharePermissions = sharePermissions
+            if let sharePermissionsCollaborationServices = propstat["d:prop", "x1:share-permissions xmlns:x1=\"http://open-collaboration-services.org/ns\""].int {
+                file.sharePermissionsCollaborationServices = sharePermissionsCollaborationServices
             }
+            
+            if let sharePermissionsCloudMesh = propstat["d:prop", "x2:share-permissions xmlns:x2=\"http://open-cloud-mesh.org/ns\""].text {
+                print(sharePermissionsCloudMesh)
+                //file.sharePermissionsCloudMesh = sharePermissionsCloudMesh
+            }
+            
+//            if let sharePermissions = propstat["d:prop", "d:share-permissions"].text {
+//                file.sharePermissions = sharePermissions
+//            }
             
             if let checksums = propstat["d:prop", "d:checksums"].text {
                 file.checksums = checksums
@@ -832,8 +840,7 @@ class NCDataFileXML: NSObject {
                 file.size = Int64(size) ?? 0
             }
             
-            let shareTypesElements = propstat["d:prop", "oc:share-types"]
-            for shareTypesElement in shareTypesElements {
+            for shareTypesElement in propstat["d:prop", "oc:share-types"] {
                 if let shareTypes = shareTypesElement["oc:share-type"].int {
                     file.shareType.append(shareTypes)
                 }
