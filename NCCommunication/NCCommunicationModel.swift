@@ -793,10 +793,9 @@ class NCDataFileXML: NSObject {
                 file.sharePermissionsCollaborationServices = sharePermissionsCollaborationServices
             }
             
-            if let sharePermissionsCloudMesh = propstat["d:prop", "x2:share-permissions"].names {
-                for element in sharePermissionsCloudMesh {
-                    file.sharePermissionsCloudMesh.append(element)
-                }
+            if let sharePermissionsCloudMesh = propstat["d:prop", "x2:share-permissions"].text {
+                let x = Array(sharePermissionsCloudMesh)
+                print(x)
             }
                         
             if let checksums = propstat["d:prop", "d:checksums"].text {
