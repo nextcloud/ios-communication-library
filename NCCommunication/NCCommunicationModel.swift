@@ -832,9 +832,9 @@ class NCDataFileXML: NSObject {
                 file.size = Int64(size) ?? 0
             }
             
-            let shareTypesElements = xml["d:prop", "oc:share-types"]
+            let shareTypesElements = propstat["d:prop", "oc:share-types"]
             for shareTypesElement in shareTypesElements {
-                if let shareTypes = shareTypesElement["share-type"].int {
+                if let shareTypes = shareTypesElement["oc:share-type"].int {
                     file.shareType.append(shareTypes)
                 }
             }
