@@ -257,27 +257,37 @@ extension NCCommunication {
                 if let data = response.data {
                     let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
-                    do {
-                        if var imagePreview = UIImage(data: data) {
-                            if let data = imagePreview.jpegData(compressionQuality: 0.5) {
-                                try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
-                                imagePreview = UIImage.init(data: data)!
-                            }
-                            if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
-                                if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
-                                    try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
-                                    imageIcon = UIImage.init(data: data)!
+                    DispatchQueue.global(qos: .background).async {
+                        do {
+                            if var imagePreview = UIImage(data: data) {
+                                if let data = imagePreview.jpegData(compressionQuality: 0.5) {
+                                    try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
+                                    imagePreview = UIImage.init(data: data)!
                                 }
-                                completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
+                                if fileNameIconLocalPath != nil && sizeIcon > 0 {
+                                    var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
+                                    if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
+                                        try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                                        imageIcon = UIImage.init(data: data)!
+                                    }
+                                    DispatchQueue.main.async {
+                                        completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
+                                    }
+                                } else {
+                                    DispatchQueue.main.async {
+                                        completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
+                                    }
+                                }
                             } else {
-                                completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
+                                DispatchQueue.main.async {
+                                    completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                                }
                             }
-                        } else {
-                            completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                        } catch {
+                            DispatchQueue.main.async {
+                                completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
+                            }
                         }
-                    } catch {
-                        completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
                     completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
