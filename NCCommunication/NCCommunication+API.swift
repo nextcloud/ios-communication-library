@@ -326,28 +326,34 @@ extension NCCommunication {
                     let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     var imageAvatar: UIImage?
-                    do {
-                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                        if avatarSizeRounded > 0, let image = UIImage(data: data) {
-                            imageAvatar = image
-                            let rect = CGRect(x: 0, y: 0, width: avatarSizeRounded/Int(UIScreen.main.scale), height: avatarSizeRounded/Int(UIScreen.main.scale))
-                            UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
-                            UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-                            imageAvatar?.draw(in: rect)
-                            imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
-                            UIGraphicsEndImageContext()
-                            if let pngData = imageAvatar?.pngData() {
-                                data = pngData
-                                try pngData.write(to: url)
+                    DispatchQueue.global(qos: .background).async {
+                        do {
+                            let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                            if avatarSizeRounded > 0, let image = UIImage(data: data) {
+                                imageAvatar = image
+                                let rect = CGRect(x: 0, y: 0, width: avatarSizeRounded/Int(UIScreen.main.scale), height: avatarSizeRounded/Int(UIScreen.main.scale))
+                                UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
+                                UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
+                                imageAvatar?.draw(in: rect)
+                                imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
+                                UIGraphicsEndImageContext()
+                                if let pngData = imageAvatar?.pngData() {
+                                    data = pngData
+                                    try pngData.write(to: url)
+                                } else {
+                                    try data.write(to: url)
+                                }
                             } else {
                                 try data.write(to: url)
                             }
-                        } else {
-                            try data.write(to: url)
+                            DispatchQueue.main.async {
+                                completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
+                            }
+                        } catch {
+                            DispatchQueue.main.async {
+                                completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
+                            }
                         }
-                        completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
-                    } catch {
-                        completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
                     completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
