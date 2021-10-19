@@ -562,14 +562,18 @@ extension NCCommunication {
         var activities: [NCCommunicationActivity] = []
 
         var endpoint = "ocs/v2.php/apps/activity/api/v2/activity/"
-        var parameters: [String: Any] = ["format":"json"]
+        var parameters: [String: Any] = [
+            "format":"json",
+            "since": String(since),
+            "limit": String(limit)
+        ]
         
-        if objectId == nil {
-            endpoint += "all"
-            parameters = ["since": String(since), "limit": String(limit)]
-        } else if let objectId = objectId, let objectType = objectType {
+        if let objectId = objectId, let objectType = objectType {
             endpoint += "filter"
-            parameters = ["since": String(since), "limit": String(limit), "object_id": objectId, "object_type": objectType]
+            parameters["object_id"] = objectId
+            parameters["object_type"] = objectType
+        } else {
+            endpoint += "all"
         }
 
         if previews {
