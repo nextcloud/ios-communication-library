@@ -1030,7 +1030,7 @@ class NCDataFileXML: NSObject {
                 item.actorType = value
             }
             
-            if let creationDateTime = element["d:propstat", "d:prop", "d:creationDateTime"].text {
+            if let creationDateTime = element["d:propstat", "d:prop", "oc:creationDateTime"].text {
                 if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     item.creationDateTime = date
                 }
