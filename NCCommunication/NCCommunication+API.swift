@@ -53,7 +53,7 @@ extension NCCommunication {
     
     //MARK: -
 
-    @objc public func generalWithEndponit(_ endpoint:String, method: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func generalWithEndpoint(_ endpoint:String, method: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
@@ -557,23 +557,25 @@ extension NCCommunication {
     //MARK: -
     
     @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String) -> Void) {
-        
+    
         let account = NCCommunicationCommon.shared.account
         var activities: [NCCommunicationActivity] = []
-        
-        let endpoint = "ocs/v2.php/apps/activity/api/v2/activity/all?format=json"
-        var parameters: [String: Any] = [:]
+
+        var endpoint = "ocs/v2.php/apps/activity/api/v2/activity/"
+        var parameters: [String: Any] = ["format":"json"]
         
         if objectId == nil {
+            endpoint += "all"
             parameters = ["since": String(since), "limit": String(limit)]
-        } else if objectId != nil && objectType != nil {
-            parameters = ["since": String(since), "limit": String(limit), "object_id": objectId!, "object_type": objectType!]
+        } else if let objectId = objectId, let objectType = objectType {
+            endpoint += "filter"
+            parameters = ["since": String(since), "limit": String(limit), "object_id": objectId, "object_type": objectType]
         }
-         
+
         if previews {
             parameters["previews"] = "true"
         }
-        
+
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, activities, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             return
