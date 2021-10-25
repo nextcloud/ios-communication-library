@@ -245,8 +245,10 @@ extension NCCommunication {
             etag = "\"" + etag + "\""
             headers = ["If-None-Match": etag]
         }
-                
-        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+         
+        let queue = DispatchQueue(label: "com.nextcloud.nccommunication", qos: .background, attributes: .concurrent)
+
+        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
             debugPrint(response)
             
             switch response.result {
