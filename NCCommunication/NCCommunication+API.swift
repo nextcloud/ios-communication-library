@@ -246,9 +246,7 @@ extension NCCommunication {
             headers = ["If-None-Match": etag]
         }
          
-        let queue = DispatchQueue(label: "com.nextcloud.nccommunication", qos: .background, attributes: .concurrent)
-
-        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -259,36 +257,34 @@ extension NCCommunication {
                 if let data = response.data {
                     let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
-                    DispatchQueue.global(qos: .background).async {
-                        do {
-                            if var imagePreview = UIImage(data: data) {
-                                if let data = imagePreview.jpegData(compressionQuality: 0.5) {
-                                    try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
-                                    imagePreview = UIImage.init(data: data)!
+                    do {
+                        if var imagePreview = UIImage(data: data) {
+                            if let data = imagePreview.jpegData(compressionQuality: 0.5) {
+                                try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
+                                imagePreview = UIImage.init(data: data)!
+                            }
+                            if fileNameIconLocalPath != nil && sizeIcon > 0 {
+                                var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
+                                if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
+                                    try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                                    imageIcon = UIImage.init(data: data)!
                                 }
-                                if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                    var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
-                                    if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
-                                        try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
-                                        imageIcon = UIImage.init(data: data)!
-                                    }
-                                    DispatchQueue.main.async {
-                                        completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
-                                    }
+                                DispatchQueue.main.async {
+                                    completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
                                 }
                             } else {
                                 DispatchQueue.main.async {
-                                    completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                                    completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
                                 }
                             }
-                        } catch {
+                        } else {
                             DispatchQueue.main.async {
-                                completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
+                                completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
                             }
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
                         }
                     }
                 } else {
@@ -316,7 +312,7 @@ extension NCCommunication {
             headers = ["If-None-Match": etag]
         }
                
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -328,33 +324,31 @@ extension NCCommunication {
                     let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     var imageAvatar: UIImage?
-                    DispatchQueue.global(qos: .background).async {
-                        do {
-                            let url = URL.init(fileURLWithPath: fileNameLocalPath)
-                            if avatarSizeRounded > 0, let image = UIImage(data: data) {
-                                imageAvatar = image
-                                let rect = CGRect(x: 0, y: 0, width: avatarSizeRounded/Int(UIScreen.main.scale), height: avatarSizeRounded/Int(UIScreen.main.scale))
-                                UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
-                                UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
-                                imageAvatar?.draw(in: rect)
-                                imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
-                                UIGraphicsEndImageContext()
-                                if let pngData = imageAvatar?.pngData() {
-                                    data = pngData
-                                    try pngData.write(to: url)
-                                } else {
-                                    try data.write(to: url)
-                                }
+                    do {
+                        let url = URL.init(fileURLWithPath: fileNameLocalPath)
+                        if avatarSizeRounded > 0, let image = UIImage(data: data) {
+                            imageAvatar = image
+                            let rect = CGRect(x: 0, y: 0, width: avatarSizeRounded/Int(UIScreen.main.scale), height: avatarSizeRounded/Int(UIScreen.main.scale))
+                            UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
+                            UIBezierPath.init(roundedRect: rect, cornerRadius: rect.size.height).addClip()
+                            imageAvatar?.draw(in: rect)
+                            imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
+                            UIGraphicsEndImageContext()
+                            if let pngData = imageAvatar?.pngData() {
+                                data = pngData
+                                try pngData.write(to: url)
                             } else {
                                 try data.write(to: url)
                             }
-                            DispatchQueue.main.async {
-                                completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
-                            }
-                        } catch {
-                            DispatchQueue.main.async {
-                                completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
-                            }
+                        } else {
+                            try data.write(to: url)
+                        }
+                        DispatchQueue.main.async {
+                            completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                         }
                     }
                 } else {
