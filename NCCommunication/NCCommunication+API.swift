@@ -306,7 +306,7 @@ extension NCCommunication {
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
-                if var data = response.data {
+                if let data = response.data {
                     let imageOriginal = UIImage(data: data)
                     let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
                     var imageAvatar: UIImage?
@@ -321,7 +321,6 @@ extension NCCommunication {
                             imageAvatar = UIGraphicsGetImageFromCurrentImageContext() ?? image
                             UIGraphicsEndImageContext()
                             if let pngData = imageAvatar?.pngData() {
-                                data = pngData
                                 try pngData.write(to: url)
                             } else {
                                 try data.write(to: url)
