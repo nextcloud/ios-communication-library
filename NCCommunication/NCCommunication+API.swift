@@ -254,41 +254,27 @@ extension NCCommunication {
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
                 completionHandler(account, nil, nil, nil, nil, error.errorCode, error.description ?? "")
             case .success( _):
-                if let data = response.data {
-                    let imageOriginal = UIImage(data: data)
-                    let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
-                    do {
-                        if var imagePreview = UIImage(data: data) {
-                            if let data = imagePreview.jpegData(compressionQuality: 0.5) {
-                                try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
-                                imagePreview = UIImage.init(data: data)!
-                            }
-                            if fileNameIconLocalPath != nil && sizeIcon > 0 {
-                                var imageIcon =  imagePreview.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
-                                if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
-                                    try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
-                                    imageIcon = UIImage.init(data: data)!
-                                }
-                                DispatchQueue.main.async {
-                                    completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
-                                }
-                            } else {
-                                DispatchQueue.main.async {
-                                    completionHandler(account, imagePreview, nil, imageOriginal, etag, 0, "")
-                                }
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
-                            }
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
+                guard let data = response.data, let imageOriginal = UIImage(data: data) else {
+                    completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    return
+                }
+                let etag = NCCommunicationCommon.shared.findHeader("etag", allHeaderFields:response.response?.allHeaderFields)?.replacingOccurrences(of: "\"", with: "")
+                var imagePreview, imageIcon: UIImage?
+                do {
+                    if let data = imageOriginal.jpegData(compressionQuality: 0.5) {
+                        try data.write(to: URL.init(fileURLWithPath: fileNamePreviewLocalPath), options: .atomic)
+                        imagePreview = UIImage.init(data: data)
+                    }
+                    if fileNameIconLocalPath != nil && sizeIcon > 0 {
+                        imageIcon =  imageOriginal.resizeImage(size: CGSize(width: sizeIcon, height: sizeIcon), isAspectRation: true)
+                        if let data = imageIcon?.jpegData(compressionQuality: 0.5) {
+                            try data.write(to: URL.init(fileURLWithPath: fileNameIconLocalPath!), options: .atomic)
+                            imageIcon = UIImage.init(data: data)!
                         }
                     }
-                } else {
-                    completionHandler(account, nil, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
+                    completionHandler(account, imagePreview, imageIcon, imageOriginal, etag, 0, "")
+                } catch {
+                    completionHandler(account, nil, nil, nil, nil, error._code, error.localizedDescription)
                 }
             }
         }
@@ -343,13 +329,9 @@ extension NCCommunication {
                         } else {
                             try data.write(to: url)
                         }
-                        DispatchQueue.main.async {
-                            completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
-                        }
+                        completionHandler(account, imageAvatar, imageOriginal, etag, 0, "")
                     } catch {
-                        DispatchQueue.main.async {
-                            completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
-                        }
+                        completionHandler(account, nil, nil, nil, error._code, error.localizedDescription)
                     }
                 } else {
                     completionHandler(account, nil, nil, nil, NSURLErrorCannotDecodeContentData, NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: ""))
