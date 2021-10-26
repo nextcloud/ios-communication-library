@@ -107,9 +107,7 @@ import MobileCoreServices
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
     private var _copyLogToDocumentDirectory: Bool = false
-    
-    internal let backgroundQueue = DispatchQueue(label: "com.nextcloud.nccommunication", qos: .background, attributes: .concurrent)
-    
+        
     @objc public var filenameLog: String {
         get {
             return _filenameLog

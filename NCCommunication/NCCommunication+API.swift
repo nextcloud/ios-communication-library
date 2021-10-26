@@ -208,12 +208,13 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadPreview(fileNamePathOrFileId: String, fileNamePreviewLocalPath: String, widthPreview: Int, heightPreview: Int, fileNameIconLocalPath: String? = nil, sizeIcon: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, endpointTrashbin: Bool = false, useInternalEndpoint: Bool = true, queue: DispatchQueue?, completionHandler: @escaping (_ account: String, _ imagePreview: UIImage?, _ imageIcon: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                
         let account = NCCommunicationCommon.shared.account
         var endpoint = ""
         var url: URLConvertible?
-        
+        var queue = queue
+
         if useInternalEndpoint {
             
             if endpointTrashbin {
@@ -245,8 +246,12 @@ extension NCCommunication {
             etag = "\"" + etag + "\""
             headers = ["If-None-Match": etag]
         }
+        
+        if queue == nil {
+            queue = .main
+        }
          
-        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        sessionManager.request(urlRequest, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue!) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -280,10 +285,11 @@ extension NCCommunication {
         }
     }
     
-    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, avatarSizeRounded: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func downloadAvatar(user: String, fileNameLocalPath: String, sizeImage: Int, avatarSizeRounded: Int = 0, etag: String?, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue?, completionHandler: @escaping (_ account: String, _ imageAvatar: UIImage?, _ imageOriginal: UIImage?, _ etag: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let endpoint = "index.php/avatar/" + user + "/\(sizeImage)"
+        var queue = queue
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
             completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -297,8 +303,12 @@ extension NCCommunication {
             etag = "\"" + etag + "\""
             headers = ["If-None-Match": etag]
         }
-               
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        
+        if queue == nil {
+            queue = .main
+        }
+        
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue!) { (response) in
             debugPrint(response)
             
             switch response.result {
