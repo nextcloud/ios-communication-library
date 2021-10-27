@@ -107,7 +107,7 @@ import MobileCoreServices
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
     private var _copyLogToDocumentDirectory: Bool = false
-    
+        
     @objc public var filenameLog: String {
         get {
             return _filenameLog
