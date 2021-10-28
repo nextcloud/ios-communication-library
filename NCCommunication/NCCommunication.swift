@@ -47,6 +47,12 @@ import SwiftyJSON
         startNetworkReachabilityObserver()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "changeUser"), object: nil)
+        
+        stopNetworkReachabilityObserver()
+    }
+    
     //MARK: - Notification Center
     
     @objc func changeUser(_ notification: NSNotification) {
@@ -110,6 +116,11 @@ import SwiftyJSON
                 NCCommunicationCommon.shared.delegate?.networkReachabilityObserver?(NCCommunicationCommon.typeReachability.reachableCellular)
             }
         })
+    }
+    
+    private func stopNetworkReachabilityObserver() {
+        
+        reachabilityManager?.stopListening()
     }
     
     //MARK: - Session utility
