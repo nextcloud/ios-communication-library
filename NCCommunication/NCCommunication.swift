@@ -154,12 +154,12 @@ import SwiftyJSON
     
     //MARK: - download / upload
     
-    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+    @objc public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main,
                                taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
                                progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                                completionHandler: @escaping (_ account: String, _ etag: String?, _ date: NSDate?, _ lenght: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
+        download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue) { (request) in
             // not available in objc
         } taskHandler: { (task) in
             taskHandler(task)
@@ -171,7 +171,7 @@ import SwiftyJSON
         }
     }
     
-    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+    public func download(serverUrlFileName: Any, fileNameLocalPath: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main,
                          requestHandler: @escaping (_ request: DownloadRequest) -> () = { _ in },
                          taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
                          progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
@@ -187,7 +187,7 @@ import SwiftyJSON
         }
         
         guard let url = convertible else {
-            completionHandler(account, nil, nil, 0, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, nil, nil, 0, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -202,18 +202,18 @@ import SwiftyJSON
         
         let request = sessionManager.download(url, method: .get, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil, to: destination).validate(statusCode: 200..<300).onURLSessionTaskCreation { (task) in
             
-            taskHandler(task)
+            queue.async { taskHandler(task) }
             
         } .downloadProgress { progress in
             
-            progressHandler(progress)
+            queue.async { progressHandler(progress) }
             
-        } .response { response in
+        } .response(queue: NCCommunicationCommon.shared.backgroundQueue) { response in
             
             switch response.result {
             case .failure(let error):
                 let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, 0, nil, error, resultError.errorCode, resultError.description ?? "")
+                queue.async { completionHandler(account, nil, nil, 0, nil, error, resultError.errorCode, resultError.description ?? "") }
             case .success( _):
 
                 var date: NSDate?
@@ -239,21 +239,19 @@ import SwiftyJSON
                     date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz")
                 }
                 
-                completionHandler(account, etag, date, length, allHeaderFields, nil , 0, "")
+                queue.async { completionHandler(account, etag, date, length, allHeaderFields, nil , 0, "") }
             }
         }
         
-        DispatchQueue.main.async {
-            requestHandler(request)
-        }
+        queue.async { requestHandler(request) }
     }
     
-    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+    @objc public func upload(serverUrlFileName: String, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main,
                              taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
                              progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
                              completionHandler: @escaping (_ account: String, _ ocId: String?, _ etag: String?, _ date: NSDate?, _ size: Int64, _ allHeaderFields: [AnyHashable : Any]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders) { (request) in
+        upload(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileNameLocalPath, dateCreationFile: dateCreationFile, dateModificationFile: dateModificationFile, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue) { (request) in
             // not available in objc
         } taskHandler: { (task) in
             taskHandler(task)
@@ -265,7 +263,7 @@ import SwiftyJSON
         }
     }
 
-    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil,
+    public func upload(serverUrlFileName: Any, fileNameLocalPath: String, dateCreationFile: Date? = nil, dateModificationFile: Date? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main,
                        requestHandler: @escaping (_ request: UploadRequest) -> () = { _ in },
                        taskHandler: @escaping (_ task: URLSessionTask) -> () = { _ in },
                        progressHandler: @escaping (_ progress: Progress) -> () = { _ in },
@@ -282,7 +280,7 @@ import SwiftyJSON
         }
         
         guard let url = convertible else {
-            completionHandler(account, nil, nil, nil, 0, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, nil, nil, nil, 0, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -300,19 +298,19 @@ import SwiftyJSON
         
         let request = sessionManager.upload(fileNameLocalPathUrl, to: url, method: .put, headers: headers, interceptor: nil, fileManager: .default).validate(statusCode: 200..<300).onURLSessionTaskCreation(perform: { (task) in
             
-            taskHandler(task)
+            queue.async { taskHandler(task) }
             
         }) .uploadProgress { progress in
             
-            progressHandler(progress)
+            queue.async { progressHandler(progress) }
             size = progress.totalUnitCount
             
-        } .response { response in
+        } .response(queue: NCCommunicationCommon.shared.backgroundQueue) { response in
             
             switch response.result {
             case .failure(let error):
                 let resultError = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, nil, 0, nil, error, resultError.errorCode, resultError.description ?? "")
+                queue.async { completionHandler(account, nil, nil, nil, 0, nil, error, resultError.errorCode, resultError.description ?? "") }
             case .success( _):
                 var ocId: String?, etag: String?
                 let allHeaderFields = response.response?.allHeaderFields
@@ -333,19 +331,17 @@ import SwiftyJSON
                 
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, etag, date, size, allHeaderFields, nil, 0, "")
+                        queue.async { completionHandler(account, ocId, etag, date, size, allHeaderFields, nil, 0, "") }
                     } else {
-                        completionHandler(account, nil, nil, nil, 0, allHeaderFields, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                        queue.async { completionHandler(account, nil, nil, nil, 0, allHeaderFields, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: "")) }
                     }
                 } else {
-                    completionHandler(account, nil, nil, nil, 0, allHeaderFields, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    queue.async { completionHandler(account, nil, nil, nil, 0, allHeaderFields, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: "")) }
                 }
             }
         }
         
-        DispatchQueue.main.async {
-            requestHandler(request)
-        }
+        queue.async { requestHandler(request) }
     }
     
     //MARK: - SessionDelegate
