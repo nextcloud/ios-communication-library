@@ -32,7 +32,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
             
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -46,23 +46,23 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyComments.data(using: .utf8)
         } catch {
-            completionHandler(account, nil, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, nil, error._code, error.localizedDescription) }
             return
         }
           
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
             case .success( _):
                 if let data = response.data {
                     let items = NCDataFileXML().convertDataComments(data: data)
-                    completionHandler(account, items, 0, "")
+                    queue.async { completionHandler(account, items, 0, "") }
                 } else {
-                    completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
@@ -74,7 +74,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -89,19 +89,19 @@ extension NCCommunication {
             let parameters = "{\"actorType\":\"users\",\"verb\":\"comment\",\"message\":\"" + message + "\"}"
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            completionHandler(account, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
             return
         }
         
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -112,7 +112,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -127,19 +127,19 @@ extension NCCommunication {
             let parameters = String(format: NCDataFileXML().requestBodyCommentsUpdate, message)
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            completionHandler(account, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
             return
         }
         
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -150,7 +150,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -158,15 +158,15 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -177,7 +177,7 @@ extension NCCommunication {
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlEndpoint) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -192,19 +192,19 @@ extension NCCommunication {
             let parameters = String(format: NCDataFileXML().requestBodyCommentsMarkAsRead)
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            completionHandler(account, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
             return
         }
         
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }

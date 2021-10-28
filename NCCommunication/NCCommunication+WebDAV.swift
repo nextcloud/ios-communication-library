@@ -32,7 +32,7 @@ extension NCCommunication {
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -40,23 +40,23 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, nil, nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, nil, nil, error.errorCode, error.description ?? "") }
             case .success( _):
                 let ocId = NCCommunicationCommon.shared.findHeader("oc-fileid", allHeaderFields: response.response?.allHeaderFields)
                 if let dateString = NCCommunicationCommon.shared.findHeader("date", allHeaderFields: response.response?.allHeaderFields) {
                     if let date = NCCommunicationCommon.shared.convertDate(dateString, format: "EEE, dd MMM y HH:mm:ss zzz") {
-                        completionHandler(account, ocId, date, 0, "")
+                        queue.async { completionHandler(account, ocId, date, 0, "") }
                     } else {
-                        completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                        queue.async { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: "")) }
                     }
                 } else {
-                    completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+                    queue.async { completionHandler(account, nil, nil, NSURLErrorBadServerResponse, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: "")) }
                 }
             }
         }
@@ -67,7 +67,7 @@ extension NCCommunication {
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -75,15 +75,15 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -93,7 +93,7 @@ extension NCCommunication {
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -107,15 +107,15 @@ extension NCCommunication {
             headers.update(name: "Overwrite", value: "F")
         }
          
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -125,7 +125,7 @@ extension NCCommunication {
         let account = NCCommunicationCommon.shared.account
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -139,15 +139,15 @@ extension NCCommunication {
             headers.update(name: "Overwrite", value: "F")
         }
          
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -162,7 +162,7 @@ extension NCCommunication {
         if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, files, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, files, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -181,23 +181,23 @@ extension NCCommunication {
                 urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
             }
         } catch {
-            completionHandler(account, files, nil, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, files, nil, error._code, error.localizedDescription) }
             return
         }
         
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, files, nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, files, nil, error.errorCode, error.description ?? "") }
             case .success( _):
                 if let data = response.data {
                     files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, data, 0, "")
+                    queue.async { completionHandler(account, files, data, 0, "") }
                 } else {
-                    completionHandler(account, files, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(account, files, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
@@ -209,7 +209,7 @@ extension NCCommunication {
         let httpBody = requestBody.data(using: .utf8)!
      
         search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout, queue: queue) { (account, files, erroCode, errorDescription) in
-            completionHandler(account,files,erroCode,errorDescription)
+            queue.async { completionHandler(account,files,erroCode,errorDescription) }
         }
     }
     
@@ -219,7 +219,7 @@ extension NCCommunication {
         let files: [NCCommunicationFile] = []
 
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -227,7 +227,7 @@ extension NCCommunication {
         let httpBody = requestBody.data(using: .utf8)!
      
         search(serverUrl: serverUrl, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout, queue: queue) { (account, files, erroCode, errorDescription) in
-            completionHandler(account,files,erroCode,errorDescription)
+            queue.async { completionHandler(account,files,erroCode,errorDescription) }
         }
     }
     
@@ -238,7 +238,7 @@ extension NCCommunication {
         var greaterDateString: String?, lessDateString: String?
         
         guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId + path) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -255,7 +255,7 @@ extension NCCommunication {
         }
         
         if lessDateString == nil || greaterDateString == nil {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: ""))
+            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_date_format_", value: "Invalid date format", comment: "")) }
             return
         }
         
@@ -269,7 +269,7 @@ extension NCCommunication {
         let httpBody = requestBody.data(using: .utf8)!
         
         search(serverUrl: NCCommunicationCommon.shared.urlBase, httpBody: httpBody, showHiddenFiles: showHiddenFiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, account: account, timeout: timeout, queue: queue) { (account, files, erroCode, errorDescription) in
-            completionHandler(account,files,erroCode,errorDescription)
+            queue.async { completionHandler(account,files,erroCode,errorDescription) }
         }
     }
      
@@ -278,7 +278,7 @@ extension NCCommunication {
         var files: [NCCommunicationFile] = []
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.webDav) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -293,23 +293,23 @@ extension NCCommunication {
             urlRequest.httpBody = httpBody
             urlRequest.timeoutInterval = timeout
         } catch {
-            completionHandler(account, files, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, files, error._code, error.localizedDescription) }
             return
         }
          
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, files, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, files, error.errorCode, error.description ?? "") }
             case .success( _):
                 if let data = response.data {
                     files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, "")
+                    queue.async { completionHandler(account, files, 0, "") }
                 } else {
-                    completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
@@ -321,7 +321,7 @@ extension NCCommunication {
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
         
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -335,19 +335,19 @@ extension NCCommunication {
             let body = NSString.init(format: NCDataFileXML().requestBodyFileSetFavorite as NSString, (favorite ? 1 : 0)) as String
             urlRequest.httpBody = body.data(using: .utf8)
         } catch {
-            completionHandler(account, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
             return
         }
          
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
             case .success( _):
-                completionHandler(account, 0, "")
+                queue.async { completionHandler(account, 0, "") }
             }
         }
     }
@@ -359,7 +359,7 @@ extension NCCommunication {
         var files: [NCCommunicationFile] = []
 
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
          
@@ -372,23 +372,23 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFileListingFavorites.data(using: .utf8)
         } catch {
-            completionHandler(account, files, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, files, error._code, error.localizedDescription) }
             return
         }
          
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, files, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, files, error.errorCode, error.description ?? "") }
             case .success( _):
                 if let data = response.data {
                     files = NCDataFileXML().convertDataFile(data: data, user: NCCommunicationCommon.shared.user, userId: NCCommunicationCommon.shared.userId, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, files, 0, "")
+                    queue.async { completionHandler(account, files, 0, "") }
                 } else {
-                    completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(account, files, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
@@ -401,7 +401,7 @@ extension NCCommunication {
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
             
         guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
-            completionHandler(account, items, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(account, items, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -416,23 +416,23 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyTrash.data(using: .utf8)
         } catch {
-            completionHandler(account, items, error._code, error.localizedDescription)
+            queue.async { completionHandler(account, items, error._code, error.localizedDescription) }
             return
         }
              
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: queue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(account, items, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(account, items, error.errorCode, error.description ?? "") }
             case .success( _):
                 if let data = response.data {
                     items = NCDataFileXML().convertDataTrash(data: data, showHiddenFiles: showHiddenFiles)
-                    completionHandler(account, items, 0, "")
+                    queue.async { completionHandler(account, items, 0, "") }
                 } else {
-                    completionHandler(account, items, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(account, items, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
