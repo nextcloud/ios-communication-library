@@ -39,8 +39,8 @@ extension NCCommunication {
         }
         
         var headers: HTTPHeaders = [.authorization(username: username, password: password)]
-        if userAgent != nil {
-            headers.update(.userAgent(userAgent!))
+        if let userAgent = userAgent {
+            headers.update(.userAgent(userAgent))
         }
         headers.update(name: "OCS-APIRequest", value: "true")
                
@@ -72,7 +72,7 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
@@ -81,9 +81,14 @@ extension NCCommunication {
             return
         }
         
+        var headers: HTTPHeaders?
+        if let userAgent = userAgent {
+            headers = [HTTPHeader.userAgent(userAgent)]
+        }
+        
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -102,17 +107,22 @@ extension NCCommunication {
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
             queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
+        
+        var headers: HTTPHeaders?
+        if let userAgent = userAgent {
+            headers = [HTTPHeader.userAgent(userAgent)]
+        }
 
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
