@@ -115,8 +115,6 @@ import Foundation
     
     //MARK: - SessionDelegate
     
-    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) { }
-
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         
         guard totalBytesExpectedToWrite != NSURLSessionTransferSizeUnknown else { return }
@@ -125,9 +123,7 @@ import Foundation
         let serverUrl = url.replacingOccurrences(of: "/"+fileName, with: "")
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
 
-        DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
-        }
+        NCCommunicationCommon.shared.delegate?.downloadProgress?(progress, totalBytes: totalBytesWritten, totalBytesExpected: totalBytesExpectedToWrite, fileName: fileName, serverUrl: serverUrl, session: session, task: downloadTask)
     }
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
@@ -155,9 +151,7 @@ import Foundation
         let serverUrl = url.replacingOccurrences(of: "/"+fileName, with: "")
         let progress = Float(totalBytesSent) / Float(totalBytesExpectedToSend)
 
-        DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
-        }
+        NCCommunicationCommon.shared.delegate?.uploadProgress?(progress, totalBytes: totalBytesSent, totalBytesExpected: totalBytesExpectedToSend, fileName: fileName, serverUrl: serverUrl, session: session, task: task)
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -210,25 +204,23 @@ import Foundation
             length = header["Content-Length"] as? Int64 ?? 0
         }
         
-        DispatchQueue.main.async {
-            if task is URLSessionDownloadTask {
-                var description = task.taskDescription
-                let parameter = task.taskDescription?.components(separatedBy: "|")
-                if parameter?.count == 2 {
-                    description = parameter![1]
-                }
-                NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
+        if task is URLSessionDownloadTask {
+            var description = task.taskDescription
+            let parameter = task.taskDescription?.components(separatedBy: "|")
+            if parameter?.count == 2 {
+                description = parameter![1]
             }
-            if task is URLSessionUploadTask {
-                
-                NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
-            }
+            NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
+        }
+        if task is URLSessionUploadTask {
             
-            if errorCode == 0 {
-                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName)
-            } else {
-                NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
-            }
+            NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
+        }
+        
+        if errorCode == 0 {
+            NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName)
+        } else {
+            NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
         }
     }
     
@@ -244,8 +236,6 @@ import Foundation
     }
     
     public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
-        DispatchQueue.main.async {
-            NCCommunicationCommon.shared.delegate?.urlSessionDidFinishEvents?(forBackgroundURLSession: session)
-        }
+        NCCommunicationCommon.shared.delegate?.urlSessionDidFinishEvents?(forBackgroundURLSession: session)
     }
 }

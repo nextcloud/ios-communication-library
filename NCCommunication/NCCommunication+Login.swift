@@ -29,12 +29,12 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, userAgent: String? = nil, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "ocs/v2.php/core/getapppassword"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            completionHandler(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -48,23 +48,23 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: "GET"), headers: headers)
         } catch {
-            completionHandler(nil, error._code, error.localizedDescription)
+            queue.async { completionHandler(nil, error._code, error.localizedDescription) }
             return
         }
 
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(nil, error.errorCode, error.description ?? "") }
             case .success(let data):
                 if let data = data {
                     let apppassword = NCDataFileXML().convertDataAppPassword(data: data)
-                    completionHandler(apppassword, 0, "")
+                    queue.async { completionHandler(apppassword, 0, "") }
                 } else {
-                    completionHandler(nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: ""))
+                    queue.async { completionHandler(nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
                 }
             }
         }
@@ -72,24 +72,24 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, nil, nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(nil, nil, nil, error.errorCode, error.description ?? "") }
             case .success(let json):
                 let json = JSON(json)
                
@@ -97,36 +97,36 @@ extension NCCommunication {
                 let endpoint = json["poll"]["endpoint"].string
                 let login = json["login"].string
                 
-                completionHandler(token, endpoint, login, 0, "")
+                queue.async { completionHandler(token, endpoint, login, 0, "") }
             }
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
-            completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
 
         let method = HTTPMethod(rawValue: "POST")
         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON { (response) in
+        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: nil, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                completionHandler(nil, nil, nil, error.errorCode, error.description ?? "")
+                queue.async { completionHandler(nil, nil, nil, error.errorCode, error.description ?? "") }
             case .success(let json):
                 let json = JSON(json)
-               
+            
                 let server = json["server"].string
                 let loginName = json["loginName"].string
                 let appPassword = json["appPassword"].string
                 
-                completionHandler(server, loginName, appPassword, 0, "")
+                queue.async { completionHandler(server, loginName, appPassword, 0, "") }
             }
         }
     }
