@@ -26,54 +26,84 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-extension NCCommunication {
-    
-    /*
-    * @param path           Path to file or folder
-    * @param idShare        Identifier of the share to update
-    * @param reshares       If set to false (default), only shares owned by the current user are returned.
-    *                       If set to true, shares owned by any user from the given file are returned.
-    * @param subfiles       If set to false (default), lists only the folder being shared
-    *                       If set to true, all shared files within the folder are returned.
-    */
-    
-    @objc public func readShares(reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: nil, idShare: 0, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue, completionHandler: completionHandler)
+@objc public class NCCShareParameter: NSObject {
+
+    /// - Parameters:
+    ///   - path: Path to file or folder
+    ///   - reshares: If set to false (default), only shares owned by the current user are returned. If set to true, shares owned by any user from the given file are returned.
+    ///   - subfiles: If set to false (default), lists only the folder being shared. If set to true, all shared files within the folder are returned.
+    ///   - sharedWithMe: (?) retrieve all shares, if set to true
+    @objc public init(path: String? = nil, reshares: Bool = false, subfiles: Bool = false, sharedWithMe: Bool = false) {
+        self.path = path
+        self.idShare = 0
+        self.reshares = reshares
+        self.subfiles = subfiles
+        self.sharedWithMe = sharedWithMe
     }
-    
-    @objc public func readShares(path: String, reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: path, idShare: 0, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue, completionHandler: completionHandler)
+
+
+    /// - Parameters:
+    ///   - idShare: Identifier of the share to update
+    ///   - reshares: If set to false (default), only shares owned by the current user are returned. If set to true, shares owned by any user from the given file are returned.
+    ///   - subfiles: If set to false (default), lists only the folder being shared. If set to true, all shared files within the folder are returned.
+    ///   - sharedWithMe: (?) retrieve all shares, if set to true
+    @objc public init(idShare: Int, reshares: Bool = false, subfiles: Bool = false, sharedWithMe: Bool = false) {
+        self.path = nil
+        self.idShare = idShare
+        self.reshares = reshares
+        self.subfiles = subfiles
+        self.sharedWithMe = sharedWithMe
     }
-    
-    @objc public func readShares(idShare: Int, reshares: Bool = false, subfiles: Bool = false, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-        readShares(path: nil, idShare: idShare, reshares:reshares, subfiles:subfiles, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue, completionHandler: completionHandler)
-    }
-    
-    private func readShares(path: String? = nil, idShare: Int = 0, reshares: Bool, subfiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-           
-        let account = NCCommunicationCommon.shared.account
-        var endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares"
-        if idShare > 0 {
-            endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+
+
+    let path: String?
+    let idShare: Int
+    let reshares: Bool
+    let subfiles: Bool
+    let sharedWithMe: Bool
+
+    internal var endpoint: String {
+        guard idShare > 0 else {
+             return "ocs/v2.php/apps/files_sharing/api/v1/shares"
         }
-                
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
+        return "ocs/v2.php/apps/files_sharing/api/v1/shares/" + String(idShare)
+    }
+
+    internal var queryParameters: [String: String] {
+        var parameters = [
+            "reshares": reshares == true ? "true" : "false",
+            "subfiles": subfiles == true ? "true" : "false",
+            "shared_with_me": sharedWithMe == true ? "true" : "false"
+        ]
+        parameters["path"] = path
+        return parameters
+    }
+}
+
+extension NCCommunication {
+
+    @objc public func readShares(
+        parameters: NCCShareParameter,
+        customUserAgent: String? = nil,
+        addCustomHeaders: [String: String]? = nil,
+        queue: DispatchQueue = .main,
+        completionHandler: @escaping (_ account: String, _ shares: [NCCommunicationShare]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+
+        let account = NCCommunicationCommon.shared.account
+
+        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: parameters.endpoint)
+        else {
             queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
-        
+
         let method = HTTPMethod(rawValue: "GET")
-             
+
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
         headers.update(.contentType("application/xml"))
-        
-        var parameters = [
-            "reshares": reshares == true ? "true" : "false",
-            "subfiles": subfiles == true ? "true" : "false"
-        ]
-        parameters["path"] = path
-    
-        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+
+
+        sessionManager.request(url, method: method, parameters: parameters.queryParameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
