@@ -217,8 +217,8 @@ import MobileCoreServices
         
         self.webDav = webDav
         
-        if webDav.first == "/" { self.webDav = String(self.webDav.dropFirst()) }
-        if webDav.last == "/" { self.webDav = String(self.webDav.dropLast()) }
+        if webDav.first == "/" { self.webDav.removeFirst() }
+        if webDav.last == "/" { self.webDav.removeLast() }
     }
     
     @objc public func setup(nextcloudVersion: Int) {
