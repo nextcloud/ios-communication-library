@@ -51,10 +51,10 @@ import MobileCoreServices
     var urlBase = ""
     var userAgent: String?
     var nextcloudVersion: Int = 0
-    var webDav: String = "remote.php/webdav"
-    var dav: String = "remote.php/dav"
+    var webDav: String = "remote.php/dav"
     
     var cookies: [String:[HTTPCookie]] = [:]
+    var internalTypeIdentifiers: [UTTypeConformsToServer] = []
 
     var delegate: NCCommunicationCommonDelegate?
     
@@ -68,31 +68,37 @@ import MobileCoreServices
         case reachableCellular = 3
     }
     
-    public enum typeFile: String {
+    public enum typeClassFile: String {
         case audio = "audio"
         case compress = "compress"
         case directory = "directory"
         case document = "document"
         case image = "image"
-        case imagemeter = "imagemeter"
         case unknow = "unknow"
         case video = "video"
     }
-
-    private enum iconName: String {
+    
+    public enum typeIconFile: String {
         case audio = "file_audio"
         case code = "file_code"
         case compress = "file_compress"
         case directory = "directory"
         case document = "document"
         case image = "file_photo"
-        case imagemeter = "imagemeter"
         case movie = "file_movie"
         case pdf = "file_pdf"
         case ppt = "file_ppt"
         case txt = "file_txt"
         case unknow = "file"
         case xls = "file_xls"
+    }
+
+    public struct UTTypeConformsToServer {
+        var typeIdentifier: String
+        var classFile: String
+        var editor: String
+        var iconName: String
+        var name: String
     }
     
     private var _filenameLog: String = "communication.log"
@@ -101,6 +107,8 @@ import MobileCoreServices
     private var _levelLog: Int = 0
     private var _printLog: Bool = true
     private var _copyLogToDocumentDirectory: Bool = false
+    
+    @objc public let backgroundQueue = DispatchQueue(label: "com.nextcloud.nccommunication", qos: .background, attributes: .concurrent)
     
     @objc public var filenameLog: String {
         get {
@@ -166,17 +174,18 @@ import MobileCoreServices
     //MARK: - Init
     
     override init() {
+        super.init()
+        
         _filenamePathLog = _pathLog + "/" + _filenameLog
     }
     
     //MARK: - Setup
     
-    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, webDav: String?, dav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
+    @objc public func setup(account: String? = nil, user: String, userId: String, password: String, urlBase: String, userAgent: String, webDav: String?, nextcloudVersion: Int, delegate: NCCommunicationCommonDelegate?) {
         
         self.setup(account:account, user: user, userId: userId, password: password, urlBase: urlBase)
         self.setup(userAgent: userAgent)
         if (webDav != nil) { self.setup(webDav: webDav!) }
-        if (dav != nil) { self.setup(dav: dav!) }
         self.setup(nextcloudVersion: nextcloudVersion)
         self.setup(delegate: delegate)
     }
@@ -212,14 +221,6 @@ import MobileCoreServices
         if webDav.last == "/" { self.webDav = String(self.webDav.dropLast()) }
     }
     
-    @objc public func setup(dav: String) {
-        
-        self.dav = dav
-        
-        if dav.first == "/" { self.dav = String(self.dav.dropFirst()) }
-        if dav.last == "/" { self.dav = String(self.dav.dropLast()) }
-    }
-    
     @objc public func setup(nextcloudVersion: Int) {
         
         self.nextcloudVersion = nextcloudVersion
@@ -232,174 +233,207 @@ import MobileCoreServices
         cookies[account] = nil
     }
         
-    //MARK: -  Common public
+    //MARK: -  Type Identifier
+    
+    public func getInternalTypeIdentifier(typeIdentifier: String) -> [UTTypeConformsToServer] {
+        
+        var results: [UTTypeConformsToServer] = []
+        
+        for internalTypeIdentifier in internalTypeIdentifiers {
+            if internalTypeIdentifier.typeIdentifier == typeIdentifier {
+                results.append(internalTypeIdentifier)
+            }
+        }
+        
+        return results
+    }
+    
+    @objc public func addInternalTypeIdentifier(typeIdentifier: String, classFile: String, editor: String, iconName: String, name: String) {
+        
+        if !internalTypeIdentifiers.contains(where: { $0.typeIdentifier == typeIdentifier && $0.editor == editor}) {
+            let newUTI = UTTypeConformsToServer.init(typeIdentifier: typeIdentifier, classFile: classFile, editor: editor, iconName: iconName, name: name)
+            internalTypeIdentifiers.append(newUTI)
+        }
+    }
     
     @objc public func objcGetInternalType(fileName: String, mimeType: String, directory: Bool) -> [String: String] {
                 
         let results = getInternalType(fileName: fileName , mimeType: mimeType, directory: directory)
         
-        return ["mimeType":results.mimeType, "typeFile":results.typeFile, "iconName":results.iconName, "uniformTypeIdentifier":results.uniformTypeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
+        return ["mimeType":results.mimeType, "classFile":results.classFile, "iconName":results.iconName, "typeIdentifier":results.typeIdentifier, "fileNameWithoutExt":results.fileNameWithoutExt, "ext":results.ext]
     }
 
-    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, typeFile: String, iconName: String, uniformTypeIdentifier: String, fileNameWithoutExt: String, ext: String) {
+    public func getInternalType(fileName: String, mimeType: String, directory: Bool) -> (mimeType: String, classFile: String, iconName: String, typeIdentifier: String, fileNameWithoutExt: String, ext: String) {
         
-        var resultMimeType = mimeType
-        var resultTypeFile = "", resultIconName = "", resultUniformTypeIdentifier = "", fileNameWithoutExt = "", ext = ""
+        var ext = (fileName as NSString).pathExtension.lowercased()
+        var mimeType = mimeType
+        var classFile = "", iconName = "", typeIdentifier = "", fileNameWithoutExt = ""
         
         // UTI
-        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (fileName as NSString).pathExtension as CFString, nil) {
+        if let unmanagedFileUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, ext as CFString, nil) {
             let inUTI = unmanagedFileUTI.takeRetainedValue()
-            ext = (fileName as NSString).pathExtension.lowercased()
             fileNameWithoutExt = (fileName as NSString).deletingPathExtension
             
             // contentType detect
             if mimeType == "" {
                 if let mimeUTI = UTTypeCopyPreferredTagWithClass(inUTI, kUTTagClassMIMEType) {
-                    resultMimeType = mimeUTI.takeRetainedValue() as String
+                    mimeType = mimeUTI.takeRetainedValue() as String
                 }
             }
             
             // TypeIdentifier
-            resultUniformTypeIdentifier = inUTI as String
+            typeIdentifier = inUTI as String
 
             if directory {
-                resultMimeType = "httpd/unix-directory"
-                resultTypeFile = typeFile.directory.rawValue
-                resultIconName = iconName.directory.rawValue
-                resultUniformTypeIdentifier = kUTTypeFolder as String
+                mimeType = "httpd/unix-directory"
+                classFile = typeClassFile.directory.rawValue
+                iconName = typeIconFile.directory.rawValue
+                typeIdentifier = kUTTypeFolder as String
                 fileNameWithoutExt = fileName
                 ext = ""
-            } else if ext == "imi" {
-                resultTypeFile = typeFile.imagemeter.rawValue
-                resultIconName = iconName.imagemeter.rawValue
             } else {
-                let type = getDescriptionFile(inUTI: inUTI)
-                resultTypeFile = type.resultTypeFile
-                resultIconName = type.resultIconName
+                let result = getFileProperties(inUTI: inUTI)
+                classFile = result.classFile
+                iconName = result.iconName
             }
         }
         
-        return(mimeType: resultMimeType, typeFile: resultTypeFile, iconName: resultIconName, uniformTypeIdentifier: resultUniformTypeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
+        return(mimeType: mimeType, classFile: classFile, iconName: iconName, typeIdentifier: typeIdentifier, fileNameWithoutExt: fileNameWithoutExt, ext: ext)
     }
     
-    public func getDescriptionFile(inUTI: CFString) -> (resultTypeFile: String, resultIconName: String, resultFilename: String, resultExtension: String) {
+    public func getFileProperties(inUTI: CFString) -> (classFile: String, iconName: String, name: String, ext: String) {
     
-        var resultTypeFile: String = ""
-        var resultIconName: String = ""
-        var resultFileName: String = ""
-        var resultExtension: String = ""
-        let inUTIString: String = inUTI as String
+        var classFile: String = ""
+        var iconName: String = ""
+        var name: String = ""
+        var ext: String = ""
+        let typeIdentifier: String = inUTI as String
         
         if let fileExtension = UTTypeCopyPreferredTagWithClass(inUTI as CFString, kUTTagClassFilenameExtension) {
-            resultExtension = String(fileExtension.takeRetainedValue())
+            ext = String(fileExtension.takeRetainedValue())
         }
         
         if UTTypeConformsTo(inUTI, kUTTypeImage) {
-            resultTypeFile = typeFile.image.rawValue
-            resultIconName = iconName.image.rawValue
-            resultFileName = "image"
+            classFile = typeClassFile.image.rawValue
+            iconName = typeIconFile.image.rawValue
+            name = "image"
         } else if UTTypeConformsTo(inUTI, kUTTypeMovie) {
-            resultTypeFile = typeFile.video.rawValue
-            resultIconName = iconName.movie.rawValue
-            resultFileName = "movie"
+            classFile = typeClassFile.video.rawValue
+            iconName = typeIconFile.movie.rawValue
+            name = "movie"
         } else if UTTypeConformsTo(inUTI, kUTTypeAudio) {
-            resultTypeFile = typeFile.audio.rawValue
-            resultIconName = iconName.audio.rawValue
-            resultFileName = "audio"
+            classFile = typeClassFile.audio.rawValue
+            iconName = typeIconFile.audio.rawValue
+            name = "audio"
         } else if UTTypeConformsTo(inUTI, kUTTypeZipArchive) {
-            resultTypeFile = typeFile.compress.rawValue
-            resultIconName = iconName.compress.rawValue
-            resultFileName = "archive"
+            classFile = typeClassFile.compress.rawValue
+            iconName = typeIconFile.compress.rawValue
+            name = "archive"
         } else if UTTypeConformsTo(inUTI, kUTTypeHTML) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.code.rawValue
-            resultFileName = "code"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.code.rawValue
+            name = "code"
         } else if UTTypeConformsTo(inUTI, kUTTypePDF) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.pdf.rawValue
-            resultFileName = "document"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.pdf.rawValue
+            name = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeRTF) {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.txt.rawValue
-            resultFileName = "document"
-        } else if inUTIString == "net.daringfireball.markdown" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "markdown"
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.txt.rawValue
+            name = "document"
         } else if UTTypeConformsTo(inUTI, kUTTypeText) {
-            if resultExtension == "" { resultExtension = "txt" }
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.txt.rawValue
-            resultFileName = "text"
-        } else if inUTIString == "org.oasis-open.opendocument.text" || inUTIString == "org.openxmlformats.wordprocessingml.document" || inUTIString == "com.microsoft.word.doc" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "document"
-        } else if inUTIString == "com.apple.iwork.pages.pages" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.document.rawValue
-            resultFileName = "pages"
-        } else if inUTIString == "org.oasis-open.opendocument.spreadsheet" || inUTIString == "org.openxmlformats.spreadsheetml.sheet" || inUTIString == "com.microsoft.excel.xls" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.xls.rawValue
-            resultFileName = "sheet"
-        } else if inUTIString == "com.apple.iwork.numbers.numbers" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.xls.rawValue
-            resultFileName = "numbers"
-        } else if inUTIString == "org.oasis-open.opendocument.presentation" || inUTIString == "org.openxmlformats.presentationml.presentation" || inUTIString == "com.microsoft.powerpoint.ppt" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.ppt.rawValue
-            resultFileName = "presentation"
-        } else if inUTIString == "com.apple.iwork.keynote.key" {
-            resultTypeFile = typeFile.document.rawValue
-            resultIconName = iconName.ppt.rawValue
-            resultFileName = "keynote"
+            if ext == "" { ext = "txt" }
+            classFile = typeClassFile.document.rawValue
+            iconName = typeIconFile.txt.rawValue
+            name = "text"
         } else {
-            resultTypeFile = typeFile.unknow.rawValue
-            resultIconName = iconName.unknow.rawValue
-            resultFileName = "file"
+            if let result = internalTypeIdentifiers.first(where: {$0.typeIdentifier == typeIdentifier}) {
+                return(result.classFile, result.iconName, result.name, ext)
+            } else {
+                if UTTypeConformsTo(inUTI, kUTTypeContent) {
+                    classFile = typeClassFile.document.rawValue
+                    iconName = typeIconFile.document.rawValue
+                    name = "document"
+                } else {
+                    classFile = typeClassFile.unknow.rawValue
+                    iconName = typeIconFile.unknow.rawValue
+                    name = "file"
+                }
+            }
         }
         
-        return(resultTypeFile, resultIconName, resultFileName, resultExtension)
+        return(classFile, iconName, name, ext)
     }
     
-    @objc public func chunkedFile(path: String, fileName: String, outPath: String, sizeInMB: Int) -> [String]? {
-           
-        var outFilesName: [String] = []
+    //MARK: -  chunkedFile
+    
+    @objc public func chunkedFile(inputDirectory: String, outputDirectory: String, fileName: String, chunkSizeMB:Int, bufferSize: Int = 1000000) -> [String] {
         
-        do {
-            
-            let data = try Data(contentsOf: URL(fileURLWithPath: path + "/" + fileName))
-            let dataLen = data.count
-            if dataLen == 0 { return nil }
-            let chunkSize = ((1024 * 1000) * sizeInMB)
-            if chunkSize == 0 { return nil }
-            let fullChunks = Int(dataLen / chunkSize)
-            let totalChunks = fullChunks + (dataLen % 1024 != 0 ? 1 : 0)
-                
-            for chunkCounter in 0..<totalChunks {
-                
-                let chunkBase = chunkCounter * chunkSize
-                var diff = chunkSize
-                if chunkCounter == totalChunks - 1 {
-                    diff = dataLen - chunkBase
-                }
-                    
-                let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
-                let chunk = data.subdata(in: range)
-                                
-                let outFileName = fileName + "." + String(format: "%010d", chunkCounter)
-                try chunk.write(to: URL(fileURLWithPath: outPath + "/" + outFileName))
-                outFilesName.append(outFileName)
+        let fileManager: FileManager = .default
+        var isDirectory: ObjCBool = false
+        let chunkSize = chunkSizeMB * 1000000
+        var outputFilesName: [String] = []
+        var reader: FileHandle?
+        var writer: FileHandle?
+        var chunk: Int = 0
+        var counter: Int = 0
+        
+        if !fileManager.fileExists(atPath:outputDirectory, isDirectory:&isDirectory) {
+            do {
+                try fileManager.createDirectory(atPath: outputDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                return []
             }
-            
-        } catch {
-            
-            return nil
         }
         
-        return outFilesName
+        do {
+            reader = try .init(forReadingFrom: URL(fileURLWithPath: inputDirectory + "/" + fileName))
+        } catch {
+            return []
+        }
+        
+        repeat {
+            
+            if autoreleasepool(invoking: { () -> Int in
+                
+                if chunk >= chunkSize {
+                    writer?.closeFile()
+                    writer = nil
+                    chunk = 0
+                    counter += 1
+                    print("Counter: \(counter)")
+                }
+                
+                let chunkRemaining: Int = chunkSize - chunk
+                let buffer = reader?.readData(ofLength: min(bufferSize, chunkRemaining))
+                
+                if writer == nil {
+                    let fileNameChunk = fileName + String(format: "%010d", counter)
+                    let outputFileName = outputDirectory + "/" + fileNameChunk
+                    fileManager.createFile(atPath: outputFileName, contents: nil, attributes: nil)
+                    do {
+                        writer = try .init(forWritingTo: URL(fileURLWithPath: outputFileName))
+                    } catch {
+                        outputFilesName = []
+                        return 0
+                    }
+                    outputFilesName.append(fileNameChunk)
+                }
+                
+                if let buffer = buffer {
+                    writer?.write(buffer)
+                    chunk = chunk + buffer.count
+                    return buffer.count
+                }
+                return 0
+                
+            }) == 0 { break }
+            
+        } while true
+        
+        writer?.closeFile()
+        reader?.closeFile()
+        return outputFilesName
     }
     
     //MARK: - Common

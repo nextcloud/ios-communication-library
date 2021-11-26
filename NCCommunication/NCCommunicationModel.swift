@@ -26,6 +26,46 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
+@objc public class NCHovercard: NSObject {
+    internal init?(jsonData: JSON) {
+        guard let userId = jsonData["userId"].string,
+              let displayName = jsonData["displayName"].string,
+              let actions = jsonData["actions"].array?.compactMap(Action.init)
+        else {
+            return nil
+        }
+        self.userId = userId
+        self.displayName = displayName
+        self.actions = actions
+    }
+
+    @objc public class Action: NSObject {
+        internal init?(jsonData: JSON) {
+            guard let title = jsonData["title"].string,
+                  let icon = jsonData["icon"].string,
+                  let hyperlink = jsonData["hyperlink"].string,
+                  let appId = jsonData["appId"].string
+            else {
+                return nil
+            }
+            self.title = title
+            self.icon = icon
+            self.hyperlink = hyperlink
+            self.appId = appId
+        }
+        
+        @objc public let title: String
+        @objc public let icon: String
+        @objc public let hyperlink: String
+        @objc public var hyperlinkUrl: URL? { URL(string: hyperlink) }
+        @objc public let appId: String
+    }
+    
+    @objc public let userId, displayName: String
+    @objc public let actions: [Action]
+}
+
+
 //MARK: - File
 
 @objc public class NCCommunicationActivity: NSObject {
@@ -103,6 +143,7 @@ import SwiftyJSON
 
 @objc public class NCCommunicationFile: NSObject {
     
+    @objc public var classFile = ""
     @objc public var commentsUnread: Bool = false
     @objc public var contentType = ""
     @objc public var checksums = ""
@@ -132,15 +173,18 @@ import SwiftyJSON
     @objc public var quotaAvailableBytes: Int64 = 0
     @objc public var resourceType = ""
     @objc public var richWorkspace: String?
-    @objc public var sharePermissions = ""
+    @objc public var sharePermissionsCollaborationServices: Int = 0
+    @objc public var sharePermissionsCloudMesh: [String] = []
+    @objc public var shareType: [Int] = []
     @objc public var size: Int64 = 0
     @objc public var serverUrl = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
-    @objc public var typeFile = ""
     @objc public var uploadDate: NSDate?
     @objc public var urlBase = ""
+    @objc public var user = ""
+    @objc public var userId = ""
 }
 
 @objc public class NCCommunicationNotifications: NSObject {
@@ -238,7 +282,7 @@ import SwiftyJSON
     @objc public var hasPreview: Bool = false
     @objc public var iconName = ""
     @objc public var size: Int64 = 0
-    @objc public var typeFile = ""
+    @objc public var classFile = ""
     @objc public var trashbinFileName = ""
     @objc public var trashbinOriginalLocation = ""
     @objc public var trashbinDeletionTime = NSDate()
@@ -364,7 +408,6 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
     
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
-            
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
     </d:propfind>
@@ -416,7 +459,6 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
                 
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
-                        
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
         <oc:filter-rules>
@@ -699,13 +741,12 @@ class NCDataFileXML: NSObject {
         return xml["ocs", "data", "apppassword"].text        
     }
     
-    func convertDataFile(data: Data, showHiddenFiles: Bool) -> [NCCommunicationFile] {
+    func convertDataFile(data: Data, user: String, userId: String, showHiddenFiles: Bool) -> [NCCommunicationFile] {
         
         var files: [NCCommunicationFile] = []
         var dicMOV: [String:Int] = [:]
         var dicImage: [String:Int] = [:]
-        let webDavRoot = "/" + NCCommunicationCommon.shared.webDav + "/"
-        let davRootFiles = "/" + NCCommunicationCommon.shared.dav + "/files/"
+        let webDavRootFiles = "/" + NCCommunicationCommon.shared.webDav + "/files/"
         guard let baseUrl = NCCommunicationCommon.shared.getHostName(urlString: NCCommunicationCommon.shared.urlBase) else {
             return files
         }
@@ -738,17 +779,12 @@ class NCDataFileXML: NSObject {
                 file.fileName = file.fileName.removingPercentEncoding ?? ""
               
                 // ServerUrl
-                if href.hasSuffix(webDavRoot) {
+                if href == webDavRootFiles + NCCommunicationCommon.shared.user + "/" {
                     file.fileName = "."
                     file.serverUrl = ".."
-                } else if file.path.contains(webDavRoot) {
+                } else {
+                    //let postUrl = file.path.replacingOccurrences(of: webDavRootFiles + NCCommunicationCommon.shared.userId, with: webDavRootFiles.dropLast())
                     file.serverUrl = baseUrl + file.path.dropLast()
-                } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.user) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.user, with: webDavRoot.dropLast())
-                    file.serverUrl = baseUrl + postUrl.dropLast()
-                } else if file.path.contains(davRootFiles + NCCommunicationCommon.shared.userId) {
-                    let postUrl = file.path.replacingOccurrences(of: davRootFiles + NCCommunicationCommon.shared.userId, with: webDavRoot.dropLast())
-                    file.serverUrl = baseUrl + postUrl.dropLast()
                 }
                 file.serverUrl = file.serverUrl.removingPercentEncoding ?? ""
             }
@@ -789,14 +825,22 @@ class NCDataFileXML: NSObject {
                 file.downloadURL = downloadURL
             }
             
-            if let note = propstat["d:prop", "d:note"].text {
+            if let note = propstat["d:prop", "nc:note"].text {
                 file.note = note
             }
             
-            if let sharePermissions = propstat["d:prop", "d:share-permissions"].text {
-                file.sharePermissions = sharePermissions
+            if let sharePermissionsCollaborationServices = propstat["d:prop", "x1:share-permissions"].int {
+                file.sharePermissionsCollaborationServices = sharePermissionsCollaborationServices
             }
             
+            if let sharePermissionsCloudMesh = propstat["d:prop", "x2:share-permissions"].text {
+                let elements = sharePermissionsCloudMesh.components(separatedBy: ",")
+                for element in elements {
+                    let result = (element as String).replacingOccurrences(of: "[", with: "").replacingOccurrences(of: "]", with: "").replacingOccurrences(of: "\"", with: "")
+                    file.sharePermissionsCloudMesh.append(result)
+                }
+            }
+                        
             if let checksums = propstat["d:prop", "d:checksums"].text {
                 file.checksums = checksums
             }
@@ -835,6 +879,12 @@ class NCDataFileXML: NSObject {
                 file.size = Int64(size) ?? 0
             }
             
+            for shareTypesElement in propstat["d:prop", "oc:share-types"] {
+                if let shareTypes = shareTypesElement["oc:share-type"].int {
+                    file.shareType.append(shareTypes)
+                }
+            }
+                            
             if let favorite = propstat["d:prop", "oc:favorite"].text {
                 file.favorite = (favorite as NSString).boolValue
             }
@@ -873,15 +923,17 @@ class NCDataFileXML: NSObject {
             file.ext = results.ext
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
-            file.typeFile = results.typeFile
+            file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
+            file.user = user
+            file.userId = userId
             
             files.append(file)
             
             // Detect Live Photo
             if file.ext == "mov" {
                 dicMOV[file.fileNameWithoutExt] = files.count - 1
-            } else if file.typeFile == NCCommunicationCommon.typeFile.image.rawValue {
+            } else if file.classFile == NCCommunicationCommon.typeClassFile.image.rawValue {
                 dicImage[file.fileNameWithoutExt] = files.count - 1
             }
         }
@@ -984,7 +1036,7 @@ class NCDataFileXML: NSObject {
             let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
             
             file.contentType = results.mimeType
-            file.typeFile = results.typeFile
+            file.classFile = results.classFile
             file.iconName = results.iconName
             
             files.append(file)
@@ -1018,7 +1070,7 @@ class NCDataFileXML: NSObject {
                 item.actorType = value
             }
             
-            if let creationDateTime = element["d:propstat", "d:prop", "d:creationDateTime"].text {
+            if let creationDateTime = element["d:propstat", "d:prop", "oc:creationDateTime"].text {
                 if let date = NCCommunicationCommon.shared.convertDate(creationDateTime, format: "EEE, dd MMM y HH:mm:ss zzz") {
                     item.creationDateTime = date
                 }
