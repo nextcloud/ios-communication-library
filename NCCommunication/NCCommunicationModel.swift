@@ -67,6 +67,94 @@ import SwiftyJSON
 }
 
 
+// MARK: - NCSearchResult
+@objcMembers
+public class NCCSearchResult: NSObject {
+    public let name: String
+    public let isPaginated: Bool
+    public let entries: [NCCSearchEntry]
+    public let cursor: Int?
+
+    init?(json: JSON) {
+        guard let isPaginated = json["isPaginated"].bool,
+              let name = json["name"].string,
+              let entries = NCCSearchEntry.factory(jsonArray: json["entries"])
+        else { return nil }
+        self.cursor = json["cursor"].int
+        self.name = name
+        self.isPaginated = isPaginated
+        self.entries = entries
+    }
+}
+
+// MARK: - NCSearchEntry
+@objcMembers
+public class NCCSearchEntry: NSObject {
+    public let thumbnailURL: String
+    public let title, subline: String
+    public let resourceURL: String
+    public let icon: String
+    public let rounded: Bool
+    public let attributes: NCCSearchAttributes?
+
+    init?(json: JSON) {
+        guard let thumbnailURL = json["thumbnailUrl"].string,
+              let title = json["title"].string,
+              let subline = json["subline"].string,
+              let resourceURL = json["resourceUrl"].string,
+              let icon = json["icon"].string,
+              let rounded = json["rounded"].bool
+        else { return nil }
+
+        self.thumbnailURL = thumbnailURL
+        self.title = title
+        self.subline = subline
+        self.resourceURL = resourceURL
+        self.icon = icon
+        self.rounded = rounded
+        self.attributes = NCCSearchAttributes(json: json["attributes"])
+    }
+    
+    static func factory(jsonArray: JSON) -> [NCCSearchEntry]? {
+        guard let allProvider = jsonArray.array else { return nil }
+        return allProvider.compactMap(NCCSearchEntry.init)
+    }
+}
+
+// MARK: - NCSearchAttributes
+@objcMembers
+public class NCCSearchAttributes: NSObject {
+    let fileID, path: String?
+
+    init(json: JSON) {
+        self.fileID = json["fileId"].string
+        self.path = json["path"].string
+    }
+}
+
+
+// MARK: - NCSearchProvider
+@objcMembers
+public class NCCSearchProvider: NSObject {
+    init?(json: JSON) {
+        guard let id = json["id"].string,
+              let name = json["name"].string,
+              let order = json["order"].int
+        else { return nil }
+        self.id = id
+        self.name = name
+        self.order = order
+    }
+    
+    public let id, name: String
+    public let order: Int
+
+    static func factory(jsonArray: JSON) -> [NCCSearchProvider]? {
+        guard let allProvider = jsonArray.array else { return nil }
+        return allProvider.compactMap(NCCSearchProvider.init)
+    }
+}
+
 //MARK: - File
 
 @objc public class NCCommunicationActivity: NSObject {
