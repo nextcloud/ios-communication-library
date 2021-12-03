@@ -26,6 +26,83 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+
+/// Options for creating a new share
+@objcMembers
+public class NCCCreateShareOptions: NSObject {
+
+    /// Create public share options
+    /// - Parameters:
+    ///   - path: Path of the file/folder being shared. Mandatory argument
+    ///   - publicUpload: If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
+    ///   - hideDownload: Permission if file can be downloaded via share link (only for single file)
+    ///   - password: Password to protect a public link share. Only available for public link shares
+    ///   - note: Adds a note for the share recipient (availabvle in NC >= 24)
+    ///   - permissions: Permissions for user or group shares
+    @objc public init(path: String, publicUpload: Bool, hideDownload: Bool, password: String?, note: String?, permissions: Int = 1) {
+        self.path = path
+        self.shareType = 3
+        self.shareWith = nil
+        self.publicUpload = publicUpload
+        self.hideDownload = hideDownload
+        self.password = password
+        self.note = note
+        self.permissions = permissions
+    }
+
+    /// Create share options for a user-share
+    /// - Parameters:
+    ///   - path: Path of the file/folder being shared. Mandatory argument
+    ///   - shareType: 0 = user, 1 = group, 3 = Public link. Mandatory argument
+    ///   - shareWith: User/group ID with who the file should be shared.  This is mandatory for shareType of 0 or 1
+    ///   - password: Password to protect a public link share. Only available for public link shares
+    ///   - note: Adds a note for the share recipient (availabvle in NC >= 24)
+    ///   - permissions: Permissions for user or group shares
+    @objc public init(path: String, shareType: Int, shareWith: String, password: String?, note: String?, permissions: Int = 1) {
+        self.path = path
+        self.shareType = shareType
+        self.shareWith = shareWith
+        self.publicUpload = false
+        self.hideDownload = false
+        self.password = password
+        self.note = note
+        self.permissions = permissions
+    }
+
+    internal init(path: String, shareType: Int, shareWith: String?, publicUpload: Bool? = nil, hideDownload: Bool? = nil, password: String? = nil, note: String? = nil, permissions: Int = 1) {
+        self.path = path
+        self.shareType = shareType
+        self.shareWith = shareWith
+        self.publicUpload = publicUpload
+        self.hideDownload = hideDownload
+        self.password = password
+        self.note = note
+        self.permissions = permissions
+    }
+
+    let path: String
+    let shareType: Int
+    let shareWith: String?
+    let publicUpload: Bool?
+    let hideDownload: Bool?
+    let password: String?
+    let note: String?
+    
+    /**
+     For user or group shares.
+     To obtain combinations, add the desired values together.
+     For instance, for Re-Share, delete, read, update, add 16+8+2+1 = 27.
+
+     - 1 - Read only Default for public shares
+     - 2 - Update
+     - 4 - Create
+     - 8 - Delete
+     - 16- Re-share
+     - 31- All above Default for private shares
+     */
+    let permissions: Int
+}
+
 @objc public class NCCShareParameter: NSObject {
 
     /// - Parameters:
@@ -41,7 +118,6 @@ import SwiftyJSON
         self.sharedWithMe = sharedWithMe
     }
 
-
     /// - Parameters:
     ///   - idShare: Identifier of the share to update
     ///   - reshares: If set to false (default), only shares owned by the current user are returned. If set to true, shares owned by any user from the given file are returned.
@@ -54,7 +130,6 @@ import SwiftyJSON
         self.subfiles = subfiles
         self.sharedWithMe = sharedWithMe
     }
-
 
     let path: String?
     let idShare: Int
@@ -229,87 +304,66 @@ extension NCCommunication {
             }
         }
     }
-    
-    /*
-    * @param path           path of the file/folder being shared. Mandatory argument
-    * @param shareType      0 = user, 1 = group, 3 = Public link. Mandatory argument
-    * @param shareWith      User/group ID with who the file should be shared.  This is mandatory for shareType of 0 or 1
-    * @param publicUpload   If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
-    * @param hideDownload   Permission if file can be downloaded via share link (only for single file)
-    * @param password       Password to protect a public link share. Only available for public link shares
-    * @param permissions    1 - Read only Default for public shares
-    *                       2 - Update
-    *                       4 - Create
-    *                       8 - Delete
-    *                       16- Re-share
-    *                       31- All above Default for private shares
-    *                       For user or group shares.
-    *                       To obtain combinations, add the desired values together.
-    *                       For instance, for Re-Share, delete, read, update, add 16+8+2+1 = 27.
-    */
-    
-    @objc public func createShareLink(path: String, hideDownload: Bool = false, publicUpload: Bool = false, password: String? = nil, permissions: Int = 1, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-     
-        createShare(path: path, shareType: 3, shareWith: nil, publicUpload: publicUpload, hideDownload: hideDownload, password: password, permissions: permissions, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue, completionHandler: completionHandler)
-    }
-    
-    @objc public func createShare(path: String, shareType: Int, shareWith: String, password: String? = nil, permissions: Int = 1, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-     
-        createShare(path: path, shareType: shareType, shareWith: shareWith, publicUpload: false, hideDownload: false, password: password, permissions: permissions, customUserAgent: customUserAgent, addCustomHeaders: addCustomHeaders, queue: queue, completionHandler: completionHandler)
-    }
-    
-    private func createShare(path: String, shareType: Int, shareWith: String?, publicUpload: Bool? = nil, hideDownload: Bool? = nil, password: String? = nil, permissions: Int = 1, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
-           
-        let account = NCCommunicationCommon.shared.account
-        let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
-                
-        guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
-            return
-        }
-        
-        let method = HTTPMethod(rawValue: "POST")
-             
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        var parameters = [
-            "path": path,
-            "shareType": String(shareType),
-            "permissions": String(permissions)
-        ]
-        if shareWith != nil {
-            parameters["shareWith"] = shareWith!
-        }
-        if publicUpload != nil {
-            parameters["publicUpload"] = publicUpload == true ? "true" : "false"
-        }
-        if hideDownload != nil {
-            parameters["hideDownload"] = hideDownload == true ? "true" : "false"
-        }
-        if password != nil {
-            parameters["password"] = password!
-        }
-        
-        sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
-            debugPrint(response)
-            
-            switch response.result {
-            case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
-            case .success(let json):
-                let json = JSON(json)
-                
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
-                    queue.async { completionHandler(account, self.convertResponseShare(json: json), 0, "") }
-                }  else {
-                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, nil, statusCode, errorDescription) }
+    @objc public func createShare(
+        options: NCCCreateShareOptions,
+        customUserAgent: String? = nil,
+        addCustomHeaders: [String: String]? = nil,
+        queue: DispatchQueue = .main,
+        completionHandler: @escaping (_ account: String, _ share: NCCommunicationShare?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+
+            let account = NCCommunicationCommon.shared.account
+            let endpoint = "ocs/v2.php/apps/files_sharing/api/v1/shares?format=json"
+
+            guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
+                queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+                return
+            }
+
+            let method = HTTPMethod(rawValue: "POST")
+            let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
+
+            var parameters = [
+                "path": options.path,
+                "shareType": String(options.shareType),
+                "permissions": String(options.permissions),
+            ]
+            if let shareWith = options.shareWith {
+                parameters["shareWith"] = shareWith
+            }
+            if let publicUpload = options.publicUpload {
+                parameters["publicUpload"] = publicUpload ? "true" : "false"
+            }
+            if let hideDownload = options.hideDownload {
+                parameters["hideDownload"] = hideDownload ? "true" : "false"
+            }
+            if let password = options.password {
+                parameters["password"] = password
+            }
+            if let note = options.note {
+                parameters["note"] = note
+            }
+
+            sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+                debugPrint(response)
+
+                switch response.result {
+                case .failure(let error):
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                case .success(let json):
+                    let json = JSON(json)
+                    
+                    let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                    if statusCode == 200 {
+                        queue.async { completionHandler(account, self.convertResponseShare(json: json), 0, "") }
+                    }  else {
+                        let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+                        queue.async { completionHandler(account, nil, statusCode, errorDescription) }
+                    }
                 }
             }
         }
-    }
     
     /*
     * @param idShare        Identifier of the share to update
