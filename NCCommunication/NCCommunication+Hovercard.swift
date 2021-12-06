@@ -28,14 +28,14 @@ import SwiftyJSON
 extension NCCommunication {
 
     // available in NC >= 23 (beta 2)
-    @objc public func getHovercard(for userId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ result: NCHovercard?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getHovercard(for userId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ result: NCHovercard?, _ error: NCCError) -> Void) {
 
         let endpoint = "ocs/v2.php/hovercard/v1/\(userId)?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint)
         else {
             queue.async {
-                completionHandler(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                completionHandler(nil, .urlError)
             }
             return
         }
@@ -49,19 +49,20 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(nil, error) }
             case .success(let json):
                 let json = JSON(json)
                 let data = json["ocs"]["data"]
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                guard statusCode == 200, let result = NCHovercard(jsonData: data) else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(nil, statusCode, errorDescription) }
+                guard json["ocs"]["meta"]["statuscode"].int == 200,
+                      let result = NCHovercard(jsonData: data)
+                else {
+                    let error = NCCError(rootJson: json)
+                    queue.async { completionHandler(nil, error) }
                     return
                 }
                 queue.async {
-                    completionHandler(result, 0, "")
+                    completionHandler(result, .success)
                 }
             }
         }

@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
     
-    @objc public func getUserStatus(userId: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ clearAt: NSDate?, _ icon: String?, _ message: String?, _ messageId: String?, _ messageIsPredefined: Bool, _ status: String?, _ statusIsUserDefined: Bool, _ userId: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getUserStatus(userId: String? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ clearAt: NSDate?, _ icon: String?, _ message: String?, _ messageId: String?, _ messageIsPredefined: Bool, _ status: String?, _ statusIsUserDefined: Bool, _ userId: String?, _ error: NCCError) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         var endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status?format=json"
@@ -36,7 +36,7 @@ extension NCCommunication {
         }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, .urlError) }
             return
         }
         
@@ -49,12 +49,11 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, error) }
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
                     
                     var clearAt: NSDate?
                     if let clearAtDouble = json["ocs"]["data"]["clearAt"].double {
@@ -68,24 +67,22 @@ extension NCCommunication {
                     let statusIsUserDefined = json["ocs"]["data"]["statusIsUserDefined"].boolValue
                     let userId = json["ocs"]["data"]["userId"].string
 
-                    queue.async { completionHandler(account, clearAt, icon, message, messageId, messageIsPredefined, status, statusIsUserDefined, userId, 0, "") }
+                    queue.async { completionHandler(account, clearAt, icon, message, messageId, messageIsPredefined, status, statusIsUserDefined, userId, .success) }
                     
                 } else {
-                    
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func setUserStatus(status: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func setUserStatus(status: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/status?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -102,29 +99,27 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success(let json):
                 let json = JSON(json)
-                
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
-                    queue.async { completionHandler(account, 0, "") }
+
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
+                    queue.async { completionHandler(account, .success) }
                 }  else {
-                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func setCustomMessagePredefined(messageId: String, clearAt: Double, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func setCustomMessagePredefined(messageId: String, clearAt: Double, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/message/predefined?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -144,29 +139,27 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success(let json):
                 let json = JSON(json)
                 
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
-                    queue.async { completionHandler(account, 0, "") }
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
+                    queue.async { completionHandler(account, .success) }
                 }  else {
-                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func setCustomMessageUserDefined(statusIcon: String?, message: String, clearAt: Double, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func setCustomMessageUserDefined(statusIcon: String?, message: String, clearAt: Double, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/message/custom?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -189,29 +182,27 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success(let json):
                 let json = JSON(json)
                 
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
-                    queue.async { completionHandler(account, 0, "") }
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
+                    queue.async { completionHandler(account, .success) }
                 }  else {
-                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func clearMessage(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func clearMessage(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/user_status/message?format=json"
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -224,30 +215,28 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success(let json):
                 let json = JSON(json)
                 
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
-                    queue.async { completionHandler(account, 0, "") }
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
+                    queue.async { completionHandler(account, .success) }
                 }  else {
-                    let errorDescription = json["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func getUserStatusPredefinedStatuses(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getUserStatusPredefinedStatuses(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ error: NCCError) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         var userStatuses: [NCCommunicationUserStatus] = []
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/predefined_statuses?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -260,12 +249,11 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, error) }
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
                     
                     let ocsdata = json["ocs"]["data"]
                     for (_, subJson):(String, JSON) in ocsdata {
@@ -285,25 +273,24 @@ extension NCCommunication {
                         userStatuses.append(userStatus)
                     }
                 
-                    queue.async { completionHandler(account, userStatuses, 0, "") }
+                    queue.async { completionHandler(account, userStatuses, .success) }
                     
                 }  else {
                     
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, nil, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func getUserStatusRetrieveStatuses(limit: Int, offset: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getUserStatusRetrieveStatuses(limit: Int, offset: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ userStatuses: [NCCommunicationUserStatus]?, _ error: NCCError) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         var userStatuses: [NCCommunicationUserStatus] = []
         let endpoint = "ocs/v2.php/apps/user_status/api/v1/statuses?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -321,12 +308,11 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, error) }
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                if statusCode == 200 {
+                if json["ocs"]["meta"]["statuscode"].int == 200 {
                     
                     let ocsdata = json["ocs"]["data"]
                     for (_, subJson):(String, JSON) in ocsdata {
@@ -345,12 +331,11 @@ extension NCCommunication {
                         userStatuses.append(userStatus)
                     }
                 
-                    queue.async { completionHandler(account, userStatuses, 0, "") }
+                    queue.async { completionHandler(account, userStatuses, .success) }
                     
                 } else {
                     
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, nil, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
                 }
             }
         }

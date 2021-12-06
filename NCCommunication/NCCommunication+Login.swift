@@ -29,12 +29,12 @@ extension NCCommunication {
         
     //MARK: - App Password
     
-    @objc public func getAppPassword(serverUrl: String, username: String, password: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getAppPassword(serverUrl: String, username: String, password: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ error: NCCError) -> Void) {
                 
         let endpoint = "ocs/v2.php/core/getapppassword"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(nil, .urlError) }
             return
         }
         
@@ -48,7 +48,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: HTTPMethod(rawValue: "GET"), headers: headers)
         } catch {
-            queue.async { completionHandler(nil, error._code, error.localizedDescription) }
+            queue.async { completionHandler(nil, NCCError(error: error)) }
             return
         }
 
@@ -57,14 +57,14 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(nil, error) }
             case .success(let data):
                 if let data = data {
                     let apppassword = NCDataFileXML().convertDataAppPassword(data: data)
-                    queue.async { completionHandler(apppassword, 0, "") }
+                    queue.async { completionHandler(apppassword, .success) }
                 } else {
-                    queue.async { completionHandler(nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
+                    queue.async { completionHandler(nil, .xmlError) }
                 }
             }
         }
@@ -72,12 +72,12 @@ extension NCCommunication {
     
     //MARK: - Login Flow V2
     
-    @objc public func getLoginFlowV2(serverUrl: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2(serverUrl: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ token: String?, _ endpoint: String? , _ login: String?, _ error: NCCError) -> Void) {
                 
         let endpoint = "index.php/login/v2"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(nil, nil, nil, .urlError) }
             return
         }
         
@@ -93,8 +93,8 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(nil, nil, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(nil, nil, nil, error) }
             case .success(let json):
                 let json = JSON(json)
                
@@ -102,16 +102,16 @@ extension NCCommunication {
                 let endpoint = json["poll"]["endpoint"].string
                 let login = json["login"].string
                 
-                queue.async { completionHandler(token, endpoint, login, 0, "") }
+                queue.async { completionHandler(token, endpoint, login, .success) }
             }
         }
     }
     
-    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getLoginFlowV2Poll(token: String, endpoint: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ error: NCCError) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
         guard let url = serverUrl.asUrl else {
-            queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(nil, nil, nil, .urlError) }
             return
         }
         
@@ -127,8 +127,8 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(nil, nil, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(nil, nil, nil, error) }
             case .success(let json):
                 let json = JSON(json)
             
@@ -136,7 +136,7 @@ extension NCCommunication {
                 let loginName = json["loginName"].string
                 let appPassword = json["appPassword"].string
                 
-                queue.async { completionHandler(server, loginName, appPassword, 0, "") }
+                queue.async { completionHandler(server, loginName, appPassword, .success) }
             }
         }
     }

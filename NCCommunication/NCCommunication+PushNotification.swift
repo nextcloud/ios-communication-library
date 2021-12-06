@@ -27,12 +27,12 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func subscribingPushNotification(serverUrl: String, account: String, user: String, password: String, pushTokenHash: String, devicePublicKey: String, proxyServerUrl: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ deviceIdentifier: String?, _ signature: String?, _ publicKey: String?, _ error: NCCError) -> Void) {
         
         let endpoint = "ocs/v2.php/apps/notifications/api/v2/push?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, nil, nil, .urlError) }
             return
         }
         
@@ -51,30 +51,29 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, nil, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, nil, nil, error) }
             case .success(let json):
                 let json = JSON(json)
-                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
+                let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCError.internalError
                 if 200..<300 ~= statusCode  {
                     let deviceIdentifier = json["ocs"]["data"]["deviceIdentifier"].stringValue
                     let signature = json["ocs"]["data"]["signature"].stringValue
                     let publicKey = json["ocs"]["data"]["publicKey"].stringValue
-                    queue.async { completionHandler(account, deviceIdentifier, signature, publicKey, 0, "") }
+                    queue.async { completionHandler(account, deviceIdentifier, signature, publicKey, .success) }
                 } else {
-                    let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                    queue.async { completionHandler(account, nil, nil, nil, statusCode, errorDescription) }
+                    queue.async { completionHandler(account, nil, nil, nil, NCCError(rootJson: json)) }
                 }
             }
         }
     }
     
-    @objc public func unsubscribingPushNotification(serverUrl: String, account: String, user: String, password: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func unsubscribingPushNotification(serverUrl: String, account: String, user: String, password: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
                             
         let endpoint = "ocs/v2.php/apps/notifications/api/v2/push"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: serverUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -87,20 +86,20 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success( _):
-                queue.async { completionHandler(account, 0, "") }
+                queue.async { completionHandler(account, .success) }
             }
         }
     }
     
-    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func subscribingPushProxy(proxyServerUrl: String, pushToken: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ error: NCCError) -> Void) {
         
         let endpoint = "devices?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(.urlError) }
             return
         }
         
@@ -120,20 +119,20 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(error) }
             case .success( _):
-                queue.async { completionHandler(0, "") }
+                queue.async { completionHandler(.success) }
             }
         }
     }
     
-    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func unsubscribingPushProxy(proxyServerUrl: String, deviceIdentifier: String, signature: String, publicKey: String, userAgent: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ error: NCCError) -> Void) {
                 
         let endpoint = "devices"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: proxyServerUrl, endpoint: endpoint) else {
-            queue.async { completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(.urlError) }
             return
         }
         
@@ -152,10 +151,10 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(error) }
             case .success( _):
-                queue.async { completionHandler(0, "") }
+                queue.async { completionHandler(.success) }
             }
         }
     }

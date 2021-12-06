@@ -1159,19 +1159,11 @@ class NCDataFileXML: NSObject {
         return items
     }
     
-    func convertDataShare(data: Data) -> (shares: [NCCommunicationShare], statusCode: Int, message: String) {
-        
-        var items: [NCCommunicationShare] = []
-        var statusCode: Int = 0
-        var message = ""
-        
+    func convertDataShare(data: Data) -> [NCCommunicationShare]? {
         let xml = XML.parse(data)
-        if let value = xml["ocs", "meta", "statuscode"].int {
-            statusCode = value
-        }
-        if let value = xml["ocs", "meta", "message"].text {
-            message = value
-        }
+        guard xml["ocs", "meta", "statuscode"].int == 200 else { return nil }
+
+        var items: [NCCommunicationShare] = []
         let elements = xml["ocs", "data", "element"]
         for element in elements {
             let item = NCCommunicationShare()
@@ -1325,7 +1317,7 @@ class NCDataFileXML: NSObject {
             items.append(item)
         }
         
-        return(items, statusCode, message)
+        return items
     }
 }
 

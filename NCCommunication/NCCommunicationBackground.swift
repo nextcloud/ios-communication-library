@@ -163,23 +163,19 @@ import Foundation
             serverUrl = url!.replacingOccurrences(of: "/"+fileName, with: "")
         }
         
-        var errorCode = 0, errorDescription = ""
+        var nccError: NCCError = .success
         
         if let httpResponse = (task.response as? HTTPURLResponse) {
             if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
-                if error != nil {
-                    errorCode = (error! as NSError).code
-                    errorDescription = (error! as NSError).localizedDescription
+                if let error = error {
+                    nccError = NCCError(error: error)
                 }
             } else {
-                let error = NCCommunicationError().getError(error: nil, httResponse: httpResponse)
-                errorCode = error.errorCode
-                errorDescription = error.description ?? ""
+                nccError = NCCError(httpResponse: httpResponse)
             }
         } else {
-            if error != nil {
-                errorCode = (error! as NSError).code
-                errorDescription = (error! as NSError).localizedDescription
+            if let error = error {
+                nccError = NCCError(error: error)
             }
         }
         
@@ -210,17 +206,17 @@ import Foundation
             if parameter?.count == 2 {
                 description = parameter![1]
             }
-            NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, errorCode: errorCode, errorDescription: errorDescription)
+            NCCommunicationCommon.shared.delegate?.downloadComplete?(fileName: fileName, serverUrl: serverUrl, etag: etag, date: date, dateLastModified: dateLastModified, length: length, description: description, task: task, error: nccError)
         }
         if task is URLSessionUploadTask {
             
-            NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, errorCode: errorCode, errorDescription: errorDescription)
+            NCCommunicationCommon.shared.delegate?.uploadComplete?(fileName: fileName, serverUrl: serverUrl, ocId: ocId, etag: etag, date: date, size: task.countOfBytesExpectedToSend, description: task.taskDescription, task: task, error: nccError)
         }
         
-        if errorCode == 0 {
+        if nccError.errorCode == 0 {
             NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName)
         } else {
-            NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(errorCode) and error description " + errorDescription)
+            NCCommunicationCommon.shared.writeLog("Network completed upload file: " + serverUrl + "/" + fileName + " with error code \(nccError.errorCode) and error description " + nccError.errorDescription)
         }
     }
     

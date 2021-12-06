@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func NCTextObtainEditorDetails(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextObtainEditorDetails(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  editors: [NCCommunicationEditorDetailsEditors], _ creators: [NCCommunicationEditorDetailsCreators], _ error: NCCError) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         var editors: [NCCommunicationEditorDetailsEditors] = []
@@ -36,7 +36,7 @@ extension NCCommunication {
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, editors, creators, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, editors, creators, .urlError) }
             return
         }
         
@@ -49,8 +49,8 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, editors, creators ,error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, editors, creators, error) }
             case .success(let json):
                 let json = JSON(json)
                 let ocsdataeditors = json["ocs"]["data"]["editors"]
@@ -86,24 +86,24 @@ extension NCCommunication {
                     creators.append(creator)
                 }
                 
-                queue.async { completionHandler(account, editors, creators, 0, "") }
+                queue.async { completionHandler(account, editors, creators, .success) }
             }
         }
     }
     
-    @objc public func NCTextOpenFile(fileNamePath: String, editor: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextOpenFile(fileNamePath: String, editor: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  url: String?, _ error: NCCError) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
         guard let fileNamePath = fileNamePath.urlEncoded else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing/open?path=/" + fileNamePath + "&editorId=" + editor + "&format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -116,17 +116,17 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, error) }
             case .success(let json):
                 let json = JSON(json)
                 let url = json["ocs"]["data"]["url"].stringValue
-                queue.async { completionHandler(account, url, 0, "") }
+                queue.async { completionHandler(account, url, .success) }
             }
         }
     }
     
-    @objc public func NCTextGetListOfTemplates(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextGetListOfTemplates(customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _  templates: [NCCommunicationEditorTemplates], _ error: NCCError) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
         var templates: [NCCommunicationEditorTemplates] = []
@@ -134,7 +134,7 @@ extension NCCommunication {
         let endpoint = "ocs/v2.php/apps/files/api/v1/directEditing/templates/text/textdocumenttemplate?format=json"
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, templates, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, templates, .urlError) }
             return
         }
         
@@ -147,8 +147,8 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, templates, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, templates, error) }
             case .success(let json):
                 let json = JSON(json)
                 let ocsdatatemplates = json["ocs"]["data"]["editors"]
@@ -164,17 +164,17 @@ extension NCCommunication {
                     templates.append(template)
                 }
                 
-                queue.async { completionHandler(account, templates, 0, "") }
+                queue.async { completionHandler(account, templates, .success) }
             }
         }
     }
     
-    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ url: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func NCTextCreateFile(fileNamePath: String, editorId: String, creatorId: String, templateId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ url: String?, _ error: NCCError) -> Void) {
                 
         let account = NCCommunicationCommon.shared.account
 
         guard let fileNamePath = fileNamePath.urlEncoded else {
-            queue.async { completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -187,7 +187,7 @@ extension NCCommunication {
         }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -200,12 +200,12 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, error) }
             case .success(let json):
                 let json = JSON(json)
                 let url = json["ocs"]["data"]["url"].stringValue
-                queue.async { completionHandler(account, url, 0, "") }
+                queue.async { completionHandler(account, url, .success) }
             }
         }
     }

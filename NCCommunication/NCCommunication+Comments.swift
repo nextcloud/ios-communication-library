@@ -26,13 +26,13 @@ import Alamofire
 
 extension NCCommunication {
 
-    @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationComments]?, _ error: NCCError) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
             
         guard let url = serverUrlEndpoint.encodedToUrl else {
-            queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, nil, .urlError) }
             return
         }
         
@@ -46,7 +46,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyComments.data(using: .utf8)
         } catch {
-            queue.async { completionHandler(account, nil, error._code, error.localizedDescription) }
+            queue.async { completionHandler(account, nil, NCCError(error: error)) }
             return
         }
           
@@ -55,26 +55,26 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, nil, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, nil, error) }
             case .success( _):
                 if let data = response.data {
                     let items = NCDataFileXML().convertDataComments(data: data)
-                    queue.async { completionHandler(account, items, 0, "") }
+                    queue.async { completionHandler(account, items, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NSURLErrorBadServerResponse, NSLocalizedString("_error_decode_xml_", value: "Invalid response, error decode XML", comment: "")) }
+                    queue.async { completionHandler(account, nil, .xmlError) }
                 }
             }
         }
     }
 
-    @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func putComments(fileId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
         
         guard let url = serverUrlEndpoint.encodedToUrl else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -89,7 +89,7 @@ extension NCCommunication {
             let parameters = "{\"actorType\":\"users\",\"verb\":\"comment\",\"message\":\"" + message + "\"}"
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            queue.async { completionHandler(account, NCCError(error: error)) }
             return
         }
         
@@ -98,21 +98,21 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success( _):
-                queue.async { completionHandler(account, 0, "") }
+                queue.async { completionHandler(account, .success) }
             }
         }
     }
     
-    @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func updateComments(fileId: String, messageId: String, message: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = serverUrlEndpoint.encodedToUrl else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -127,7 +127,7 @@ extension NCCommunication {
             let parameters = String(format: NCDataFileXML().requestBodyCommentsUpdate, message)
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            queue.async { completionHandler(account, NCCError(error: error)) }
             return
         }
         
@@ -136,21 +136,21 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success( _):
-                queue.async { completionHandler(account, 0, "") }
+                queue.async { completionHandler(account, .success) }
             }
         }
     }
     
-    @objc public func deleteComments(fileId: String, messageId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func deleteComments(fileId: String, messageId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId + "/" + messageId
         
         guard let url = serverUrlEndpoint.encodedToUrl else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -163,21 +163,21 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success( _):
-                queue.async { completionHandler(account, 0, "") }
+                queue.async { completionHandler(account, .success) }
             }
         }
     }
     
-    @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func markAsReadComments(fileId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ error: NCCError) -> Void) {
         
         let account = NCCommunicationCommon.shared.account
         let serverUrlEndpoint = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/comments/files/" + fileId
         
         guard let url = serverUrlEndpoint.encodedToUrl else {
-            queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, .urlError) }
             return
         }
         
@@ -192,7 +192,7 @@ extension NCCommunication {
             let parameters = String(format: NCDataFileXML().requestBodyCommentsMarkAsRead)
             urlRequest.httpBody = parameters.data(using: .utf8)
         } catch {
-            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            queue.async { completionHandler(account, NCCError(error: error)) }
             return
         }
         
@@ -201,10 +201,10 @@ extension NCCommunication {
             
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                queue.async { completionHandler(account, error) }
             case .success( _):
-                queue.async { completionHandler(account, 0, "") }
+                queue.async { completionHandler(account, .success) }
             }
         }
     }
