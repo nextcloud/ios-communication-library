@@ -27,7 +27,8 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
-@objc public class NCHovercard: NSObject {
+// MARK: - NCCHovercard
+@objc public class NCCHovercard: NSObject {
     internal init?(jsonData: JSON) {
         guard let userId = jsonData["userId"].string,
               let displayName = jsonData["displayName"].string,
@@ -95,7 +96,16 @@ public class NCCSearchEntry: NSObject {
     public let resourceURL: String
     public let icon: String
     public let rounded: Bool
-    public let attributes: NCCSearchAttributes?
+    public let attributes: [String: Any]?
+
+    public var fileId: Int? {
+        guard let fileAttribute = attributes?["fileId"] as? String else { return nil }
+        return Int(fileAttribute)
+    }
+
+    public var filePath: String? {
+        attributes?["path"] as? String
+    }
 
     init?(json: JSON) {
         guard let thumbnailURL = json["thumbnailUrl"].string,
@@ -112,26 +122,14 @@ public class NCCSearchEntry: NSObject {
         self.resourceURL = resourceURL
         self.icon = icon
         self.rounded = rounded
-        self.attributes = NCCSearchAttributes(json: json["attributes"])
+        self.attributes = json["attributes"].dictionaryObject
     }
-    
+
     static func factory(jsonArray: JSON) -> [NCCSearchEntry]? {
         guard let allProvider = jsonArray.array else { return nil }
         return allProvider.compactMap(NCCSearchEntry.init)
     }
 }
-
-// MARK: - NCSearchAttributes
-@objcMembers
-public class NCCSearchAttributes: NSObject {
-    let fileID, path: String?
-
-    init(json: JSON) {
-        self.fileID = json["fileId"].string
-        self.path = json["path"].string
-    }
-}
-
 
 // MARK: - NCSearchProvider
 @objcMembers
@@ -145,7 +143,7 @@ public class NCCSearchProvider: NSObject {
         self.name = name
         self.order = order
     }
-    
+
     public let id, name: String
     public let order: Int
 

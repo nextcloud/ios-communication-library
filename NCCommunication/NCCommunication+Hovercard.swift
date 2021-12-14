@@ -27,8 +27,8 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    // available in NC >= 23
-    @objc public func getHovercard(for userId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ result: NCHovercard?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    // available in NC >= 23 (beta 2)
+    @objc public func getHovercard(for userId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ result: NCCHovercard?, _ errorCode: Int, _ errorDescription: String) -> Void) {
 
         let endpoint = "ocs/v2.php/hovercard/v1/\(userId)?format=json"
 
@@ -55,7 +55,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let data = json["ocs"]["data"]
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                guard statusCode == 200, let result = NCHovercard(jsonData: data) else {
+                guard statusCode == 200, let result = NCCHovercard(jsonData: data) else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     queue.async { completionHandler(nil, statusCode, errorDescription) }
                     return

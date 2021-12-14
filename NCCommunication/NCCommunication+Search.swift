@@ -29,17 +29,16 @@ extension NCCommunication {
     // available NC >= 20
     @objc public func unifiedSearch(
         term: String,
-        options: NCCRequestOptions,
+        options: NCCRequestOptions = NCCRequestOptions(),
         filter: @escaping ([NCCSearchProvider]) -> [NCCSearchProvider] = { $0 },
         update: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void,
-        completion: @escaping ([NCCSearchResult], _ errorCode: Int, _ errorDescription: String) -> Void) {
+        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             let endpoint = "ocs/v2.php/search/providers?format=json"
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-                print("Error, bad endpoint URL")
-                return
+                return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             }
             let method = HTTPMethod(rawValue: "GET")
-            let headers = NCCommunicationCommon.shared.getStandardHeaders(options.customHeader, customUserAgent: options.customUserAgent)
+            let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
             sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
                 debugPrint(response)
@@ -52,7 +51,7 @@ extension NCCommunication {
 
                     guard let allProvider = NCCSearchProvider.factory(jsonArray: providerData) else {
                         let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                        return completion([], statusCode, errorDescription)
+                        return completion(nil, statusCode, errorDescription)
                     }
                     var searchResult: [NCCSearchResult] = []
 
@@ -74,7 +73,8 @@ extension NCCommunication {
                         completion(searchResult, 0, "")
                     }
                 case .failure(let error):
-                    completion([], 0, error.localizedDescription)
+                    let error = NCCommunicationError().getError(error: error, httResponse: response.response)
+                    return completion(nil, error.errorCode, error.description ?? "")
                 }
             }
         }
@@ -89,7 +89,7 @@ extension NCCommunication {
         }
 
         let method = HTTPMethod(rawValue: "GET")
-        let headers = NCCommunicationCommon.shared.getStandardHeaders(options.customHeader, customUserAgent: options.customUserAgent)
+        let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
         sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
