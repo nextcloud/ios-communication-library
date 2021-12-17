@@ -30,8 +30,8 @@ extension NCCommunication {
     @objc public func unifiedSearch(
         term: String,
         options: NCCRequestOptions = NCCRequestOptions(),
-        filter: @escaping ([NCCSearchProvider]) -> [NCCSearchProvider] = { $0 },
-        update: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void,
+        filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
+        update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
         completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
             let endpoint = "ocs/v2.php/search/providers?format=json"
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
@@ -53,14 +53,15 @@ extension NCCommunication {
                         let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                         return completion(nil, statusCode, errorDescription)
                     }
+                    let filteredProviders = allProvider.filter(filter)
                     var searchResult: [NCCSearchResult] = []
 
                     let group = DispatchGroup()
 
-                    for provider in filter(allProvider) {
+                    for provider in filteredProviders {
                         group.enter()
                         self.searchProvider(provider.id, term: term, options: options) { partial, errCode, err in
-                            update(partial, errCode, err)
+                            update(partial, provider, errCode, err)
 
                             if let partial = partial {
                                 searchResult.append(partial)
