@@ -4,7 +4,7 @@
 //
 //  Created by Henrik Storch on 26.11.2021.
 
-//  Copyright © 2021 Henrik Sorch. All rights reserved.
+//  Copyright © 2021 Henrik Storch. All rights reserved.
 //  Author Henrik Storch <henrik.storch@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,21 @@ import Alamofire
 import SwiftyJSON
 
 extension NCCommunication {
-    // available NC >= 20
+
+    /// Available NC >= 20
+    /// Search many different datasources in the cloud and combine them into one result.
+    ///
+    /// - Warning: Providers are requested concurrently. Not filtering will result in a high network load.
+    ///
+    /// - SeeAlso:
+    ///  [Nextcloud Search API](https://docs.nextcloud.com/server/latest/developer_manual/digging_deeper/search.html)
+    ///
+    /// - Parameters:
+    ///   - term: The search term
+    ///   - options: Additional request options
+    ///   - filter: Filter search provider that should be searched. Default is all available provider..
+    ///   - update: Callback, notifying that a search provider return its result. Does not include previous results.
+    ///   - completion: Callback, notifying that all search providers have been searched. The search is done. Includes all search results.
     @objc public func unifiedSearch(
         term: String,
         options: NCCRequestOptions = NCCRequestOptions(),
