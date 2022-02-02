@@ -31,7 +31,7 @@ extension NCCommunication {
          
         let account = NCCommunicationCommon.shared.account
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -66,7 +66,7 @@ extension NCCommunication {
          
         let account = NCCommunicationCommon.shared.account
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -92,7 +92,7 @@ extension NCCommunication {
          
         let account = NCCommunicationCommon.shared.account
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
+        guard let url = serverUrlFileNameSource.encodedToUrl else {
             queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -124,7 +124,7 @@ extension NCCommunication {
          
         let account = NCCommunicationCommon.shared.account
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileNameSource) else {
+        guard let url = serverUrlFileNameSource.encodedToUrl else {
             queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -161,7 +161,7 @@ extension NCCommunication {
         if depth == "1" && serverUrlFileName.last != "/" { serverUrlFileName = serverUrlFileName + "/" }
         if depth == "0" && serverUrlFileName.last == "/" { serverUrlFileName = String(serverUrlFileName.remove(at: serverUrlFileName.index(before: serverUrlFileName.endIndex))) }
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, files, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -214,12 +214,12 @@ extension NCCommunication {
     }
     
     @objc public func searchLiteral(serverUrl: String, depth: String, literal: String, showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
-         
         let account = NCCommunicationCommon.shared.account
-        let files: [NCCommunicationFile] = []
 
-        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId) else {
-            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+        guard let href = ("/files/" + NCCommunicationCommon.shared.userId).urlEncoded else {
+            queue.async {
+                completionHandler(account, [], NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            }
             return
         }
         
@@ -237,7 +237,7 @@ extension NCCommunication {
         let files: [NCCommunicationFile] = []
         var greaterDateString: String?, lessDateString: String?
         
-        guard let href = NCCommunicationCommon.shared.encodeString("/files/" + NCCommunicationCommon.shared.userId + path) else {
+        guard let href = ("/files/" + NCCommunicationCommon.shared.userId + path).urlEncoded else {
             queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -277,8 +277,11 @@ extension NCCommunication {
          
         var files: [NCCommunicationFile] = []
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrl + "/" + NCCommunicationCommon.shared.webDav) else {
-            queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+        guard let url = (serverUrl + "/" + NCCommunicationCommon.shared.webDav).encodedToUrl
+        else {
+            queue.async {
+                completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            }
             return
         }
          
@@ -320,7 +323,7 @@ extension NCCommunication {
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
         
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -358,7 +361,7 @@ extension NCCommunication {
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId
         var files: [NCCommunicationFile] = []
 
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, files, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -400,7 +403,7 @@ extension NCCommunication {
         var items: [NCCommunicationTrash] = []
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/trashbin/" + NCCommunicationCommon.shared.userId + "/trash/"
             
-        guard let url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName) else {
+        guard let url = serverUrlFileName.encodedToUrl else {
             queue.async { completionHandler(account, items, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }

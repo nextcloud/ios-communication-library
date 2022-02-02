@@ -31,7 +31,7 @@ extension NCCommunication {
     
     @objc public func checkServer(serverUrl: String, queue: DispatchQueue = .main, completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
         
-        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
+        guard let url = serverUrl.asUrl else {
             queue.async { completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -175,7 +175,7 @@ extension NCCommunication {
                
         let account = NCCommunicationCommon.shared.account
         
-        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
+        guard let fileNamePath = fileNamePath.urlEncoded else {
             queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -219,7 +219,7 @@ extension NCCommunication {
             if endpointTrashbin {
                 endpoint = "index.php/apps/files_trashbin/preview?fileId=" + fileNamePathOrFileId + "&x=\(widthPreview)&y=\(heightPreview)"
             } else {
-                guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePathOrFileId) else {
+                guard let fileNamePath = fileNamePathOrFileId.urlEncoded else {
                     queue.async { completionHandler(account, nil, nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
                     return
                 }
@@ -230,7 +230,7 @@ extension NCCommunication {
             
         } else {
             
-            url = NCCommunicationCommon.shared.StringToUrl(fileNamePathOrFileId)
+            url = fileNamePathOrFileId.asUrl
         }
         
         guard let urlRequest = url else {
@@ -343,7 +343,7 @@ extension NCCommunication {
         
         let account = NCCommunicationCommon.shared.account
 
-        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
+        guard let url = serverUrl.asUrl else {
             queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -705,7 +705,7 @@ extension NCCommunication {
             let endpoint = "ocs/v2.php/apps/notifications/api/v2/notifications/" + String(idNotification)
             url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint)
         } else {
-            url = NCCommunicationCommon.shared.StringToUrl(serverUrl!)
+            url = serverUrl!.asUrl
         }
         
         guard let urlRequest = url else {

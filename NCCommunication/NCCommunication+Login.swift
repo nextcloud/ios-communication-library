@@ -110,7 +110,7 @@ extension NCCommunication {
     @objc public func getLoginFlowV2Poll(token: String, endpoint: String, userAgent: String? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ server: String?, _ loginName: String? , _ appPassword: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
                 
         let serverUrl = endpoint + "?token=" + token
-        guard let url = NCCommunicationCommon.shared.StringToUrl(serverUrl) else {
+        guard let url = serverUrl.asUrl else {
             queue.async { completionHandler(nil, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
