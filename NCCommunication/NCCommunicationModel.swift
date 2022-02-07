@@ -301,6 +301,7 @@ import SwiftyJSON
     @objc public var language = ""
     @objc public var lastLogin: Int64 = 0
     @objc public var locale = ""
+    @objc public var organisation = ""
     @objc public var phone = ""
     @objc public var quota: Int64 = 0
     @objc public var quotaFree: Int64 = 0
@@ -311,7 +312,7 @@ import SwiftyJSON
     @objc public var subadmin: [String] = []
     @objc public var twitter = ""
     @objc public var userId = ""
-    @objc public var webpage = ""
+    @objc public var website = ""
 }
 
 @objc public class NCCommunicationUserStatus: NSObject {

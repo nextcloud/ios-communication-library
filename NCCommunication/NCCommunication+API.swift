@@ -418,6 +418,7 @@ extension NCCommunication {
                     userProfile.language = data["language"].stringValue
                     userProfile.lastLogin = data["lastLogin"].int64Value
                     userProfile.locale = data["locale"].stringValue
+                    userProfile.organisation = data["organisation"].stringValue
                     userProfile.phone = data["phone"].stringValue
                     userProfile.quotaFree = data["quota"]["free"].int64Value
                     userProfile.quota = data["quota"]["quota"].int64Value
@@ -431,7 +432,7 @@ extension NCCommunication {
                         }
                     }
                     userProfile.twitter = data["twitter"].stringValue
-                    userProfile.webpage = data["webpage"].stringValue
+                    userProfile.website = data["website"].stringValue
                     
                     queue.async { completionHandler(account, userProfile, 0, "") }
                     
