@@ -183,7 +183,7 @@ import SwiftyJSON
         if serverUrlFileName is URL {
             convertible = serverUrlFileName as? URLConvertible
         } else if serverUrlFileName is String || serverUrlFileName is NSString {
-            convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String)
+            convertible = (serverUrlFileName as! String).encodedToUrl
         }
         
         guard let url = convertible else {
@@ -276,7 +276,7 @@ import SwiftyJSON
         if serverUrlFileName is URL {
             convertible = serverUrlFileName as? URLConvertible
         } else if serverUrlFileName is String || serverUrlFileName is NSString {
-            convertible = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String)
+            convertible = (serverUrlFileName as! String).encodedToUrl
         }
         
         guard let url = convertible else {

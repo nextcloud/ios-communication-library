@@ -483,43 +483,15 @@ import MobileCoreServices
         dateFormatter.dateFormat = format
         return dateFormatter.string(from: date)
     }
-        
-    func encodeStringToUrl(_ string: String) -> URLConvertible? {
-        
-        if let escapedString = encodeString(string) {
-            return StringToUrl(escapedString)
-        }
-        return nil
-    }
-    
-    func encodeString(_ string: String) -> String? {
-        
-        let encodeCharacterSet = " #;?@&=$+{}<>,!'*|%"
-        let allowedCharacterSet = (CharacterSet(charactersIn: encodeCharacterSet).inverted)
-        let encodeString = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet)
-        
-        return encodeString
-    }
-    
-    func StringToUrl(_ string: String) -> URLConvertible? {
-        
-        var url: URLConvertible
-        do {
-            try url = string.asURL()
-            return url
-        } catch _ {
-            return nil
-        }
-    }
-    
+
     func createStandardUrl(serverUrl: String, endpoint: String) -> URLConvertible? {
         
-        guard var serverUrl = encodeString(serverUrl) else { return nil }
+        guard var serverUrl = serverUrl.urlEncoded else { return nil }
         if serverUrl.last != "/" { serverUrl = serverUrl + "/" }
         
         serverUrl = serverUrl + endpoint
         
-        return StringToUrl(serverUrl)
+        return serverUrl.asUrl
     }
     
     func findHeader(_ header: String, allHeaderFields: [AnyHashable : Any]?) -> String? {
@@ -602,3 +574,22 @@ import MobileCoreServices
         }
     }
  }
+
+// MARK: - String URL encoding
+
+extension String {
+    var urlEncoded: String? {
+        // +        for historical reason, most web servers treat + as a replacement of whitespace
+        // ?, &     mark query pararmeter which should not be part of a url string, but added seperately
+        let urlAllowedCharSet = CharacterSet.urlQueryAllowed.subtracting(["+", "?", "&"])
+        return addingPercentEncoding(withAllowedCharacters: urlAllowedCharSet)
+    }
+    
+    var encodedToUrl: URLConvertible? {
+        return urlEncoded?.asUrl
+    }
+    
+    var asUrl: URLConvertible? {
+        return try? asURL()
+    }
+}
