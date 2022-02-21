@@ -1034,7 +1034,7 @@ class NCDataFileXML: NSObject {
                 }
             }
 
-            let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
+            let results = NCCommunicationCommon.shared.getInternalType(fileName: file.trashbinFileName, mimeType: file.contentType, directory: file.directory)
             
             file.contentType = results.mimeType
             file.classFile = results.classFile
