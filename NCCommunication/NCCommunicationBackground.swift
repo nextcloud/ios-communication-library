@@ -38,7 +38,7 @@ import Foundation
         if serverUrlFileName is URL {
             url = serverUrlFileName as? URL
         } else if serverUrlFileName is String || serverUrlFileName is NSString {
-            url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String) as? URL
+            url = (serverUrlFileName as! String).encodedToUrl as? URL
         }
         
         guard let urlForRequest = url else { return nil }
@@ -77,7 +77,7 @@ import Foundation
         if serverUrlFileName is URL {
             url = serverUrlFileName as? URL
         } else if serverUrlFileName is String || serverUrlFileName is NSString {
-            url = NCCommunicationCommon.shared.encodeStringToUrl(serverUrlFileName as! String) as? URL
+            url = (serverUrlFileName as! String).encodedToUrl as? URL
         }
         
         guard let urlForRequest = url else {

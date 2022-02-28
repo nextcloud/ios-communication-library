@@ -95,7 +95,7 @@ extension NCCommunication {
                 
         let account = NCCommunicationCommon.shared.account
 
-        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
+        guard let fileNamePath = fileNamePath.urlEncoded else {
             queue.async { completionHandler(account, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
@@ -173,7 +173,7 @@ extension NCCommunication {
                 
         let account = NCCommunicationCommon.shared.account
 
-        guard let fileNamePath = NCCommunicationCommon.shared.encodeString(fileNamePath) else {
+        guard let fileNamePath = fileNamePath.urlEncoded else {
             queue.async { completionHandler(account, nil, NSURLErrorUnsupportedURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
