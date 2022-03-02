@@ -100,7 +100,7 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "MOVE")
          
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+        headers.update(name: "Destination", value: serverUrlFileNameDestination.urlEncoded ?? "")
         if overwrite {
             headers.update(name: "Overwrite", value: "T")
         } else {
@@ -132,7 +132,7 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "COPY")
          
         var headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
-        headers.update(name: "Destination", value: serverUrlFileNameDestination.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")
+        headers.update(name: "Destination", value: serverUrlFileNameDestination.urlEncoded ?? "")
         if overwrite {
             headers.update(name: "Overwrite", value: "T")
         } else {
