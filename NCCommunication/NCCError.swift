@@ -2,10 +2,11 @@
 //  NCCommunicationError.swift
 //  Nextcloud
 //
-//  Created by Marino Faggiana on 08/11/19.
+//  Created by Henrik Storch on 06/12/21.
 //  Copyright © 2018 Marino Faggiana. All rights reserved.
+//  Copyright © 2022 Henrik Storch. All rights reserved.
 //
-//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Author Henrik Storch <henrik.storch@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -63,6 +64,7 @@ public class NCCError: NSObject {
             return NSLocalizedString("_ssl_connection_error_", value: "Connection SSL error, try again", comment: "")
         case -1202:
             return NSLocalizedString("_ssl_certificate_untrusted_", value: "The certificate for this server is invalid", comment: "")
+        case 0: return ""
         case 101:
             return NSLocalizedString("_forbidden_characters_from_server_", value: "The name contains at least one invalid character", comment: "")
         case 304:
@@ -98,85 +100,94 @@ public class NCCError: NSObject {
         default:
             return nil
         }
-        
     }
-    
+
     public init(errorCode: Int, errorDescription: String) {
         self.errorCode = errorCode
         self.errorDescription = errorDescription
     }
-    
+
     init(error: Error) {
         errorCode = error._code
         errorDescription = error.localizedDescription
     }
-    
+
+    init(nsError: NSError) {
+        errorCode = nsError.code
+        errorDescription = nsError.localizedDescription
+    }
+
     init(rootJson: JSON) {
-        errorCode = rootJson["ocs"]["meta"]["statuscode"].int ?? NCCError.internalError
-        if let errorMsg = rootJson["ocs"]["meta"]["errorDescription"].string {
+        let statuscode = rootJson["ocs"]["meta"]["statuscode"].int ?? NCCError.internalError
+        errorCode = 200..<300 ~= statuscode ? 0 : statuscode
+        if let errorMsg = rootJson["ocs"]["meta"]["message"].string {
             errorDescription = errorMsg
         } else {
             errorDescription = NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
         }
     }
-    
-    init(httpResponse: HTTPURLResponse) {
-        self.errorCode = httpResponse.statusCode
-        self.errorDescription = "\(errorCode): " + (NCCError.getErrorDescription(for: errorCode) ?? httpResponse.description)
-    }
-    
-    init(xmlData: Data) {
-        let xml = XML.parse(xmlData)
-        errorCode = xml["ocs", "meta", "statuscode"].int ?? 0
-        errorDescription = xml["ocs", "meta", "message"].text ?? ""
+
+    init(statusCode: Int, fallbackDescription: String) {
+        self.errorCode = statusCode
+        self.errorDescription = "\(statusCode): " + (NCCError.getErrorDescription(for: statusCode) ?? fallbackDescription)
     }
 
-    init(error: AFError?, afResponse: AFResponse) {
+    convenience init(httpResponse: HTTPURLResponse) {
+        self.init(statusCode: httpResponse.statusCode, fallbackDescription: httpResponse.description)
+    }
+
+    init(xmlData: Data) {
+        let xml = XML.parse(xmlData)
+        let statuscode = xml["ocs", "meta", "statuscode"].int ?? NCCError.internalError
+        errorCode = 200..<300 ~= statuscode ? 0 : statuscode
+        errorDescription = xml["ocs", "meta", "message"].text ?? xml["d:error"]["s:message"].text ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+    }
+
+    convenience init<T: AFResponse>(error: AFError?, afResponse: T) {
         if let errorCode = afResponse.response?.statusCode {
-            guard let dataResponse = afResponse as? AFDataResponse<Any>,
-                  let errorData = dataResponse.data,
-                  let errorJson = try? JSON(data: errorData)
+            guard let dataResponse = afResponse as? Alamofire.DataResponse<T.Success, T.Failure>,
+                  let errorData = dataResponse.data
             else {
-                self.errorCode = errorCode
-                self.errorDescription = "\(errorCode): " + (NCCError.getErrorDescription(for: errorCode) ?? afResponse.response?.description ?? "")
+                self.init(statusCode: errorCode, fallbackDescription: afResponse.response?.description ?? "")
                 return
             }
-            
-            self.errorCode = errorJson["ocs"]["meta"]["statuscode"].int ?? errorCode
-            let errorMsg = errorJson["ocs"]["meta"]["message"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-            self.errorDescription = "\(errorCode): " + errorMsg
+
+            if let errorJson = try? JSON(data: errorData) {
+                self.init(rootJson: errorJson)
+            } else if let data = dataResponse.data {
+                self.init(xmlData: data)
+            } else {
+                self.init(statusCode: errorCode, fallbackDescription: "")
+            }
 
         } else if let error = error {
             switch error {
             case .createUploadableFailed(let error as NSError):
-                self.errorCode = error.code
-                self.errorDescription = error.localizedDescription
+                self.init(nsError: error)
             case .createURLRequestFailed(let error as NSError):
-                self.errorCode = error.code
-                self.errorDescription = error.localizedDescription
+                self.init(nsError: error)
             case .requestAdaptationFailed(let error as NSError):
-                self.errorCode = error.code
-                self.errorDescription = error.localizedDescription
+                self.init(nsError: error)
             case .sessionInvalidated(let error as NSError):
-                self.errorCode = error.code
-                self.errorDescription = error.localizedDescription
+                self.init(nsError: error)
             case .sessionTaskFailed(let error as NSError):
-                self.errorCode = error.code
-                self.errorDescription = error.localizedDescription
+                self.init(nsError: error)
             default :
-                self.errorCode = error._code
-                self.errorDescription = error.localizedDescription
+                self.init(error: error)
             }
         } else {
-            self.errorCode = 0
-            self.errorDescription = ""
+            self.init(errorCode: 0, errorDescription: "")
         }
     }
 }
 
 
 public protocol AFResponse {
+    associatedtype Failure: Error
+    associatedtype Success
+
     var response: HTTPURLResponse? { get }
+    var error: Failure? { get }
 }
 
 extension AFDownloadResponse: AFResponse { }
