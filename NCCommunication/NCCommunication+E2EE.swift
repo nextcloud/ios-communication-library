@@ -59,7 +59,7 @@ extension NCCommunication {
                 if 200..<300 ~= statusCode  {
                     queue.async { completionHandler(account, .success) }
                 } else {
-                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -97,7 +97,7 @@ extension NCCommunication {
                     let e2eToken = json["ocs"]["data"]["e2e-token"].string
                     queue.async { completionHandler(account, e2eToken, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -131,7 +131,7 @@ extension NCCommunication {
                     let e2eMetadata = json["ocs"]["data"]["meta-data"].string
                     queue.async { completionHandler(account, e2eMetadata, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -170,7 +170,7 @@ extension NCCommunication {
                     let metadata = json["ocs"]["data"]["meta-data"].string
                     queue.async { completionHandler(account, metadata, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -207,7 +207,7 @@ extension NCCommunication {
                     let key = json["ocs"]["data"]["public-keys"][userId].stringValue
                     queue.async { completionHandler(account, key, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -241,7 +241,7 @@ extension NCCommunication {
                     let key = json["ocs"]["data"]["private-key"].stringValue
                     queue.async { completionHandler(account, key, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -275,7 +275,7 @@ extension NCCommunication {
                     let key = json["ocs"]["data"]["public-key"].stringValue
                     queue.async { completionHandler(account, key, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -310,7 +310,7 @@ extension NCCommunication {
                     print(key)
                     queue.async { completionHandler(account, key, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -344,7 +344,7 @@ extension NCCommunication {
                     let key = json["ocs"]["data"]["private-key"].stringValue
                     queue.async { completionHandler(account, key, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

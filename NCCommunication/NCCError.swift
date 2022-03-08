@@ -97,6 +97,8 @@ public class NCCError: NSObject {
             return NSLocalizedString("_transfer_stopped_", value: "Transfer stopped", comment: "")
         case 207:
             return NSLocalizedString("_error_multi_status_", value: "WebDAV multistatus", comment: "")
+        case NSURLErrorCannotDecodeContentData:
+            return NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
         default:
             return nil
         }
@@ -117,14 +119,10 @@ public class NCCError: NSObject {
         errorDescription = nsError.localizedDescription
     }
 
-    init(rootJson: JSON) {
-        let statuscode = rootJson["ocs"]["meta"]["statuscode"].int ?? NCCError.internalError
+    init(rootJson: JSON, fallbackStatusCode: Int?) {
+        let statuscode = rootJson["ocs"]["meta"]["statuscode"].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
         errorCode = 200..<300 ~= statuscode ? 0 : statuscode
-        if let errorMsg = rootJson["ocs"]["meta"]["message"].string {
-            errorDescription = errorMsg
-        } else {
-            errorDescription = NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-        }
+        errorDescription = rootJson["ocs"]["meta"]["message"].string ?? NCCError.getErrorDescription(for: statuscode) ?? ""
     }
 
     init(statusCode: Int, fallbackDescription: String) {
@@ -136,11 +134,11 @@ public class NCCError: NSObject {
         self.init(statusCode: httpResponse.statusCode, fallbackDescription: httpResponse.description)
     }
 
-    init(xmlData: Data) {
+    init(xmlData: Data, fallbackStatusCode: Int? = nil) {
         let xml = XML.parse(xmlData)
-        let statuscode = xml["ocs", "meta", "statuscode"].int ?? NCCError.internalError
+        let statuscode = xml["ocs", "meta", "statuscode"].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
         errorCode = 200..<300 ~= statuscode ? 0 : statuscode
-        errorDescription = xml["ocs", "meta", "message"].text ?? xml["d:error"]["s:message"].text ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
+        errorDescription = xml["ocs", "meta", "message"].text ?? xml["d:error"]["s:message"].text ?? NCCError.getErrorDescription(for: statuscode) ?? ""
     }
 
     convenience init<T: AFResponse>(error: AFError?, afResponse: T) {
@@ -153,11 +151,9 @@ public class NCCError: NSObject {
             }
 
             if let errorJson = try? JSON(data: errorData) {
-                self.init(rootJson: errorJson)
-            } else if let data = dataResponse.data {
-                self.init(xmlData: data)
+                self.init(rootJson: errorJson, fallbackStatusCode: errorCode)
             } else {
-                self.init(statusCode: errorCode, fallbackDescription: "")
+                self.init(xmlData: errorData, fallbackStatusCode: errorCode)
             }
 
         } else if let error = error {

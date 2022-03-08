@@ -70,7 +70,9 @@ extension NCCommunication {
                     queue.async { completionHandler(account, clearAt, icon, message, messageId, messageIsPredefined, status, statusIsUserDefined, userId, .success) }
                     
                 } else {
-                    queue.async { completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, NCCError(rootJson: json)) }
+                    queue.async {
+                        completionHandler(account, nil, nil, nil, nil, false, nil, false, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode))
+                    }
                 }
             }
         }
@@ -107,7 +109,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, .success) }
                 }  else {
-                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -147,7 +149,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, .success) }
                 }  else {
-                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -190,7 +192,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, .success) }
                 }  else {
-                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -223,7 +225,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, .success) }
                 }  else {
-                    queue.async { completionHandler(account, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -277,7 +279,7 @@ extension NCCommunication {
                     
                 }  else {
                     
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -335,7 +337,7 @@ extension NCCommunication {
                     
                 } else {
                     
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

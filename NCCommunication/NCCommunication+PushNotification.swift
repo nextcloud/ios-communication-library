@@ -62,7 +62,7 @@ extension NCCommunication {
                     let publicKey = json["ocs"]["data"]["publicKey"].stringValue
                     queue.async { completionHandler(account, deviceIdentifier, signature, publicKey, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, nil, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, nil, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

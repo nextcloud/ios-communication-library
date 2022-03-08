@@ -113,7 +113,7 @@ extension NCCommunication {
             case .success( _):
                 if let data = response.data {
                     let shares = NCDataFileXML().convertDataShare(data: data)
-                    queue.async { completionHandler(account, shares, NCCError(xmlData: data)) }
+                    queue.async { completionHandler(account, shares, NCCError(xmlData: data, fallbackStatusCode: response.response?.statusCode)) }
                 } else {
                     queue.async { completionHandler(account, nil, .xmlError) }
                 }
@@ -218,7 +218,7 @@ extension NCCommunication {
                     }
                     queue.async { completionHandler(account, sharees, .success) }
                 }  else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -297,7 +297,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, self.convertResponseShare(json: json), .success) }
                 }  else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -367,7 +367,7 @@ extension NCCommunication {
                 if json["ocs"]["meta"]["statuscode"].int == 200 {
                     queue.async { completionHandler(account, self.convertResponseShare(json: json), .success) }
                 }  else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

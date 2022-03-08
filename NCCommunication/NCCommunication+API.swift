@@ -436,7 +436,7 @@ extension NCCommunication {
                     queue.async { completionHandler(account, userProfile, .success) }
                     
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -686,7 +686,7 @@ extension NCCommunication {
                     
                 } else {
                     
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

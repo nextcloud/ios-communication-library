@@ -55,7 +55,7 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     queue.async { completionHandler(account, url, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -101,7 +101,7 @@ extension NCCommunication {
                     }
                     queue.async { completionHandler(account, templates, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }
@@ -135,7 +135,7 @@ extension NCCommunication {
                     let url = json["ocs"]["data"]["url"].stringValue
                     queue.async { completionHandler(account, url, .success) }
                 } else {
-                    queue.async { completionHandler(account, nil, NCCError(rootJson: json)) }
+                    queue.async { completionHandler(account, nil, NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)) }
                 }
             }
         }

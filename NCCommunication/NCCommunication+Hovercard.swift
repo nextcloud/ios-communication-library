@@ -57,7 +57,7 @@ extension NCCommunication {
                 guard json["ocs"]["meta"]["statuscode"].int == 200,
                       let result = NCHovercard(jsonData: data)
                 else {
-                    let error = NCCError(rootJson: json)
+                    let error = NCCError(rootJson: json, fallbackStatusCode: response.response?.statusCode)
                     queue.async { completionHandler(nil, error) }
                     return
                 }
