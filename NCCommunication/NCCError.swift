@@ -27,6 +27,30 @@ import Alamofire
 import SwiftyJSON
 import SwiftyXMLParser
 
+typealias OCSPath = Array<String>
+protocol DataSubscriptable {
+    subscript(path: OCSPath) -> Self { get }
+}
+
+extension JSON: DataSubscriptable {
+    subscript(path: OCSPath) -> JSON {
+        return self[path as [JSONSubscriptType]]
+    }
+}
+
+extension XML.Accessor: DataSubscriptable {
+    subscript(path: OCSPath) -> XML.Accessor {
+        return self[path as [XMLSubscriptType]]
+    }
+}
+
+extension OCSPath {
+    static var ocsMetaCode: Self { ["ocs", "meta", "statuscode"] }
+    static var ocsMetaMsg: Self { ["ocs", "meta", "message"] }
+    static var ocsDataMsg: Self { ["ocs", "data", "message"] }
+    static var ocsXMLMsg: Self { ["d:error", "s:message"] }
+}
+
 @objcMembers
 public class NCCError: NSObject {
 
@@ -120,9 +144,16 @@ public class NCCError: NSObject {
     }
 
     init(rootJson: JSON, fallbackStatusCode: Int?) {
-        let statuscode = rootJson["ocs"]["meta"]["statuscode"].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
+        let statuscode = rootJson[.ocsMetaCode].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
         errorCode = 200..<300 ~= statuscode ? 0 : statuscode
-        errorDescription = rootJson["ocs"]["meta"]["message"].string ?? NCCError.getErrorDescription(for: statuscode) ?? ""
+
+        if let dataMsg = rootJson[.ocsDataMsg].string {
+            errorDescription = dataMsg
+        } else if let metaMsg = rootJson[.ocsMetaMsg].string {
+            errorDescription = metaMsg
+        } else {
+            errorDescription = NCCError.getErrorDescription(for: statuscode) ?? ""
+        }
     }
 
     init(statusCode: Int, fallbackDescription: String) {
@@ -136,9 +167,18 @@ public class NCCError: NSObject {
 
     init(xmlData: Data, fallbackStatusCode: Int? = nil) {
         let xml = XML.parse(xmlData)
-        let statuscode = xml["ocs", "meta", "statuscode"].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
+        let statuscode = xml[.ocsMetaCode].int ?? fallbackStatusCode ?? NSURLErrorCannotDecodeContentData
         errorCode = 200..<300 ~= statuscode ? 0 : statuscode
-        errorDescription = xml["ocs", "meta", "message"].text ?? xml["d:error"]["s:message"].text ?? NCCError.getErrorDescription(for: statuscode) ?? ""
+
+        if let dataMsg = xml[.ocsDataMsg].text {
+            errorDescription = dataMsg
+        } else if let metaMsg = xml[.ocsMetaMsg].text {
+            errorDescription = metaMsg
+        } else if let metaMsg = xml[.ocsXMLMsg].text {
+            errorDescription = metaMsg
+        } else {
+            errorDescription = NCCError.getErrorDescription(for: statuscode) ?? ""
+        }
     }
 
     convenience init<T: AFResponse>(error: AFError?, afResponse: T) {
