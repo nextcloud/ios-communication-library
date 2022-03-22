@@ -4,8 +4,10 @@
 //
 //  Created by Marino Faggiana on 15/06/2020.
 //  Copyright © 2020 Marino Faggiana. All rights reserved.
+//  Copyright © 2022 Henrik Storch. All rights reserved.
 //
 //  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Author Henrik Storch <henrik.storch@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,33 +23,26 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-
 import Foundation
 import Alamofire
 import SwiftyJSON
-
 
 /// Options for creating a new share
 @objcMembers
 public class NCCCreateShareOptions: NSObject {
 
-    /// Create public share options
+    /// Create share options for share link
     /// - Parameters:
     ///   - path: Path of the file/folder being shared. Mandatory argument
+    ///   - label: Share label / title
     ///   - publicUpload: If false (default) public cannot upload to a public shared folder. If true public can upload to a shared folder. Only available for public link shares
     ///   - hideDownload: Permission if file can be downloaded via share link (only for single file)
     ///   - password: Password to protect a public link share. Only available for public link shares
     ///   - note: Adds a note for the share recipient (availabvle in NC >= 24)
+    ///   - expireDate: Adds an expiration date to the share
     ///   - permissions: Permissions for user or group shares
-    @objc public init(path: String, publicUpload: Bool, hideDownload: Bool, password: String?, note: String?, permissions: Int = 1) {
-        self.path = path
-        self.shareType = 3
-        self.shareWith = nil
-        self.publicUpload = publicUpload
-        self.hideDownload = hideDownload
-        self.password = password
-        self.note = note
-        self.permissions = permissions
+    @objc public convenience init(path: String, label: String?, publicUpload: Bool, hideDownload: Bool, password: String?, note: String?, expireDate: String?, permissions: Int = 1) {
+        self.init(path: path, shareType: 3, shareWith: nil, label: label, publicUpload: publicUpload, hideDownload: hideDownload, password: password, note: note, expireDate: expireDate, permissions: permissions)
     }
 
     /// Create share options for a user-share
@@ -57,37 +52,37 @@ public class NCCCreateShareOptions: NSObject {
     ///   - shareWith: User/group ID with who the file should be shared.  This is mandatory for shareType of 0 or 1
     ///   - password: Password to protect a public link share. Only available for public link shares
     ///   - note: Adds a note for the share recipient (availabvle in NC >= 24)
+    ///   - expireDate: Adds an expiration date to the share
     ///   - permissions: Permissions for user or group shares
-    @objc public init(path: String, shareType: Int, shareWith: String, password: String?, note: String?, permissions: Int = 1) {
-        self.path = path
-        self.shareType = shareType
-        self.shareWith = shareWith
-        self.publicUpload = false
-        self.hideDownload = false
-        self.password = password
-        self.note = note
-        self.permissions = permissions
+    @objc public convenience init(path: String, shareType: Int, shareWith: String, password: String?, note: String?, expireDate: String?, permissions: Int = 1) {
+        self.init(path: path, shareType: shareType, shareWith: shareWith, label: nil, publicUpload: false, hideDownload: false, password: password, note: note, expireDate: expireDate, permissions: permissions)
     }
 
-    internal init(path: String, shareType: Int, shareWith: String?, publicUpload: Bool? = nil, hideDownload: Bool? = nil, password: String? = nil, note: String? = nil, permissions: Int = 1) {
+    internal init(path: String, shareType: Int, shareWith: String?, label: String?, publicUpload: Bool?, hideDownload: Bool?, password: String?, note: String?, expireDate: String?, permissions: Int = 1) {
         self.path = path
         self.shareType = shareType
         self.shareWith = shareWith
+        self.label = label
         self.publicUpload = publicUpload
         self.hideDownload = hideDownload
         self.password = password
         self.note = note
+        self.expireDate = expireDate
         self.permissions = permissions
     }
 
     let path: String
     let shareType: Int
     let shareWith: String?
+    let label: String?
     let publicUpload: Bool?
     let hideDownload: Bool?
     let password: String?
     let note: String?
-    
+
+    /// Set a expire date for public link shares. This argument expects a well formatted date string, e.g. ‘YYYY-MM-DD’
+    let expireDate: String?
+
     /**
      For user or group shares.
      To obtain combinations, add the desired values together.
@@ -340,8 +335,14 @@ extension NCCommunication {
             if let password = options.password {
                 parameters["password"] = password
             }
+            if let expireDate = options.expireDate {
+                parameters["expireDate"] = expireDate
+            }
             if let note = options.note {
                 parameters["note"] = note
+            }
+            if let label = options.label {
+                parameters["label"] = label
             }
 
             sessionManager.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
@@ -401,16 +402,16 @@ extension NCCommunication {
         var parameters = [
             "permissions": String(permissions)
         ]
-        if password != nil {
+        if let password = password {
             parameters["password"] = password
         }
-        if expireDate != nil {
+        if let expireDate = expireDate {
             parameters["expireDate"] = expireDate
         }
-        if note != nil {
+        if let note = note {
             parameters["note"] = note
         }
-        if label != nil {
+        if let label = label {
             parameters["label"] = label
         }
         parameters["publicUpload"] = publicUpload == true ? "true" : "false"
@@ -440,7 +441,6 @@ extension NCCommunication {
     /*
     * @param idShare        Identifier of the share to update
     */
-    
     @objc public func deleteShare(idShare: Int, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
               
         let account = NCCommunicationCommon.shared.account
