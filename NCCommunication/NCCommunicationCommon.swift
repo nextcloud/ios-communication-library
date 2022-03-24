@@ -437,9 +437,11 @@ import MobileCoreServices
     }
     
     //MARK: - Common
-        
+    func getStandardHeaders(options: NCCRequestOptions) -> HTTPHeaders {
+         return getStandardHeaders(user: user, password: password, appendHeaders: options.customHeader, customUserAgent: options.customUserAgent, e2eToken: options.e2eToken)
+     }
+
     func getStandardHeaders(_ appendHeaders: [String: String]?, customUserAgent: String?, e2eToken: String? = nil) -> HTTPHeaders {
-        
         return getStandardHeaders(user: user, password: password, appendHeaders: appendHeaders, customUserAgent: customUserAgent, e2eToken: e2eToken)
     }
     
