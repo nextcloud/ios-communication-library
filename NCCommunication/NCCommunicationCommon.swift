@@ -23,7 +23,6 @@
 
 import Foundation
 import Alamofire
-import MobileCoreServices
 
 @objc public protocol NCCommunicationCommonDelegate {
     

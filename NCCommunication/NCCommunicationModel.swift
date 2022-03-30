@@ -23,7 +23,6 @@
 //
 
 import Foundation
-import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
