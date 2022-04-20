@@ -937,7 +937,7 @@ class NCDataFileXML: NSObject {
                 if let lockOwner = propstat["d:prop", "nc:lock-owner"].text {
                     file.lockOwner = lockOwner
                 }
-                if let lockOwnerDisplayName = propstat["d:prop", "nc:lock-owner-display-name"].text {
+                if let lockOwnerDisplayName = propstat["d:prop", "nc:lock-owner-displayname"].text {
                     file.lockOwnerDisplayName = lockOwnerDisplayName
                 }
                 if let lockTime = propstat["d:prop", "nc:lock-time"].int {
