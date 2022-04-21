@@ -170,8 +170,10 @@ import SwiftyJSON
     @objc public var ownerDisplayName = ""
     @objc public var lock = false
     @objc public var lockOwner = ""
+    @objc public var lockOwnerType = 0
     @objc public var lockOwnerDisplayName = ""
     @objc public var lockTime: Date?
+    @objc public var lockTimeOut: Date?
     @objc public var path = ""
     @objc public var permissions = ""
     @objc public var quotaUsedBytes: Int64 = 0
@@ -415,7 +417,10 @@ class NCDataFileXML: NSObject {
             <lock xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-type xmlns="http://nextcloud.org/ns"/>
             <lock-time xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-timeout xmlns=\"http://nextcloud.org/ns\"/>
+
 
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
@@ -471,6 +476,10 @@ class NCDataFileXML: NSObject {
             <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
             <lock-time xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-timeout xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns="http://nextcloud.org/ns"/>
+            <lock-owner-type xmlns="http://nextcloud.org/ns"/>
+            <lock-token xmlns="http://nextcloud.org/ns"/>
 
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
@@ -937,11 +946,17 @@ class NCDataFileXML: NSObject {
                 if let lockOwner = propstat["d:prop", "nc:lock-owner"].text {
                     file.lockOwner = lockOwner
                 }
+                if let lockOwnerType = propstat["d:prop", "nc:lock-owner-type"].int {
+                    file.lockOwnerType = lockOwnerType
+                }
                 if let lockOwnerDisplayName = propstat["d:prop", "nc:lock-owner-displayname"].text {
                     file.lockOwnerDisplayName = lockOwnerDisplayName
                 }
                 if let lockTime = propstat["d:prop", "nc:lock-time"].int {
                     file.lockTime = Date(timeIntervalSince1970: TimeInterval(lockTime))
+                }
+                if let lockTimeOut = propstat["d:prop", "nc:lock-timeout"].int {
+                    file.lockTimeOut = file.lockTime?.addingTimeInterval(TimeInterval(lockTimeOut))
                 }
             }
             
