@@ -170,6 +170,7 @@ import SwiftyJSON
     @objc public var ownerDisplayName = ""
     @objc public var lock = false
     @objc public var lockOwner = ""
+    @objc public var lockOwnerEditor = ""
     @objc public var lockOwnerType = 0
     @objc public var lockOwnerDisplayName = ""
     @objc public var lockTime: Date?
@@ -416,6 +417,7 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
             <lock xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner-type xmlns="http://nextcloud.org/ns"/>
             <lock-time xmlns=\"http://nextcloud.org/ns\"/>
@@ -474,6 +476,7 @@ class NCDataFileXML: NSObject {
             <note xmlns=\"http://nextcloud.org/ns\"/>
             <lock xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns=\"http://nextcloud.org/ns\"/>
             <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
             <lock-time xmlns=\"http://nextcloud.org/ns\"/>
             <lock-timeout xmlns=\"http://nextcloud.org/ns\"/>
@@ -945,6 +948,9 @@ class NCDataFileXML: NSObject {
 
                 if let lockOwner = propstat["d:prop", "nc:lock-owner"].text {
                     file.lockOwner = lockOwner
+                }
+                if let lockOwnerEditor = propstat["d:prop", "nc:lock-owner-editor"].text {
+                    file.lockOwnerEditor = lockOwnerEditor
                 }
                 if let lockOwnerType = propstat["d:prop", "nc:lock-owner-type"].int {
                     file.lockOwnerType = lockOwnerType
