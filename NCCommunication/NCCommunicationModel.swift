@@ -6,6 +6,7 @@
 //  Copyright © 2018 Marino Faggiana. All rights reserved.
 //
 //  Author Marino Faggiana <marino.faggiana@nextcloud.com>
+//  Author Henrik Storch <henrik.storch@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -99,7 +100,7 @@ import SwiftyJSON
     @objc public var objectId = ""
     @objc public var objectType = ""
     @objc public var path = ""
-    @objc public var verb = ""    
+    @objc public var verb = ""
 }
 
 
@@ -167,6 +168,13 @@ import SwiftyJSON
     @objc public var ocId = ""
     @objc public var ownerId = ""
     @objc public var ownerDisplayName = ""
+    @objc public var lock = false
+    @objc public var lockOwner = ""
+    @objc public var lockOwnerEditor = ""
+    @objc public var lockOwnerType = 0
+    @objc public var lockOwnerDisplayName = ""
+    @objc public var lockTime: Date?
+    @objc public var lockTimeOut: Date?
     @objc public var path = ""
     @objc public var permissions = ""
     @objc public var quotaUsedBytes: Int64 = 0
@@ -407,7 +415,15 @@ class NCDataFileXML: NSObject {
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
             <note xmlns=\"http://nextcloud.org/ns\"/>
-    
+            <lock xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-type xmlns="http://nextcloud.org/ns"/>
+            <lock-time xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-timeout xmlns=\"http://nextcloud.org/ns\"/>
+
+
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
@@ -458,7 +474,16 @@ class NCDataFileXML: NSObject {
             <mount-type xmlns=\"http://nextcloud.org/ns\"/>
             <rich-workspace xmlns=\"http://nextcloud.org/ns\"/>
             <note xmlns=\"http://nextcloud.org/ns\"/>
-                
+            <lock xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-displayname xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-time xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-timeout xmlns=\"http://nextcloud.org/ns\"/>
+            <lock-owner-editor xmlns="http://nextcloud.org/ns"/>
+            <lock-owner-type xmlns="http://nextcloud.org/ns"/>
+            <lock-token xmlns="http://nextcloud.org/ns"/>
+
             <share-permissions xmlns=\"http://open-collaboration-services.org/ns\"/>
             <share-permissions xmlns=\"http://open-cloud-mesh.org/ns\"/>
         </d:prop>
@@ -739,7 +764,7 @@ class NCDataFileXML: NSObject {
     func convertDataAppPassword(data: Data) -> String? {
         
         let xml = XML.parse(data)
-        return xml["ocs", "data", "apppassword"].text        
+        return xml["ocs", "data", "apppassword"].text
     }
     
     func convertDataFile(data: Data, user: String, userId: String, showHiddenFiles: Bool) -> [NCCommunicationFile] {
@@ -916,6 +941,29 @@ class NCDataFileXML: NSObject {
             
             if let richWorkspace = propstat["d:prop", "nc:rich-workspace"].text {
                 file.richWorkspace = richWorkspace
+            }
+
+            if let lock = propstat["d:prop", "nc:lock"].int {
+                file.lock = NSNumber(integerLiteral: lock).boolValue
+
+                if let lockOwner = propstat["d:prop", "nc:lock-owner"].text {
+                    file.lockOwner = lockOwner
+                }
+                if let lockOwnerEditor = propstat["d:prop", "nc:lock-owner-editor"].text {
+                    file.lockOwnerEditor = lockOwnerEditor
+                }
+                if let lockOwnerType = propstat["d:prop", "nc:lock-owner-type"].int {
+                    file.lockOwnerType = lockOwnerType
+                }
+                if let lockOwnerDisplayName = propstat["d:prop", "nc:lock-owner-displayname"].text {
+                    file.lockOwnerDisplayName = lockOwnerDisplayName
+                }
+                if let lockTime = propstat["d:prop", "nc:lock-time"].int {
+                    file.lockTime = Date(timeIntervalSince1970: TimeInterval(lockTime))
+                }
+                if let lockTimeOut = propstat["d:prop", "nc:lock-timeout"].int {
+                    file.lockTimeOut = file.lockTime?.addingTimeInterval(TimeInterval(lockTimeOut))
+                }
             }
             
             let results = NCCommunicationCommon.shared.getInternalType(fileName: file.fileName, mimeType: file.contentType, directory: file.directory)
