@@ -27,12 +27,12 @@ import SwiftyJSON
 extension NCCommunication {
 
     // available in NC >= 24
-    @objc public func lockUnlockFile(serverUrlFileName: String, shouldLock: Bool, options: NCCRequestOptions = NCCRequestOptions(), completionHandler: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func lockUnlockFile(serverUrlFileName: String, shouldLock: Bool, options: NCCRequestOptions = NCCRequestOptions(), completionHandler: @escaping (_ error: NCCError) -> Void) {
 
         guard let url = serverUrlFileName.encodedToUrl
         else {
             options.queue.async {
-                completionHandler(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                completionHandler(.urlError)
             }
             return
         }
@@ -47,10 +47,10 @@ extension NCCommunication {
 
             switch response.result {
             case .failure(let error):
-                let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                options.queue.async { completionHandler(error.errorCode, error.description ?? "") }
+                let error = NCCError(error: error, afResponse: response)
+                options.queue.async { completionHandler(error) }
             case .success:
-                options.queue.async { completionHandler(0, "") }
+                options.queue.async { completionHandler(.success) }
             }
         }
     }
