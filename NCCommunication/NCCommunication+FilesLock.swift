@@ -1,9 +1,10 @@
 //
 //  NCCommunication+FilesLock.swift
 //  NCCommunication
- //
+//
 //  Created by Henrik Storch on 23.03.22.
 //  Copyright © 2022 Henrik Sorch. All rights reserved.
+//
 //  Author Henrik Storch <henrik.storch@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
