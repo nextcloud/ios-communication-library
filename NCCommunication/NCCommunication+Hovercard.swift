@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    // available in NC >= 23 (beta 2)
+    // available in NC >= 23
     @objc public func getHovercard(for userId: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ result: NCHovercard?, _ errorCode: Int, _ errorDescription: String) -> Void) {
 
         let endpoint = "ocs/v2.php/hovercard/v1/\(userId)?format=json"
