@@ -243,7 +243,7 @@ public class NCCSearchProvider: NSObject {
     @objc public var iconName = ""
     @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
-    @objc public var name = "files"
+    @objc public var name = ""
     @objc public var note = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
