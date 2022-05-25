@@ -27,8 +27,7 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
-// MARK: - NCCHovercard
-@objc public class NCCHovercard: NSObject {
+@objc public class NCHovercard: NSObject {
     internal init?(jsonData: JSON) {
         guard let userId = jsonData["userId"].string,
               let displayName = jsonData["displayName"].string,
@@ -67,8 +66,6 @@ import SwiftyJSON
     @objc public let actions: [Action]
 }
 
-
-// MARK: - NCSearchResult
 @objcMembers
 public class NCCSearchResult: NSObject {
     public let name: String
@@ -88,7 +85,6 @@ public class NCCSearchResult: NSObject {
     }
 }
 
-// MARK: - NCSearchEntry
 @objcMembers
 public class NCCSearchEntry: NSObject {
     public let thumbnailURL: String
@@ -131,7 +127,6 @@ public class NCCSearchEntry: NSObject {
     }
 }
 
-// MARK: - NCSearchProvider
 @objcMembers
 public class NCCSearchProvider: NSObject {
     init?(json: JSON) {
@@ -152,8 +147,6 @@ public class NCCSearchProvider: NSObject {
         return allProvider.compactMap(NCCSearchProvider.init)
     }
 }
-
-//MARK: - File
 
 @objc public class NCCommunicationActivity: NSObject {
     
