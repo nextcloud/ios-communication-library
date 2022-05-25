@@ -75,6 +75,7 @@ import MobileCoreServices
         case document = "document"
         case image = "image"
         case unknow = "unknow"
+        case url = "url"
         case video = "video"
     }
     
@@ -90,6 +91,7 @@ import MobileCoreServices
         case ppt = "file_ppt"
         case txt = "file_txt"
         case unknow = "file"
+        case url = "url"
         case xls = "file_xls"
     }
 
