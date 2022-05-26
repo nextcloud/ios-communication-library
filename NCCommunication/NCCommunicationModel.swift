@@ -1052,7 +1052,7 @@ class NCDataFileXML: NSObject {
             file.ext = results.ext
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
-            file.name = "Files"
+            file.name = "files"
             file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
             file.user = user
