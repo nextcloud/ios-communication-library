@@ -27,7 +27,7 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
-@objc public class NCHovercard: NSObject {
+@objc public class NCCHovercard: NSObject {
     internal init?(jsonData: JSON) {
         guard let userId = jsonData["userId"].string,
               let displayName = jsonData["displayName"].string,
