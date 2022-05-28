@@ -44,6 +44,7 @@ extension NCCommunication {
     @objc public func unifiedSearch(
         term: String,
         options: NCCRequestOptions = NCCRequestOptions(),
+        timeout: TimeInterval = 60,
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
         completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
@@ -74,7 +75,7 @@ extension NCCommunication {
 
                     for provider in filteredProviders {
                         group.enter()
-                        self.searchProvider(provider.id, term: term, options: options) { partial, errCode, err in
+                        self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
@@ -94,8 +95,10 @@ extension NCCommunication {
             }
         }
 
-    func searchProvider(_ id: String, term: String, options: NCCRequestOptions, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+
         let endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
+        
         guard let url = NCCommunicationCommon.shared.createStandardUrl(
             serverUrl: NCCommunicationCommon.shared.urlBase,
             endpoint: endpoint)
@@ -106,7 +109,15 @@ extension NCCommunication {
         let method = HTTPMethod(rawValue: "GET")
         let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.timeoutInterval = timeout
+        } catch {
+            return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             switch response.result {
             case .success(let json):
