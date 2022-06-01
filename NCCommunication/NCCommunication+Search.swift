@@ -41,21 +41,24 @@ extension NCCommunication {
     ///   - filter: Filter search provider that should be searched. Default is all available provider..
     ///   - update: Callback, notifying that a search provider return its result. Does not include previous results.
     ///   - completion: Callback, notifying that all search providers have been searched. The search is done. Includes all search results.
-    @objc public func unifiedSearch(
+    public func unifiedSearch(
         term: String,
         options: NCCRequestOptions = NCCRequestOptions(),
         timeout: TimeInterval = 60,
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
-        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
+
+            var requests: [DataRequest] = []
             let endpoint = "ocs/v2.php/search/providers?format=json"
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-                return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                return nil
             }
             let method = HTTPMethod(rawValue: "GET")
             let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
-            sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+            let request = sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
                 debugPrint(response)
 
                 switch response.result {
@@ -75,13 +78,15 @@ extension NCCommunication {
 
                     for provider in filteredProviders {
                         group.enter()
-                        self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
+                        if let request = (self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
                                 searchResult.append(partial)
                             }
                             group.leave()
+                        }) {
+                            requests.append(request)
                         }
                     }
 
@@ -93,9 +98,11 @@ extension NCCommunication {
                     return completion(nil, error.errorCode, error.description ?? "")
                 }
             }
+
+            return request
         }
 
-    func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
         let endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
         
@@ -103,7 +110,8 @@ extension NCCommunication {
             serverUrl: NCCommunicationCommon.shared.urlBase,
             endpoint: endpoint)
         else {
-            return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return nil
         }
 
         let method = HTTPMethod(rawValue: "GET")
@@ -114,10 +122,11 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.timeoutInterval = timeout
         } catch {
-            return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return nil
         }
 
-        sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        let request = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             switch response.result {
             case .success(let json):
@@ -134,5 +143,7 @@ extension NCCommunication {
                 return completion(nil, error.errorCode, error.description ?? "")
             }
         }
+
+        return request
     }
 }
