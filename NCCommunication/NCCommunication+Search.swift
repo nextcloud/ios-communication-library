@@ -45,7 +45,8 @@ extension NCCommunication {
     public func unifiedSearch(
         term: String,
         options: NCCRequestOptions = NCCRequestOptions(),
-        timeout: TimeInterval = 60,
+        timeout: TimeInterval = 30,
+        timeoutProvider: TimeInterval = 60,
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
         request: @escaping (DataRequest?) -> Void,
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
@@ -79,7 +80,7 @@ extension NCCommunication {
 
                     for provider in filteredProviders {
                         group.enter()
-                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
+                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errCode, err in
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
