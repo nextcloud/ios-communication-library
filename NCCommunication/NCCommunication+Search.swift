@@ -46,10 +46,10 @@ extension NCCommunication {
         options: NCCRequestOptions = NCCRequestOptions(),
         timeout: TimeInterval = 60,
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
+        request: @escaping (DataRequest?) -> Void,
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
         completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
-            var requests: [DataRequest] = []
             let endpoint = "ocs/v2.php/search/providers?format=json"
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
                 completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
@@ -78,16 +78,15 @@ extension NCCommunication {
 
                     for provider in filteredProviders {
                         group.enter()
-                        if let request = (self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
+                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeout) { partial, errCode, err in
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
                                 searchResult.append(partial)
                             }
                             group.leave()
-                        }) {
-                            requests.append(request)
                         }
+                        request(requestSearchProvider)
                     }
 
                     group.notify(queue: options.queue) {
