@@ -48,17 +48,16 @@ extension NCCommunication {
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
         request: @escaping (DataRequest?) -> Void,
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
-        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
+        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
 
             let endpoint = "ocs/v2.php/search/providers?format=json"
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-                completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
-                return nil
+                return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             }
             let method = HTTPMethod(rawValue: "GET")
             let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
-            let request = sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+            let requestUnifiedSearch = sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
                 debugPrint(response)
 
                 switch response.result {
@@ -97,11 +96,10 @@ extension NCCommunication {
                     return completion(nil, error.errorCode, error.description ?? "")
                 }
             }
-
-            return request
+            request(requestUnifiedSearch)
         }
 
-    func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
+    internal func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
         let endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
         
@@ -125,7 +123,7 @@ extension NCCommunication {
             return nil
         }
 
-        let request = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        let requestSearchProvider = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             switch response.result {
             case .success(let json):
@@ -143,6 +141,6 @@ extension NCCommunication {
             }
         }
 
-        return request
+        return requestSearchProvider
     }
 }
