@@ -58,8 +58,8 @@ import MobileCoreServices
 
     var delegate: NCCommunicationCommonDelegate?
     
-    @objc public let sessionIdentifierDownload: String = "com.nextcloud.session.download"
-    @objc public let sessionIdentifierUpload: String = "com.nextcloud.session.upload"
+    @objc public let sessionIdentifierDownload: String = "com.nextcloud.nccommunication.session.download"
+    @objc public let sessionIdentifierUpload: String = "com.nextcloud.nccommunication.session.upload"
 
     @objc public enum typeReachability: Int {
         case unknown = 0
@@ -110,7 +110,7 @@ import MobileCoreServices
     private var _printLog: Bool = true
     private var _copyLogToDocumentDirectory: Bool = false
     
-    @objc public let backgroundQueue = DispatchQueue(label: "com.nextcloud.nccommunication", qos: .background, attributes: .concurrent)
+    @objc public let backgroundQueue = DispatchQueue(label: "com.nextcloud.nccommunication.backgroundQueue", qos: .background, attributes: .concurrent)
     
     @objc public var filenameLog: String {
         get {

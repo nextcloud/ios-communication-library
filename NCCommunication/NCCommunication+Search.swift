@@ -2,10 +2,11 @@
 //  NCCommunication+Search.swift
 //  NCCommunication
 //
-//  Created by Henrik Storch on 26.11.2021.
+//  Created by Henrik Storch on 2022.
 
-//  Copyright © 2021 Henrik Storch. All rights reserved.
+//  Copyright © 2022 Henrik Storch. All rights reserved.
 //  Author Henrik Storch <henrik.storch@nextcloud.com>
+//  Author Marino Faggiana <marino.faggiana@nextcloud.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -51,6 +52,7 @@ extension NCCommunication {
         completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
 
             let endpoint = "ocs/v2.php/search/providers?format=json"
+            let concurrentQueue = DispatchQueue(label: "com.nextcloud.nccommunication.requestUnifiedSearch.concurrentQueue", attributes: .concurrent)
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
                 return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             }
@@ -81,7 +83,9 @@ extension NCCommunication {
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
-                                searchResult.append(partial)
+                                concurrentQueue.async(flags: .barrier) {
+                                    searchResult.append(partial)
+                                }
                             }
                             group.leave()
                         }
