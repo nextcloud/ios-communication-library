@@ -49,6 +49,7 @@ extension NCCommunication {
         timeoutProvider: TimeInterval = 60,
         filter: @escaping (NCCSearchProvider) -> Bool = { _ in true },
         request: @escaping (DataRequest?) -> Void,
+        providers: @escaping ([NCCSearchProvider]?) -> Void,
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
         completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
 
@@ -73,6 +74,9 @@ extension NCCommunication {
                         let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                         return completion(nil, statusCode, errorDescription)
                     }
+
+                    providers(allProvider)
+                    
                     let filteredProviders = allProvider.filter(filter)
                     var searchResult: [NCCSearchResult] = []
 
