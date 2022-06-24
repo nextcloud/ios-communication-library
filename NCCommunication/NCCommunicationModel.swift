@@ -27,7 +27,7 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
-@objc public class NCHovercard: NSObject {
+@objc public class NCCHovercard: NSObject {
     internal init?(jsonData: JSON) {
         guard let userId = jsonData["userId"].string,
               let displayName = jsonData["displayName"].string,
@@ -243,6 +243,7 @@ public class NCCSearchProvider: NSObject {
     @objc public var iconName = ""
     @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
+    @objc public var name = ""
     @objc public var note = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -1051,6 +1052,7 @@ class NCDataFileXML: NSObject {
             file.ext = results.ext
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
+            file.name = "files"
             file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
             file.user = user
@@ -1166,7 +1168,7 @@ class NCDataFileXML: NSObject {
             file.contentType = results.mimeType
             file.classFile = results.classFile
             file.iconName = results.iconName
-            
+
             files.append(file)
         }
         
