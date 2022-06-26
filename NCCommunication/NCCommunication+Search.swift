@@ -108,9 +108,30 @@ extension NCCommunication {
             request(requestUnifiedSearch)
         }
 
-    internal func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
+    /// Available NC >= 20
+    /// Search many different datasources in the cloud and combine them into one result.
+    ///
+    /// - SeeAlso:
+    ///  [Nextcloud Search API](https://docs.nextcloud.com/server/latest/developer_manual/digging_deeper/search.html)
+    ///
+    /// - Parameters:
+    ///   - id: provider id
+    ///   - term: The search term
+    ///   - limit: limit (pagination)
+    ///   - cursor: cursor (pagination)
+    ///   - options: Additional request options
+    ///   - timeout: Filter search provider that should be searched. Default is all available provider..
+    ///   - update: Callback, notifying that a search provider return its result. Does not include previous results.
+    ///   - completion: Callback, notifying that all search results.
+    public func searchProvider(_ id: String, term: String, limit: Int? = nil, cursor: Int? = nil, options: NCCRequestOptions, timeout: TimeInterval = 60, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
-        let endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
+        var endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
+        if let limit = limit {
+            endpoint += "&limit=\(limit)"
+        }
+        if let cursor = cursor {
+            endpoint += "&cursor=\(cursor)"
+        }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(
             serverUrl: NCCommunicationCommon.shared.urlBase,
