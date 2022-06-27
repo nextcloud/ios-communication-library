@@ -166,7 +166,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let searchData = json["ocs"]["data"]
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                guard let searchResult = NCCSearchResult(json: searchData) else {
+                guard let searchResult = NCCSearchResult(json: searchData, id: id) else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     return completion(nil, statusCode, errorDescription)
                 }
