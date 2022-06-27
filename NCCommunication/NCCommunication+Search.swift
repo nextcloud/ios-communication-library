@@ -123,6 +123,7 @@ extension NCCommunication {
     ///   - timeout: Filter search provider that should be searched. Default is all available provider..
     ///   - update: Callback, notifying that a search provider return its result. Does not include previous results.
     ///   - completion: Callback, notifying that all search results.
+    @discardableResult
     public func searchProvider(_ id: String,
                                term: String,
                                limit: Int? = nil,
