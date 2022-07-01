@@ -88,8 +88,9 @@ extension NCCommunication {
                             update(partial, provider, errCode, err)
 
                             if let partial = partial {
-                                //searchResult.append(partial)
-                                print(provider.id)
+                                concurrentQueue.async(flags: .barrier) {
+                                    searchResult.append(partial)
+                                }
                             }
                             group.leave()
                         }
