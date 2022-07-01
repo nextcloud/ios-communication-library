@@ -81,22 +81,19 @@ extension NCCommunication {
                     var searchResult: [NCCSearchResult] = []
 
                     let group = DispatchGroup()
-                    let queue = DispatchQueue(label: "queue")
 
                     for provider in filteredProviders {
                         group.enter()
-                        queue.sync {
-                            let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errCode, err in
-                                update(partial, provider, errCode, err)
+                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errCode, err in
+                            update(partial, provider, errCode, err)
 
-                                if let partial = partial {
-                                    searchResult.append(partial)
-                                    print(provider.id)
-                                }
-                                group.leave()
+                            if let partial = partial {
+                                //searchResult.append(partial)
+                                print(provider.id)
                             }
-                            request(requestSearchProvider)
+                            group.leave()
                         }
+                        request(requestSearchProvider)
                     }
 
                     group.notify(queue: options.queue) {
