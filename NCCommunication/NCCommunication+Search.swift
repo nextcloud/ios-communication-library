@@ -92,10 +92,10 @@ extension NCCommunication {
                             if let partial = partial {
                                 searchResult.append(partial)
                             }
+                            semaphore.signal()
                             group.leave()
                         }
                         request(requestSearchProvider)
-                        semaphore.signal()
                     }
 
                     group.notify(queue: options.queue) {
