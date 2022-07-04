@@ -81,8 +81,8 @@ extension NCCommunication {
 
                     for provider in filteredProviders {
                         group.enter()
-                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errCode, err in
-                            update(partial, provider, errCode, err)
+                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errorCode, errorDescription in
+                            update(partial, provider, errorCode, errorDescription)
                             group.leave()
                         }
                         request(requestSearchProvider)
