@@ -68,16 +68,18 @@ import SwiftyJSON
 
 @objcMembers
 public class NCCSearchResult: NSObject {
+    public let id: String
     public let name: String
     public let isPaginated: Bool
     public let entries: [NCCSearchEntry]
     public let cursor: Int?
 
-    init?(json: JSON) {
+    init?(json: JSON, id: String) {
         guard let isPaginated = json["isPaginated"].bool,
               let name = json["name"].string,
               let entries = NCCSearchEntry.factory(jsonArray: json["entries"])
         else { return nil }
+        self.id = id
         self.cursor = json["cursor"].int
         self.name = name
         self.isPaginated = isPaginated

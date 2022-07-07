@@ -51,12 +51,11 @@ extension NCCommunication {
         request: @escaping (DataRequest?) -> Void,
         providers: @escaping ([NCCSearchProvider]?) -> Void,
         update: @escaping (NCCSearchResult?, _ provider: NCCSearchProvider, _ errorCode: Int, _ errorDescription: String) -> Void,
-        completion: @escaping ([NCCSearchResult]?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+        completion: @escaping (_ errorCode: Int, _ errorDescription: String) -> Void) {
 
             let endpoint = "ocs/v2.php/search/providers?format=json"
-            let concurrentQueue = DispatchQueue(label: "com.nextcloud.nccommunication.requestUnifiedSearch.concurrentQueue", attributes: .concurrent)
             guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-                return completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+                return completion(NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
             }
             let method = HTTPMethod(rawValue: "GET")
             let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
@@ -72,45 +71,65 @@ extension NCCommunication {
 
                     guard let allProvider = NCCSearchProvider.factory(jsonArray: providerData) else {
                         let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
-                        return completion(nil, statusCode, errorDescription)
+                        return completion(statusCode, errorDescription)
                     }
 
                     providers(allProvider)
                     
                     let filteredProviders = allProvider.filter(filter)
-                    var searchResult: [NCCSearchResult] = []
-
                     let group = DispatchGroup()
 
                     for provider in filteredProviders {
                         group.enter()
-                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errCode, err in
-                            update(partial, provider, errCode, err)
-
-                            if let partial = partial {
-                                concurrentQueue.async(flags: .barrier) {
-                                    searchResult.append(partial)
-                                }
-                            }
+                        let requestSearchProvider = self.searchProvider(provider.id, term: term, options: options, timeout: timeoutProvider) { partial, errorCode, errorDescription in
+                            update(partial, provider, errorCode, errorDescription)
                             group.leave()
                         }
                         request(requestSearchProvider)
                     }
 
                     group.notify(queue: options.queue) {
-                        completion(searchResult, 0, "")
+                        completion(0, "")
                     }
                 case .failure(let error):
                     let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                    return completion(nil, error.errorCode, error.description ?? "")
+                    return completion(error.errorCode, error.description ?? "")
                 }
             }
             request(requestUnifiedSearch)
         }
 
-    internal func searchProvider(_ id: String, term: String, options: NCCRequestOptions, timeout: TimeInterval, completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
+    /// Available NC >= 20
+    /// Search many different datasources in the cloud and combine them into one result.
+    ///
+    /// - SeeAlso:
+    ///  [Nextcloud Search API](https://docs.nextcloud.com/server/latest/developer_manual/digging_deeper/search.html)
+    ///
+    /// - Parameters:
+    ///   - id: provider id
+    ///   - term: The search term
+    ///   - limit: limit (pagination)
+    ///   - cursor: cursor (pagination)
+    ///   - options: Additional request options
+    ///   - timeout: Filter search provider that should be searched. Default is all available provider..
+    ///   - update: Callback, notifying that a search provider return its result. Does not include previous results.
+    ///   - completion: Callback, notifying that all search results.
+    @discardableResult
+    public func searchProvider(_ id: String,
+                               term: String,
+                               limit: Int? = nil,
+                               cursor: Int? = nil,
+                               options: NCCRequestOptions = NCCRequestOptions(),
+                               timeout: TimeInterval = 60,
+                               completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
-        let endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
+        var endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
+        if let limit = limit {
+            endpoint += "&limit=\(limit)"
+        }
+        if let cursor = cursor {
+            endpoint += "&cursor=\(cursor)"
+        }
         
         guard let url = NCCommunicationCommon.shared.createStandardUrl(
             serverUrl: NCCommunicationCommon.shared.urlBase,
@@ -139,7 +158,7 @@ extension NCCommunication {
                 let json = JSON(json)
                 let searchData = json["ocs"]["data"]
                 let statusCode = json["ocs"]["meta"]["statuscode"].int ?? NCCommunicationError().getInternalError()
-                guard let searchResult = NCCSearchResult(json: searchData) else {
+                guard let searchResult = NCCSearchResult(json: searchData, id: id) else {
                     let errorDescription = json["ocs"]["meta"]["errorDescription"].string ?? NSLocalizedString("_invalid_data_format_", value: "Invalid data format", comment: "")
                     return completion(nil, statusCode, errorDescription)
                 }
