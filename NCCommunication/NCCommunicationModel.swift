@@ -66,12 +66,11 @@ import SwiftyJSON
     @objc public let actions: [Action]
 }
 
-@objcMembers
-public class NCCSearchResult: NSObject {
-    public let id: String
-    public let name: String
-    public let isPaginated: Bool
-    public let entries: [NCCSearchEntry]
+@objc public class NCCSearchResult: NSObject {
+    @objc public let id: String
+    @objc public let name: String
+    @objc public let isPaginated: Bool
+    @objc public let entries: [NCCSearchEntry]
     public let cursor: Int?
 
     init?(json: JSON, id: String) {
@@ -87,21 +86,20 @@ public class NCCSearchResult: NSObject {
     }
 }
 
-@objcMembers
-public class NCCSearchEntry: NSObject {
-    public let thumbnailURL: String
-    public let title, subline: String
-    public let resourceURL: String
-    public let icon: String
-    public let rounded: Bool
-    public let attributes: [String: Any]?
+@objc public class NCCSearchEntry: NSObject {
+    @objc public let thumbnailURL: String
+    @objc public let title, subline: String
+    @objc public let resourceURL: String
+    @objc public let icon: String
+    @objc public let rounded: Bool
+    @objc public let attributes: [String: Any]?
 
     public var fileId: Int? {
         guard let fileAttribute = attributes?["fileId"] as? String else { return nil }
         return Int(fileAttribute)
     }
 
-    public var filePath: String? {
+    @objc public var filePath: String? {
         attributes?["path"] as? String
     }
 
@@ -129,8 +127,7 @@ public class NCCSearchEntry: NSObject {
     }
 }
 
-@objcMembers
-public class NCCSearchProvider: NSObject {
+@objc public class NCCSearchProvider: NSObject {
     init?(json: JSON) {
         guard let id = json["id"].string,
               let name = json["name"].string,
@@ -141,8 +138,8 @@ public class NCCSearchProvider: NSObject {
         self.order = order
     }
 
-    public let id, name: String
-    public let order: Int
+    @objc public let id, name: String
+    @objc public let order: Int
 
     static func factory(jsonArray: JSON) -> [NCCSearchProvider]? {
         guard let allProvider = jsonArray.array else { return nil }
