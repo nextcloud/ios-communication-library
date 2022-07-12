@@ -102,6 +102,8 @@ import MobileCoreServices
         var iconName: String
         var name: String
     }
+
+    internal struct DecodableType: Decodable { }
     
     private var _filenameLog: String = "communication.log"
     private var _pathLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
@@ -111,7 +113,7 @@ import MobileCoreServices
     private var _copyLogToDocumentDirectory: Bool = false
     
     @objc public let backgroundQueue = DispatchQueue(label: "com.nextcloud.nccommunication.backgroundQueue", qos: .background, attributes: .concurrent)
-    
+
     @objc public var filenameLog: String {
         get {
             return _filenameLog
