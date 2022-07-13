@@ -102,8 +102,6 @@ import MobileCoreServices
         var iconName: String
         var name: String
     }
-
-    internal struct DecodableType: Decodable { }
     
     private var _filenameLog: String = "communication.log"
     private var _pathLog: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
