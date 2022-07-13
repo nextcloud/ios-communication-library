@@ -60,7 +60,7 @@ extension NCCommunication {
             let method = HTTPMethod(rawValue: "GET")
             let headers = NCCommunicationCommon.shared.getStandardHeaders(options: options)
 
-            let requestUnifiedSearch = sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+            let requestUnifiedSearch = sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
                 debugPrint(response)
 
                 switch response.result {
@@ -151,7 +151,7 @@ extension NCCommunication {
             return nil
         }
 
-        let requestSearchProvider = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        let requestSearchProvider = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             switch response.result {
             case .success(let json):
