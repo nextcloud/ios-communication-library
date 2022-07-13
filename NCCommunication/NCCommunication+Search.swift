@@ -151,7 +151,7 @@ extension NCCommunication {
             return nil
         }
 
-        let requestSearchProvider = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseJSON(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        let requestSearchProvider = sessionManager.request(urlRequest).validate(statusCode: 200..<300).responseData(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             switch response.result {
             case .success(let json):
