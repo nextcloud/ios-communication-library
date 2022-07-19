@@ -27,7 +27,7 @@ import MobileCoreServices
 import SwiftyXMLParser
 import SwiftyJSON
 
-@objc public class NCHovercard: NSObject {
+@objc public class NCCHovercard: NSObject {
     internal init?(jsonData: JSON) {
         guard let userId = jsonData["userId"].string,
               let displayName = jsonData["displayName"].string,
@@ -66,8 +66,86 @@ import SwiftyJSON
     @objc public let actions: [Action]
 }
 
+@objc public class NCCSearchResult: NSObject {
+    @objc public let id: String
+    @objc public let name: String
+    @objc public let isPaginated: Bool
+    @objc public let entries: [NCCSearchEntry]
+    public let cursor: Int?
 
-//MARK: - File
+    init?(json: JSON, id: String) {
+        guard let isPaginated = json["isPaginated"].bool,
+              let name = json["name"].string,
+              let entries = NCCSearchEntry.factory(jsonArray: json["entries"])
+        else { return nil }
+        self.id = id
+        self.cursor = json["cursor"].int
+        self.name = name
+        self.isPaginated = isPaginated
+        self.entries = entries
+    }
+}
+
+@objc public class NCCSearchEntry: NSObject {
+    @objc public let thumbnailURL: String
+    @objc public let title, subline: String
+    @objc public let resourceURL: String
+    @objc public let icon: String
+    @objc public let rounded: Bool
+    @objc public let attributes: [String: Any]?
+
+    public var fileId: Int? {
+        guard let fileAttribute = attributes?["fileId"] as? String else { return nil }
+        return Int(fileAttribute)
+    }
+
+    @objc public var filePath: String? {
+        attributes?["path"] as? String
+    }
+
+    init?(json: JSON) {
+        guard let thumbnailURL = json["thumbnailUrl"].string,
+              let title = json["title"].string,
+              let subline = json["subline"].string,
+              let resourceURL = json["resourceUrl"].string,
+              let icon = json["icon"].string,
+              let rounded = json["rounded"].bool
+        else { return nil }
+
+        self.thumbnailURL = thumbnailURL
+        self.title = title
+        self.subline = subline
+        self.resourceURL = resourceURL
+        self.icon = icon
+        self.rounded = rounded
+        self.attributes = json["attributes"].dictionaryObject
+    }
+
+    static func factory(jsonArray: JSON) -> [NCCSearchEntry]? {
+        guard let allProvider = jsonArray.array else { return nil }
+        return allProvider.compactMap(NCCSearchEntry.init)
+    }
+}
+
+@objc public class NCCSearchProvider: NSObject {
+    init?(json: JSON) {
+        guard let id = json["id"].string,
+              let name = json["name"].string,
+              let order = json["order"].int
+        else { return nil }
+        self.id = id
+        self.name = name
+        self.order = order
+    }
+
+    @objc public let id, name: String
+    @objc public let order: Int
+
+    static func factory(jsonArray: JSON) -> [NCCSearchProvider]? {
+        guard let allProvider = jsonArray.array else { return nil }
+        return allProvider.compactMap(NCCSearchProvider.init)
+    }
+}
 
 @objc public class NCCommunicationActivity: NSObject {
     
@@ -164,6 +242,7 @@ import SwiftyJSON
     @objc public var iconName = ""
     @objc public var livePhoto: Bool = false
     @objc public var mountType = ""
+    @objc public var name = ""
     @objc public var note = ""
     @objc public var ocId = ""
     @objc public var ownerId = ""
@@ -972,6 +1051,7 @@ class NCDataFileXML: NSObject {
             file.ext = results.ext
             file.fileNameWithoutExt = results.fileNameWithoutExt
             file.iconName = results.iconName
+            file.name = "files"
             file.classFile = results.classFile
             file.urlBase = NCCommunicationCommon.shared.urlBase
             file.user = user
@@ -1087,7 +1167,7 @@ class NCDataFileXML: NSObject {
             file.contentType = results.mimeType
             file.classFile = results.classFile
             file.iconName = results.iconName
-            
+
             files.append(file)
         }
         

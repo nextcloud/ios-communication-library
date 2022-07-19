@@ -10,6 +10,7 @@
 		AF3F9095281AD7690048A93E /* NCCommunication+FilesLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3F9093281AD7690048A93E /* NCCommunication+FilesLock.swift */; };
 		AF3F9096281AD7690048A93E /* NCCommunication+Hovercard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3F9094281AD7690048A93E /* NCCommunication+Hovercard.swift */; };
 		AF3F9098281AD7970048A93E /* NCCRequestOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3F9097281AD7970048A93E /* NCCRequestOptions.swift */; };
+		AF690A6F282BAFDE001E9729 /* NCCommunication+Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF690A6E282BAFDE001E9729 /* NCCommunication+Search.swift */; };
 		F70A5247256AF8D10017B506 /* NCCommunication+UserStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */; };
 		F72A25D92590E3B0009740EC /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72A25D82590E3B0009740EC /* UIImage+Extensions.swift */; };
 		F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */; };
@@ -48,6 +49,7 @@
 		AF3F9093281AD7690048A93E /* NCCommunication+FilesLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NCCommunication+FilesLock.swift"; sourceTree = "<group>"; };
 		AF3F9094281AD7690048A93E /* NCCommunication+Hovercard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Hovercard.swift"; sourceTree = "<group>"; };
 		AF3F9097281AD7970048A93E /* NCCRequestOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCCRequestOptions.swift; sourceTree = "<group>"; };
+		AF690A6E282BAFDE001E9729 /* NCCommunication+Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NCCommunication+Search.swift"; sourceTree = "<group>"; };
 		F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+UserStatus.swift"; sourceTree = "<group>"; };
 		F72A25D82590E3B0009740EC /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		F72E160C2478105D00678FBE /* NCCommunication+E2EE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCCommunication+E2EE.swift"; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				F74AA2532464034500DD13B1 /* NCCommunication+NCText.swift */,
 				F73B422D24767E0B00A30FD3 /* NCCommunication+Comments.swift */,
 				F754C06D24977C8C00051563 /* NCCommunication+Share.swift */,
+				AF690A6E282BAFDE001E9729 /* NCCommunication+Search.swift */,
 				F70A5246256AF8D10017B506 /* NCCommunication+UserStatus.swift */,
 				F76138E9246415BC002C8771 /* NCCommunication+WebDAV.swift */,
 				F7D0A5372477C37C002F2164 /* NCCommunication+PushNotification.swift */,
@@ -282,6 +285,7 @@
 				F74AA258246405B200DD13B1 /* NCCommunication+API.swift in Sources */,
 				F74D5C48235DE8F80006DA38 /* NCCommunication.swift in Sources */,
 				F7BBE0002472F42200C3B0E2 /* NCCommunication+Richdocuments.swift in Sources */,
+				AF690A6F282BAFDE001E9729 /* NCCommunication+Search.swift in Sources */,
 				F72E160D2478105D00678FBE /* NCCommunication+E2EE.swift in Sources */,
 				F74AA2542464034500DD13B1 /* NCCommunication+NCText.swift in Sources */,
 				F7EC2DDD2372FBC0008E28EF /* NCCommunicationBackground.swift in Sources */,
@@ -465,7 +469,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.99.6;
+				MARKETING_VERSION = 0.99.7;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -500,7 +504,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.99.6;
+				MARKETING_VERSION = 0.99.7;
 				PLIST_FILE_OUTPUT_FORMAT = "same-as-input";
 				PRODUCT_BUNDLE_IDENTIFIER = it.twsweb.NCCommunication;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
