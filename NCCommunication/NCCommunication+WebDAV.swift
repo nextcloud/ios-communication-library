@@ -88,7 +88,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, timeout: TimeInterval, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -106,8 +106,17 @@ extension NCCommunication {
         } else {
             headers.update(name: "Overwrite", value: "F")
         }
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.timeoutInterval = timeout
+        } catch {
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            return
+        }
          
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -120,7 +129,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, timeout: TimeInterval, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -138,8 +147,17 @@ extension NCCommunication {
         } else {
             headers.update(name: "Overwrite", value: "F")
         }
-         
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.timeoutInterval = timeout
+        } catch {
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
