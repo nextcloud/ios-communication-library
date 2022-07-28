@@ -27,7 +27,7 @@ import SwiftyJSON
 
 extension NCCommunication {
 
-    @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func createFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ ocId: String?, _ date: NSDate?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -40,7 +40,16 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.timeoutInterval = timeout
+        } catch {
+            queue.async { completionHandler(account, nil, nil, error._code, error.localizedDescription) }
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -62,7 +71,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func deleteFileOrFolder(_ serverUrlFileName: String, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -75,7 +84,16 @@ extension NCCommunication {
         
         let headers = NCCommunicationCommon.shared.getStandardHeaders(addCustomHeaders, customUserAgent: customUserAgent)
 
-        sessionManager.request(url, method: method, parameters: nil, encoding: URLEncoding.default, headers: headers, interceptor: nil).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
+        var urlRequest: URLRequest
+        do {
+            try urlRequest = URLRequest(url: url, method: method, headers: headers)
+            urlRequest.timeoutInterval = timeout
+        } catch {
+            queue.async { completionHandler(account, error._code, error.localizedDescription) }
+            return
+        }
+
+        sessionManager.request(urlRequest).validate(statusCode: 200..<300).response(queue: NCCommunicationCommon.shared.backgroundQueue) { (response) in
             debugPrint(response)
             
             switch response.result {
@@ -88,7 +106,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, timeout: TimeInterval, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func moveFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -129,7 +147,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, timeout: TimeInterval, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func copyFileOrFolder(serverUrlFileNameSource: String, serverUrlFileNameDestination: String, overwrite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
 
@@ -170,7 +188,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool = true, requestBody: Data? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func readFileOrFolder(serverUrlFileName: String, depth: String, showHiddenFiles: Bool = true, requestBody: Data? = nil, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ responseData: Data?, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         var files: [NCCommunicationFile] = []
@@ -195,6 +213,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             if requestBody != nil {
                 urlRequest.httpBody = requestBody!
+                urlRequest.timeoutInterval = timeout
             } else {
                 urlRequest.httpBody = NCDataFileXML().requestBodyFile.data(using: .utf8)
             }
@@ -336,7 +355,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func setFavorite(fileName: String, favorite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func setFavorite(fileName: String, favorite: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId + "/" + fileName
@@ -355,6 +374,7 @@ extension NCCommunication {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             let body = NSString.init(format: NCDataFileXML().requestBodyFileSetFavorite as NSString, (favorite ? 1 : 0)) as String
             urlRequest.httpBody = body.data(using: .utf8)
+            urlRequest.timeoutInterval = timeout
         } catch {
             queue.async { completionHandler(account, error._code, error.localizedDescription) }
             return
@@ -373,7 +393,7 @@ extension NCCommunication {
         }
     }
      
-    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func listingFavorites(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ files: [NCCommunicationFile], _ errorCode: Int, _ errorDescription: String) -> Void) {
          
         let account = NCCommunicationCommon.shared.account
         let serverUrlFileName = NCCommunicationCommon.shared.urlBase + "/" + NCCommunicationCommon.shared.webDav + "/files/" + NCCommunicationCommon.shared.userId
@@ -392,6 +412,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyFileListingFavorites.data(using: .utf8)
+            urlRequest.timeoutInterval = timeout
         } catch {
             queue.async { completionHandler(account, files, error._code, error.localizedDescription) }
             return
@@ -415,7 +436,7 @@ extension NCCommunication {
         }
     }
     
-    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationTrash], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func listingTrash(showHiddenFiles: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, timeout: TimeInterval = 60, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ items: [NCCommunicationTrash], _ errorCode: Int, _ errorDescription: String) -> Void) {
            
         let account = NCCommunicationCommon.shared.account
         var items: [NCCommunicationTrash] = []
@@ -436,6 +457,7 @@ extension NCCommunication {
         do {
             try urlRequest = URLRequest(url: url, method: method, headers: headers)
             urlRequest.httpBody = NCDataFileXML().requestBodyTrash.data(using: .utf8)
+            urlRequest.timeoutInterval = timeout
         } catch {
             queue.async { completionHandler(account, items, error._code, error.localizedDescription) }
             return
