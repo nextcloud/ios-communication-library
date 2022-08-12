@@ -534,7 +534,7 @@ extension NCCommunication {
     
     //MARK: -
     
-    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ errorCode: Int, _ errorDescription: String) -> Void) {
+    @objc public func getActivity(since: Int, limit: Int, objectId: String?, objectType: String?, previews: Bool, customUserAgent: String? = nil, addCustomHeaders: [String: String]? = nil, queue: DispatchQueue = .main, completionHandler: @escaping (_ account: String, _ activities: [NCCommunicationActivity], _ activityFirstKnown: String?, _ activityLastGiven: String?, _ errorCode: Int, _ errorDescription: String) -> Void) {
     
         let account = NCCommunicationCommon.shared.account
         var activities: [NCCommunicationActivity] = []
@@ -559,7 +559,7 @@ extension NCCommunication {
         }
 
         guard let url = NCCommunicationCommon.shared.createStandardUrl(serverUrl: NCCommunicationCommon.shared.urlBase, endpoint: endpoint) else {
-            queue.async { completionHandler(account, activities, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
+            queue.async { completionHandler(account, activities, nil, nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: "")) }
             return
         }
         
@@ -573,7 +573,7 @@ extension NCCommunication {
             switch response.result {
             case .failure(let error):
                 let error = NCCommunicationError().getError(error: error, httResponse: response.response)
-                queue.async { completionHandler(account, activities, error.errorCode, error.description ?? "") }
+                queue.async { completionHandler(account, activities, nil, nil, error.errorCode, error.description ?? "") }
             case .success(let json):
                 let json = JSON(json)
                 let ocsdata = json["ocs"]["data"]
@@ -614,7 +614,10 @@ extension NCCommunication {
                     
                     activities.append(activity)
                 }
-                queue.async { completionHandler(account, activities, 0, "") }
+                let activityFirstKnown = NCCommunicationCommon.shared.findHeader("X-Activity-First-Known", allHeaderFields: response.response?.allHeaderFields)
+                let activityLastGiven = NCCommunicationCommon.shared.findHeader("X-Activity-Last-Given", allHeaderFields: response.response?.allHeaderFields)
+
+                queue.async { completionHandler(account, activities, activityFirstKnown, activityLastGiven, 0, "") }
             }
         }
     }
