@@ -123,6 +123,10 @@ extension NCCommunication {
                                timeout: TimeInterval = 60,
                                completion: @escaping (NCCSearchResult?, _ errorCode: Int, _ errorDescription: String) -> Void) -> DataRequest? {
 
+        guard let term = term.urlEncoded else {
+            completion(nil, NSURLErrorBadURL, NSLocalizedString("_invalid_url_", value: "Invalid server url", comment: ""))
+            return nil
+        }
         var endpoint = "ocs/v2.php/search/providers/\(id)/search?format=json&term=\(term)"
         if let limit = limit {
             endpoint += "&limit=\(limit)"
