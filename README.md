@@ -1,4 +1,6 @@
-# iOS communication library [beta]
+# This is no longer supported, please consider using [NextcloudKit](https://github.com/nextcloud/NextcloudKit) instead.
+
+# iOS communication library 
 
 ## Installation
 
